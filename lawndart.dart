@@ -1,6 +1,7 @@
 #library('lawndart');
 
 #import('dart:html');
+#import('dart:dom', prefix:'dom');
 #import('dart:json');
 
 _uuid() {
@@ -95,6 +96,7 @@ class MemoryAdapter<K extends Hashable, V> implements Adapter<K, V> {
   }
 }
 
+// TODO: error handling
 class LocalStorageAdapter<K extends String, V> implements Adapter<K, V> {
   static final INDEX_KEY = "__lawndart__keys";
   
@@ -167,4 +169,78 @@ class LocalStorageAdapter<K extends String, V> implements Adapter<K, V> {
     storage.clear();
     return _results(true);
   }
+}
+
+class IndexedDbAdapter<K, V> implements Adapter<K, V> {
+  
+  static final String VERSION = "1";
+  
+  String dbName;
+  String storeName;
+  dom.IDBDatabase _db;
+  
+  IndexedDbAdapter(this.dbName, this.storeName);
+  
+  String get adapter() => "indexeddb";
+  
+  bool get valid() {
+    return dom.window.webkitIndexedDB != null;
+  }
+  
+  Future<bool> open() {
+    Completer completer = new Completer();
+    dom.IDBRequest request = dom.window.webkitIndexedDB.open(dbName);
+    request.addEventListener('success', (e) {
+      _db = e.target.result;
+      _initDb(completer);
+    });
+    request.addEventListener('error', (e) {
+      completer.completeException(e);
+    });
+    return completer.future;
+  }
+  
+  void _initDb(Completer completer) {
+    if (VERSION != _db.version) {
+      dom.IDBVersionChangeRequest versionChange = _db.setVersion(VERSION);
+      versionChange.addEventListener('success', (e) {
+        _db.createObjectStore(storeName);
+        completer.complete(true);
+      });
+      versionChange.addEventListener('error', (e) {
+        completer.completeException(e);
+      });
+    }
+  }
+  
+  /*
+  Future<Collection<K>> keys();
+  */
+  
+  Future<K> save(V obj, [K key]) {
+    Completer<K> completer = new Completer<K>();
+    
+    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    key = key == null ? _uuid() : key;
+    dom.IDBRequest addRequest = objectStore.put(obj, key);
+    addRequest.addEventListener("success", (e) {
+      completer.complete(key);
+    });
+    addRequest.addEventListener("error", (e) => completer.completeException(e));
+    
+    return completer.future;
+  }
+  
+  /*
+  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]);
+  Future<V> getByKey(K key);
+  Future<Collection<V>> getByKeys(Collection<K> _keys);
+  Future<bool> exists(K key);
+  Future<Collection<V>> all();
+  Future<bool> removeByKey(K key);
+  // TODO: what are the semantics of bool here?
+  Future<bool> removeByKeys(Collection<K> _keys);
+  Future<bool> nuke();
+  */
 }
