@@ -1,21 +1,37 @@
 #import('lawndart.dart');
+#import('dart:html');
+
+p(msg) {
+  var output = document.query('#output');
+  var li = new Element.tag('li');
+  li.text = msg;
+  output.elements.add(li);
+}
 
 main() {
   var idb = new IndexedDbAdapter("test", "test");
   idb.open()
   .chain((v) {
-  	print('Database opened');
+  	p('Database opened');
   	return idb.nuke();
   })
   .chain((v) {
-  	print('Nuked!');
+  	p('Nuked!');
   	return idb.save("hello, world", "key");
   })
   .chain((v) {
-  	print('Added!');
+  	p('Added!');
   	return idb.getByKey("key");
   })
+  .chain((v) {
+  	p("Value is $v!");
+  	return idb.batch(['o1', 'o2'], ['k1', 'k2']);
+  })
+  .chain((v) {
+  	p("Stored them!");
+  	return idb.all();
+  })
   .then((v) {
-  	print("Value is $v");
+  	p('Got them all: $v');
   });
 }
