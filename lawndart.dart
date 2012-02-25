@@ -187,6 +187,10 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   bool get valid() {
     return dom.window.webkitIndexedDB != null;
   }
+
+  _throwNotReady() {
+    throw "Database not opened or ready";
+  }
   
   Future<bool> open() {
     Completer completer = new Completer();
@@ -226,7 +230,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   */
   
   Future<K> save(V obj, [K key]) {
-    if (!isReady) throw "Database not opened";
+    if (!isReady) _throwNotReady();
     
     Completer<K> completer = new Completer<K>();
     
@@ -243,7 +247,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   }
   
   Future<V> getByKey(K key) {
-    if (!isReady) throw "Database not opened";
+    if (!isReady) _throwNotReady();
     
     Completer<V> completer = new Completer<V>();
     
@@ -259,7 +263,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   }
   
   Future<bool> removeByKey(K key) {
-    if (!isReady) throw "Database not opened";
+    if (!isReady) _throwNotReady();
     
     Completer<bool> completer = new Completer<bool>();
     
@@ -275,7 +279,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   }
   
   Future<bool> nuke() {
-    if (!isReady) throw "Database not opened";
+    if (!isReady) _throwNotReady();
     
     Completer<bool> completer = new Completer<bool>();
     
@@ -291,7 +295,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   }
   
   Future<Collection<V>> all() {
-    if (!isReady) throw "Database not opened";
+    if (!isReady) _throwNotReady();
     
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
     var values = <V>[];
@@ -314,7 +318,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   }
   
   Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
-    if (!isReady) throw "Database not opened";
+    if (!isReady) _throwNotReady();
     
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
     var newKeys = <K>[];
@@ -335,6 +339,29 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
       });
       addRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
     }
+    
+    return completer.future;
+  }
+
+  Future<Collection<V>> getByKeys(Collection<K> _keys) {
+    if (!isReady) _throwNotReady();
+
+    Completer<Collection<V>> completer = new Completer<Collection<V>>();
+    var values = <V>[];
+    
+    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_ONLY);
+    txn.addEventListener('complete', (e) => completer.complete(values));
+    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
+    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+    
+    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    _keys.forEach((key) {
+      dom.IDBRequest getRequest = objectStore.getObject(key);
+      getRequest.addEventListener("success", (e) {
+        values.add(e.target.result);
+      });
+      getRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    });
     
     return completer.future;
   }

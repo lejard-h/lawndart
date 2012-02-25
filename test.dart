@@ -31,7 +31,11 @@ main() {
   	p("Stored them!");
   	return idb.all();
   })
-  .then((v) {
+  .chain((v) {
   	p('Got them all: $v');
+  	return idb.getByKeys(['k1', 'key']);
+  })
+  .then((v) {
+  	p('Got some: $v');
   });
 }

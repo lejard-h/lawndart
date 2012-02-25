@@ -148,6 +148,9 @@ $defProp(Object.prototype, "continueFunction$0", function() {
 $defProp(Object.prototype, "filter$1", function($0) {
   return this.noSuchMethod("filter", [$0]);
 });
+$defProp(Object.prototype, "forEach$1", function($0) {
+  return this.noSuchMethod("forEach", [$0]);
+});
 $defProp(Object.prototype, "is$Collection", function() {
   return false;
 });
@@ -405,6 +408,9 @@ $defProp(ListFactory.prototype, "toString", function() {
 $defProp(ListFactory.prototype, "add$1", ListFactory.prototype.add);
 $defProp(ListFactory.prototype, "filter$1", function($0) {
   return this.filter(to$call$1($0));
+});
+$defProp(ListFactory.prototype, "forEach$1", function($0) {
+  return this.forEach(to$call$1($0));
 });
 // ********** Code for ListIterator **************
 function ListIterator(array) {
@@ -750,6 +756,9 @@ HashMapImplementation.prototype.forEach = function(f) {
 HashMapImplementation.prototype.toString = function() {
   return Maps.mapToString(this);
 }
+HashMapImplementation.prototype.forEach$1 = function($0) {
+  return this.forEach(to$call$2($0));
+};
 // ********** Code for HashSetImplementation **************
 function HashSetImplementation() {
   this._backingMap = new HashMapImplementation();
@@ -757,6 +766,12 @@ function HashSetImplementation() {
 HashSetImplementation.prototype.is$Collection = function(){return true};
 HashSetImplementation.prototype.add = function(value) {
   this._backingMap.$setindex(value, value);
+}
+HashSetImplementation.prototype.forEach = function(f) {
+  this._backingMap.forEach(function _(key, value) {
+    f(key);
+  }
+  );
 }
 HashSetImplementation.prototype.filter = function(f) {
   var result = new HashSetImplementation();
@@ -778,6 +793,9 @@ HashSetImplementation.prototype.toString = function() {
 HashSetImplementation.prototype.add$1 = HashSetImplementation.prototype.add;
 HashSetImplementation.prototype.filter$1 = function($0) {
   return this.filter(to$call$1($0));
+};
+HashSetImplementation.prototype.forEach$1 = function($0) {
+  return this.forEach(to$call$1($0));
 };
 // ********** Code for HashSetIterator **************
 function HashSetIterator(set_) {
@@ -922,6 +940,9 @@ DoubleLinkedQueue.prototype.toString = function() {
 DoubleLinkedQueue.prototype.add$1 = DoubleLinkedQueue.prototype.add;
 DoubleLinkedQueue.prototype.filter$1 = function($0) {
   return this.filter(to$call$1($0));
+};
+DoubleLinkedQueue.prototype.forEach$1 = function($0) {
+  return this.forEach(to$call$1($0));
 };
 // ********** Code for _DoubleLinkedQueueIterator **************
 function _DoubleLinkedQueueIterator(_sentinel) {
@@ -1189,6 +1210,9 @@ $dynamic("iterator").CanvasPixelArray = function() {
 $dynamic("add").CanvasPixelArray = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").CanvasPixelArray = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").CanvasPixelArray = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1200,6 +1224,9 @@ $dynamic("add$1").CanvasPixelArray = function($0) {
 };
 $dynamic("filter$1").CanvasPixelArray = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").CanvasPixelArray = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _CanvasRenderingContextJs **************
 // ********** Code for _CanvasRenderingContext2DJs **************
@@ -1323,6 +1350,9 @@ $dynamic("iterator").Float32Array = function() {
 $dynamic("add").Float32Array = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").Float32Array = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").Float32Array = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1334,6 +1364,9 @@ $dynamic("add$1").Float32Array = function($0) {
 };
 $dynamic("filter$1").Float32Array = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").Float32Array = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _Float64ArrayJs **************
 var _Float64ArrayJs = {};
@@ -1352,6 +1385,9 @@ $dynamic("iterator").Float64Array = function() {
 $dynamic("add").Float64Array = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").Float64Array = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").Float64Array = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1363,6 +1399,9 @@ $dynamic("add$1").Float64Array = function($0) {
 };
 $dynamic("filter$1").Float64Array = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").Float64Array = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _GeolocationJs **************
 // ********** Code for _GeopositionJs **************
@@ -1403,6 +1442,9 @@ $dynamic("iterator").HTMLCollection = function() {
 $dynamic("add").HTMLCollection = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").HTMLCollection = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").HTMLCollection = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1414,6 +1456,9 @@ $dynamic("add$1").HTMLCollection = function($0) {
 };
 $dynamic("filter$1").HTMLCollection = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").HTMLCollection = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _HTMLContentElementJs **************
 // ********** Code for _HTMLDListElementJs **************
@@ -1551,6 +1596,9 @@ $dynamic("iterator").Int16Array = function() {
 $dynamic("add").Int16Array = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").Int16Array = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").Int16Array = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1562,6 +1610,9 @@ $dynamic("add$1").Int16Array = function($0) {
 };
 $dynamic("filter$1").Int16Array = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").Int16Array = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _Int32ArrayJs **************
 var _Int32ArrayJs = {};
@@ -1580,6 +1631,9 @@ $dynamic("iterator").Int32Array = function() {
 $dynamic("add").Int32Array = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").Int32Array = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").Int32Array = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1591,6 +1645,9 @@ $dynamic("add$1").Int32Array = function($0) {
 };
 $dynamic("filter$1").Int32Array = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").Int32Array = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _Int8ArrayJs **************
 var _Int8ArrayJs = {};
@@ -1609,6 +1666,9 @@ $dynamic("iterator").Int8Array = function() {
 $dynamic("add").Int8Array = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").Int8Array = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").Int8Array = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1620,6 +1680,9 @@ $dynamic("add$1").Int8Array = function($0) {
 };
 $dynamic("filter$1").Int8Array = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").Int8Array = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _JavaScriptAudioNodeJs **************
 // ********** Code for _JavaScriptCallFrameJs **************
@@ -1647,6 +1710,9 @@ $dynamic("iterator").MediaList = function() {
 $dynamic("add").MediaList = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").MediaList = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").MediaList = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1658,6 +1724,9 @@ $dynamic("add$1").MediaList = function($0) {
 };
 $dynamic("filter$1").MediaList = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").MediaList = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _MediaQueryListJs **************
 // ********** Code for _MediaQueryListListenerJs **************
@@ -1690,6 +1759,9 @@ $dynamic("iterator").NamedNodeMap = function() {
 $dynamic("add").NamedNodeMap = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").NamedNodeMap = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").NamedNodeMap = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1701,6 +1773,9 @@ $dynamic("add$1").NamedNodeMap = function($0) {
 };
 $dynamic("filter$1").NamedNodeMap = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").NamedNodeMap = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _NavigatorJs **************
 // ********** Code for _NavigatorUserMediaErrorJs **************
@@ -1722,6 +1797,9 @@ $dynamic("iterator").NodeList = function() {
 $dynamic("add").NodeList = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").NodeList = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").NodeList = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -1733,6 +1811,9 @@ $dynamic("add$1").NodeList = function($0) {
 };
 $dynamic("filter$1").NodeList = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").NodeList = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _NodeSelectorJs **************
 // ********** Code for _NotationJs **************
@@ -1992,6 +2073,9 @@ $dynamic("iterator").StyleSheetList = function() {
 $dynamic("add").StyleSheetList = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").StyleSheetList = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").StyleSheetList = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -2003,6 +2087,9 @@ $dynamic("add$1").StyleSheetList = function($0) {
 };
 $dynamic("filter$1").StyleSheetList = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").StyleSheetList = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _TextEventJs **************
 // ********** Code for _TextMetricsJs **************
@@ -2034,6 +2121,9 @@ $dynamic("iterator").TouchList = function() {
 $dynamic("add").TouchList = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").TouchList = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").TouchList = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -2045,6 +2135,9 @@ $dynamic("add$1").TouchList = function($0) {
 };
 $dynamic("filter$1").TouchList = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").TouchList = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _TrackEventJs **************
 // ********** Code for _TreeWalkerJs **************
@@ -2071,6 +2164,9 @@ $dynamic("iterator").Uint16Array = function() {
 $dynamic("add").Uint16Array = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").Uint16Array = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").Uint16Array = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -2082,6 +2178,9 @@ $dynamic("add$1").Uint16Array = function($0) {
 };
 $dynamic("filter$1").Uint16Array = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").Uint16Array = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _Uint32ArrayJs **************
 var _Uint32ArrayJs = {};
@@ -2100,6 +2199,9 @@ $dynamic("iterator").Uint32Array = function() {
 $dynamic("add").Uint32Array = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").Uint32Array = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").Uint32Array = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -2111,6 +2213,9 @@ $dynamic("add$1").Uint32Array = function($0) {
 };
 $dynamic("filter$1").Uint32Array = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").Uint32Array = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _Uint8ArrayJs **************
 var _Uint8ArrayJs = {};
@@ -2129,6 +2234,9 @@ $dynamic("iterator").Uint8Array = function() {
 $dynamic("add").Uint8Array = function(value) {
   $throw(new UnsupportedOperationException("Cannot add to immutable List."));
 }
+$dynamic("forEach").Uint8Array = function(f) {
+  return _Collections.forEach(this, f);
+}
 $dynamic("filter").Uint8Array = function(f) {
   return _Collections.filter(this, [], f);
 }
@@ -2140,6 +2248,9 @@ $dynamic("add$1").Uint8Array = function($0) {
 };
 $dynamic("filter$1").Uint8Array = function($0) {
   return this.filter($wrap_call$1(to$call$1($0)));
+};
+$dynamic("forEach$1").Uint8Array = function($0) {
+  return this.forEach($wrap_call$1(to$call$1($0)));
 };
 // ********** Code for _Uint8ClampedArrayJs **************
 var _Uint8ClampedArrayJs = {};
@@ -2236,6 +2347,12 @@ function _XPathEvaluatorFactoryProvider() {}
 function _XSLTProcessorFactoryProvider() {}
 // ********** Code for _Collections **************
 function _Collections() {}
+_Collections.forEach = function(iterable, f) {
+  for (var $$i = iterable.iterator(); $$i.hasNext(); ) {
+    var e = $$i.next();
+    f(e);
+  }
+}
 _Collections.filter = function(source, destination, f) {
   for (var $$i = source.iterator(); $$i.hasNext(); ) {
     var e = $$i.next();
@@ -5068,6 +5185,9 @@ FilteredElementList.prototype.get$_filtered = function() {
   })
   ));
 }
+FilteredElementList.prototype.forEach = function(f) {
+  this.get$_filtered().forEach$1(f);
+}
 FilteredElementList.prototype.$setindex = function(index, value) {
   this.$index(index).replaceWith(value);
 }
@@ -5102,6 +5222,9 @@ FilteredElementList.prototype.last = function() {
 FilteredElementList.prototype.add$1 = FilteredElementList.prototype.add;
 FilteredElementList.prototype.filter$1 = function($0) {
   return this.filter(to$call$1($0));
+};
+FilteredElementList.prototype.forEach$1 = function($0) {
+  return this.forEach(to$call$1($0));
 };
 // ********** Code for DocumentFragmentWrappingImplementation **************
 $inherits(DocumentFragmentWrappingImplementation, NodeWrappingImplementation);
@@ -5150,6 +5273,9 @@ _ChildrenElementList.prototype._toList = function() {
   }
   return output;
 }
+_ChildrenElementList.prototype.forEach = function(f) {
+  return this._toList().forEach$1(f);
+}
 _ChildrenElementList.prototype.filter = function(f) {
   return new _ElementList(this._toList().filter$1(f));
 }
@@ -5186,12 +5312,18 @@ _ChildrenElementList.prototype.add$1 = _ChildrenElementList.prototype.add;
 _ChildrenElementList.prototype.filter$1 = function($0) {
   return this.filter(to$call$1($0));
 };
+_ChildrenElementList.prototype.forEach$1 = function($0) {
+  return this.forEach(to$call$1($0));
+};
 // ********** Code for _ListWrapper **************
 function _ListWrapper() {}
 _ListWrapper.prototype.is$List = function(){return true};
 _ListWrapper.prototype.is$Collection = function(){return true};
 _ListWrapper.prototype.iterator = function() {
   return this._list.iterator();
+}
+_ListWrapper.prototype.forEach = function(f) {
+  return this._list.forEach(f);
 }
 _ListWrapper.prototype.filter = function(f) {
   return this._list.filter(f);
@@ -5221,6 +5353,9 @@ _ListWrapper.prototype.add$1 = _ListWrapper.prototype.add;
 _ListWrapper.prototype.filter$1 = function($0) {
   return this.filter(to$call$1($0));
 };
+_ListWrapper.prototype.forEach$1 = function($0) {
+  return this.forEach(to$call$1($0));
+};
 // ********** Code for _ListWrapper_html_Element **************
 $inherits(_ListWrapper_html_Element, _ListWrapper);
 function _ListWrapper_html_Element(_list) {
@@ -5231,6 +5366,9 @@ _ListWrapper_html_Element.prototype.is$Collection = function(){return true};
 _ListWrapper_html_Element.prototype.add$1 = _ListWrapper_html_Element.prototype.add;
 _ListWrapper_html_Element.prototype.filter$1 = function($0) {
   return this.filter(to$call$1($0));
+};
+_ListWrapper_html_Element.prototype.forEach$1 = function($0) {
+  return this.forEach(to$call$1($0));
 };
 // ********** Code for _ElementList **************
 $inherits(_ElementList, _ListWrapper_html_Element);
@@ -5261,6 +5399,9 @@ _ChildrenNodeList.prototype._toList = function() {
     output.$setindex(i, LevelDom.wrapNode(this._childNodes.$index(i)));
   }
   return output;
+}
+_ChildrenNodeList.prototype.forEach = function(f) {
+  return this._toList().forEach$1(f);
 }
 _ChildrenNodeList.prototype.filter = function(f) {
   return new _NodeList(this._toList().filter$1(f));
@@ -5298,6 +5439,9 @@ _ChildrenNodeList.prototype.add$1 = _ChildrenNodeList.prototype.add;
 _ChildrenNodeList.prototype.filter$1 = function($0) {
   return this.filter(to$call$1($0));
 };
+_ChildrenNodeList.prototype.forEach$1 = function($0) {
+  return this.forEach(to$call$1($0));
+};
 // ********** Code for _ListWrapper_html_Node **************
 $inherits(_ListWrapper_html_Node, _ListWrapper);
 function _ListWrapper_html_Node(_list) {
@@ -5308,6 +5452,9 @@ _ListWrapper_html_Node.prototype.is$Collection = function(){return true};
 _ListWrapper_html_Node.prototype.add$1 = _ListWrapper_html_Node.prototype.add;
 _ListWrapper_html_Node.prototype.filter$1 = function($0) {
   return this.filter(to$call$1($0));
+};
+_ListWrapper_html_Node.prototype.forEach$1 = function($0) {
+  return this.forEach(to$call$1($0));
 };
 // ********** Code for _NodeList **************
 $inherits(_NodeList, _ListWrapper_html_Node);
@@ -5378,6 +5525,9 @@ function IndexedDbAdapter(dbName, storeName) {
   this.storeName = storeName;
   this.isReady = false;
 }
+IndexedDbAdapter.prototype._throwNotReady = function() {
+  $throw("Database not opened or ready");
+}
 IndexedDbAdapter.prototype.open = function() {
   var $this = this; // closure support
   var completer = new CompleterImpl();
@@ -5417,7 +5567,7 @@ IndexedDbAdapter.prototype._initDb = function(completer) {
   }
 }
 IndexedDbAdapter.prototype.save = function(obj, key) {
-  if (!this.isReady) $throw("Database not opened");
+  if (!this.isReady) this._throwNotReady();
   var completer = new CompleterImpl();
   var txn = this._db.transaction(this.storeName, (1));
   var objectStore = txn.objectStore(this.storeName);
@@ -5434,7 +5584,7 @@ IndexedDbAdapter.prototype.save = function(obj, key) {
   return completer.get$future();
 }
 IndexedDbAdapter.prototype.getByKey = function(key) {
-  if (!this.isReady) $throw("Database not opened");
+  if (!this.isReady) this._throwNotReady();
   var completer = new CompleterImpl();
   var txn = this._db.transaction(this.storeName, (0));
   var objectStore = txn.objectStore(this.storeName);
@@ -5450,7 +5600,7 @@ IndexedDbAdapter.prototype.getByKey = function(key) {
   return completer.get$future();
 }
 IndexedDbAdapter.prototype.nuke = function() {
-  if (!this.isReady) $throw("Database not opened");
+  if (!this.isReady) this._throwNotReady();
   var completer = new CompleterImpl_bool();
   var txn = this._db.transaction(this.storeName, (1));
   var objectStore = txn.objectStore(this.storeName);
@@ -5466,7 +5616,7 @@ IndexedDbAdapter.prototype.nuke = function() {
   return completer.get$future();
 }
 IndexedDbAdapter.prototype.all = function() {
-  if (!this.isReady) $throw("Database not opened");
+  if (!this.isReady) this._throwNotReady();
   var completer = new CompleterImpl_Collection();
   var values = [];
   var txn = this._db.transaction(this.storeName, (0));
@@ -5490,7 +5640,7 @@ IndexedDbAdapter.prototype.all = function() {
   return completer.get$future();
 }
 IndexedDbAdapter.prototype.batch = function(objs, _keys) {
-  if (!this.isReady) $throw("Database not opened");
+  if (!this.isReady) this._throwNotReady();
   var completer = new CompleterImpl_Collection();
   var newKeys = [];
   var txn = this._db.transaction(this.storeName, (1));
@@ -5522,6 +5672,38 @@ IndexedDbAdapter.prototype.batch = function(objs, _keys) {
     })
     ));
   }
+  return completer.get$future();
+}
+IndexedDbAdapter.prototype.getByKeys = function(_keys) {
+  if (!this.isReady) this._throwNotReady();
+  var completer = new CompleterImpl_Collection();
+  var values = [];
+  var txn = this._db.transaction(this.storeName, (0));
+  txn.addEventListener("complete", $wrap_call$1((function (e) {
+    return completer.complete(values);
+  })
+  ));
+  txn.addEventListener("error", $wrap_call$1((function (e) {
+    return completer.completeException(e.get$target().get$error());
+  })
+  ));
+  txn.addEventListener("abort", $wrap_call$1((function (e) {
+    return completer.completeException("txn aborted");
+  })
+  ));
+  var objectStore = txn.objectStore(this.storeName);
+  _keys.forEach$1((function (key) {
+    var getRequest = objectStore.getObject(key);
+    getRequest.addEventListener("success", $wrap_call$1((function (e) {
+      values.add$1(e.get$target().get$result());
+    })
+    ));
+    getRequest.addEventListener("error", $wrap_call$1((function (e) {
+      return completer.completeException(e.get$target().get$error());
+    })
+    ));
+  })
+  );
   return completer.get$future();
 }
 IndexedDbAdapter.prototype.open$0 = IndexedDbAdapter.prototype.open;
@@ -5560,8 +5742,12 @@ function main() {
     p("Stored them!");
     return idb.all();
   })
-  ).then((function (v) {
+  ).chain((function (v) {
     p(("Got them all: " + v));
+    return idb.getByKeys(["k1", "key"]);
+  })
+  ).then((function (v) {
+    p(("Got some: " + v));
   })
   );
 }
