@@ -178,6 +178,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   String dbName;
   String storeName;
   dom.IDBDatabase _db;
+  bool isReady = false;
   
   IndexedDbAdapter(this.dbName, this.storeName);
   
@@ -190,12 +191,15 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   Future<bool> open() {
     Completer completer = new Completer();
     dom.IDBRequest request = dom.window.webkitIndexedDB.open(dbName);
+    print('requested open');
     request.addEventListener('success', (e) {
+      print('success');
       _db = e.target.result;
       _initDb(completer);
     });
     request.addEventListener('error', (e) {
-      completer.completeException(e);
+      print('error');
+      completer.completeException(e.target.error);
     });
     return completer.future;
   }
@@ -205,11 +209,15 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
       dom.IDBVersionChangeRequest versionChange = _db.setVersion(VERSION);
       versionChange.addEventListener('success', (e) {
         _db.createObjectStore(storeName);
+        isReady = true;
         completer.complete(true);
       });
       versionChange.addEventListener('error', (e) {
         completer.completeException(e);
       });
+    } else {
+      isReady = true;
+      completer.complete(true);
     }
   }
   
@@ -218,6 +226,8 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   */
   
   Future<K> save(V obj, [K key]) {
+    if (!isReady) throw "Database not opened";
+    
     Completer<K> completer = new Completer<K>();
     
     dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
@@ -227,20 +237,115 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     addRequest.addEventListener("success", (e) {
       completer.complete(key);
     });
-    addRequest.addEventListener("error", (e) => completer.completeException(e));
+    addRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    
+    return completer.future;
+  }
+  
+  Future<V> getByKey(K key) {
+    if (!isReady) throw "Database not opened";
+    
+    Completer<V> completer = new Completer<V>();
+    
+    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_ONLY);
+    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    dom.IDBRequest getRequest = objectStore.getObject(key);
+    getRequest.addEventListener("success", (e) {
+      completer.complete(e.target.result);
+    });
+    getRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    
+    return completer.future;
+  }
+  
+  Future<bool> removeByKey(K key) {
+    if (!isReady) throw "Database not opened";
+    
+    Completer<bool> completer = new Completer<bool>();
+    
+    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    dom.IDBRequest getRequest = objectStore.delete(key);
+    getRequest.addEventListener("success", (e) {
+      completer.complete(true);
+    });
+    getRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    
+    return completer.future;
+  }
+  
+  Future<bool> nuke() {
+    if (!isReady) throw "Database not opened";
+    
+    Completer<bool> completer = new Completer<bool>();
+    
+    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    dom.IDBRequest getRequest = objectStore.clear();
+    getRequest.addEventListener("success", (e) {
+      completer.complete(true);
+    });
+    getRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    
+    return completer.future;
+  }
+  
+  Future<Collection<V>> all() {
+    if (!isReady) throw "Database not opened";
+    
+    Completer<Collection<V>> completer = new Completer<Collection<V>>();
+    var values = <V>[];
+    
+    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_ONLY);
+    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    dom.IDBRequest cursorRequest = objectStore.openCursor();
+    cursorRequest.addEventListener("success", (e) {
+      var cursor = e.target.result;
+      if (cursor != null) {
+        values.add(cursor.value);
+        cursor.continueFunction();
+      } else {
+        completer.complete(values);
+      }
+    });
+    cursorRequest.addEventListener('error', (e) => completer.completeException(e.target.error));
+    
+    return completer.future;
+  }
+  
+  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
+    if (!isReady) throw "Database not opened";
+    
+    Completer<Collection<V>> completer = new Completer<Collection<V>>();
+    var newKeys = <K>[];
+    
+    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    txn.addEventListener('complete', (e) => completer.complete(newKeys));
+    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
+    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+    
+    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    for (int i = 0; i < objs.length; i++) {
+      V obj = objs[i];
+      K key = _keys[i];
+      key = key == null ? _uuid() : key;
+      dom.IDBRequest addRequest = objectStore.put(obj, key);
+      addRequest.addEventListener("success", (e) {
+        newKeys.add(key);
+      });
+      addRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    }
     
     return completer.future;
   }
   
   /*
-  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]);
-  Future<V> getByKey(K key);
+
   Future<Collection<V>> getByKeys(Collection<K> _keys);
   Future<bool> exists(K key);
-  Future<Collection<V>> all();
-  Future<bool> removeByKey(K key);
+  
   // TODO: what are the semantics of bool here?
   Future<bool> removeByKeys(Collection<K> _keys);
-  Future<bool> nuke();
+  
   */
 }
