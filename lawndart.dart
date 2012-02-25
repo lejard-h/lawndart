@@ -269,11 +269,11 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     
     dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
-    dom.IDBRequest getRequest = objectStore.delete(key);
-    getRequest.addEventListener("success", (e) {
+    dom.IDBRequest removeRequest = objectStore.delete(key);
+    removeRequest.addEventListener("success", (e) {
       completer.complete(true);
     });
-    getRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    removeRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
     
     return completer.future;
   }
@@ -365,14 +365,34 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     
     return completer.future;
   }
+
+  Future<bool> removeByKeys(Collection<K> _keys) {
+    if (!isReady) _throwNotReady();
+    
+    Completer<bool> completer = new Completer<bool>();
+    
+    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    txn.addEventListener('complete', (e) => completer.complete(true));
+    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
+    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+    
+    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    _keys.forEach((key) {
+      print('removing $key');
+      dom.IDBRequest removeRequest = objectStore.delete(key);
+      print('removed key');
+      // TODO: double check I don't actually need this
+      //removeRequest.addEventListener("success", (e) => ...);
+      removeRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    });
+    
+    return completer.future;
+  }
   
   /*
 
-  Future<Collection<V>> getByKeys(Collection<K> _keys);
   Future<bool> exists(K key);
-  
-  // TODO: what are the semantics of bool here?
-  Future<bool> removeByKeys(Collection<K> _keys);
+  Future<Collection<K>> keys()
   
   */
 }

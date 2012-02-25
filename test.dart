@@ -25,17 +25,37 @@ main() {
   })
   .chain((v) {
   	p("Value is $v!");
-  	return idb.batch(['o1', 'o2'], ['k1', 'k2']);
+  	return idb.removeByKey('key');
   })
   .chain((v) {
-  	p("Stored them!");
+  	p('Removed a single key: $v');
+  	return idb.all();
+  })
+  .chain((v) {
+  	p("All that's left: $v");
+  	return idb.batch(['o1', 'o2', 'o3'], ['k1', 'k2', 'k3']);
+  })
+  .chain((v) {
+  	p("Stored three new keys!");
   	return idb.all();
   })
   .chain((v) {
   	p('Got them all: $v');
-  	return idb.getByKeys(['k1', 'key']);
+  	return idb.getByKeys(['k1', 'k2']);
+  })
+  .chain((v) {
+  	p('Got some: $v');
+  	return idb.getByKey('does not exist');
+  })
+  .chain((v) {
+  	p('Does not exist: $v');
+  	return idb.removeByKeys(['k1', 'k2']);
+  })
+  .chain((v) {
+  	p('Removed some: $v');
+  	return idb.all();
   })
   .then((v) {
-  	p('Got some: $v');
+  	p('Got all remaining: $v');
   });
 }

@@ -1567,6 +1567,9 @@ $dynamic("get$value").IDBCursorWithValue = function() { return this.value; };
 // ********** Code for _IDBKeyJs **************
 // ********** Code for _IDBKeyRangeJs **************
 // ********** Code for _IDBObjectStoreJs **************
+$dynamic("delete_").IDBObjectStore = function(key) {
+  return this.delete(key);
+}
 $dynamic("getObject").IDBObjectStore = function(key) {
   return this.get(key);
 }
@@ -5599,6 +5602,22 @@ IndexedDbAdapter.prototype.getByKey = function(key) {
   ));
   return completer.get$future();
 }
+IndexedDbAdapter.prototype.removeByKey = function(key) {
+  if (!this.isReady) this._throwNotReady();
+  var completer = new CompleterImpl_bool();
+  var txn = this._db.transaction(this.storeName, (1));
+  var objectStore = txn.objectStore(this.storeName);
+  var removeRequest = objectStore.delete_(key);
+  removeRequest.addEventListener("success", $wrap_call$1((function (e) {
+    completer.complete(true);
+  })
+  ));
+  removeRequest.addEventListener("error", $wrap_call$1((function (e) {
+    return completer.completeException(e.get$target().get$error());
+  })
+  ));
+  return completer.get$future();
+}
 IndexedDbAdapter.prototype.nuke = function() {
   if (!this.isReady) this._throwNotReady();
   var completer = new CompleterImpl_bool();
@@ -5706,6 +5725,35 @@ IndexedDbAdapter.prototype.getByKeys = function(_keys) {
   );
   return completer.get$future();
 }
+IndexedDbAdapter.prototype.removeByKeys = function(_keys) {
+  if (!this.isReady) this._throwNotReady();
+  var completer = new CompleterImpl_bool();
+  var txn = this._db.transaction(this.storeName, (1));
+  txn.addEventListener("complete", $wrap_call$1((function (e) {
+    return completer.complete(true);
+  })
+  ));
+  txn.addEventListener("error", $wrap_call$1((function (e) {
+    return completer.completeException(e.get$target().get$error());
+  })
+  ));
+  txn.addEventListener("abort", $wrap_call$1((function (e) {
+    return completer.completeException("txn aborted");
+  })
+  ));
+  var objectStore = txn.objectStore(this.storeName);
+  _keys.forEach$1((function (key) {
+    dart_core_print(("removing " + key));
+    var removeRequest = objectStore.delete_(key);
+    dart_core_print("removed key");
+    removeRequest.addEventListener("error", $wrap_call$1((function (e) {
+      return completer.completeException(e.get$target().get$error());
+    })
+    ));
+  })
+  );
+  return completer.get$future();
+}
 IndexedDbAdapter.prototype.open$0 = IndexedDbAdapter.prototype.open;
 IndexedDbAdapter.prototype.save$2 = IndexedDbAdapter.prototype.save;
 // ********** Code for top level **************
@@ -5736,18 +5784,38 @@ function main() {
   })
   ).chain((function (v) {
     p(("Value is " + v + "!"));
-    return idb.batch(["o1", "o2"], ["k1", "k2"]);
+    return idb.removeByKey("key");
   })
   ).chain((function (v) {
-    p("Stored them!");
+    p(("Removed a single key: " + v));
+    return idb.all();
+  })
+  ).chain((function (v) {
+    p(("All that's left: " + v));
+    return idb.batch(["o1", "o2", "o3"], ["k1", "k2", "k3"]);
+  })
+  ).chain((function (v) {
+    p("Stored three new keys!");
     return idb.all();
   })
   ).chain((function (v) {
     p(("Got them all: " + v));
-    return idb.getByKeys(["k1", "key"]);
+    return idb.getByKeys(["k1", "k2"]);
+  })
+  ).chain((function (v) {
+    p(("Got some: " + v));
+    return idb.getByKey("does not exist");
+  })
+  ).chain((function (v) {
+    p(("Does not exist: " + v));
+    return idb.removeByKeys(["k1", "k2"]);
+  })
+  ).chain((function (v) {
+    p(("Removed some: " + v));
+    return idb.all();
   })
   ).then((function (v) {
-    p(("Got some: " + v));
+    p(("Got all remaining: " + v));
   })
   );
 }
