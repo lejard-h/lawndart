@@ -62,13 +62,13 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     Completer<K> completer = new Completer<K>();
     
     dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    txn.addEventListener('complete', (e) => completer.complete(key));
+    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
+    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
     key = key == null ? _uuid() : key;
     dom.IDBRequest addRequest = objectStore.put(obj, key);
-    addRequest.addEventListener("success", (e) {
-      completer.complete(key);
-    });
-    addRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
     
     return completer.future;
   }
@@ -79,12 +79,12 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     Completer<V> completer = new Completer<V>();
     
     dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_ONLY);
+    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
+    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
     dom.IDBRequest getRequest = objectStore.getObject(key);
-    getRequest.addEventListener("success", (e) {
-      completer.complete(e.target.result);
-    });
-    getRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    getRequest.addEventListener('success', (e) => completer.complete(e.target.result));
     
     return completer.future;
   }
@@ -95,12 +95,12 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     Completer<bool> completer = new Completer<bool>();
     
     dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
+    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
     dom.IDBRequest removeRequest = objectStore.delete(key);
-    removeRequest.addEventListener("success", (e) {
-      completer.complete(true);
-    });
-    removeRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    removeRequest.addEventListener('success', (e) => completer.complete(true));
     
     return completer.future;
   }
@@ -111,12 +111,12 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     Completer<bool> completer = new Completer<bool>();
     
     dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
+    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
-    dom.IDBRequest getRequest = objectStore.clear();
-    getRequest.addEventListener("success", (e) {
-      completer.complete(true);
-    });
-    getRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
+    dom.IDBRequest clearRequest = objectStore.clear();
+    clearRequest.addEventListener('complete', (e) => completer.complete(true));
     
     return completer.future;
   }
@@ -128,6 +128,10 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     var values = <V>[];
     
     dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_ONLY);
+    txn.addEventListener('complete', (e) => completer.complete(values));
+    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
+    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
     dom.IDBRequest cursorRequest = objectStore.openCursor();
     cursorRequest.addEventListener("success", (e) {
@@ -135,11 +139,8 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
       if (cursor != null) {
         values.add(cursor.value);
         cursor.continueFunction();
-      } else {
-        completer.complete(values);
       }
     });
-    cursorRequest.addEventListener('error', (e) => completer.completeException(e.target.error));
     
     return completer.future;
   }
@@ -164,7 +165,6 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
       addRequest.addEventListener("success", (e) {
         newKeys.add(key);
       });
-      addRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
     }
     
     return completer.future;
@@ -187,7 +187,6 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
       getRequest.addEventListener("success", (e) {
         values.add(e.target.result);
       });
-      getRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
     });
     
     return completer.future;
@@ -208,9 +207,6 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
       print('removing $key');
       dom.IDBRequest removeRequest = objectStore.delete(key);
       print('removed key');
-      // TODO: double check I don't actually need this
-      //removeRequest.addEventListener("success", (e) => ...);
-      removeRequest.addEventListener("error", (e) => completer.completeException(e.target.error));
     });
     
     return completer.future;

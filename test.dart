@@ -20,11 +20,15 @@ main() {
   	return idb.save("hello, world", "key");
   })
   .chain((v) {
-  	p('Added!');
-  	return idb.getByKey("key");
+  	p('Added with key $v!');
+  	return idb.save({'x': ['foo', {'bar':2}]}, "map");
   })
   .chain((v) {
-  	p("Value is $v!");
+  	p('Added map of list of maps!');
+  	return idb.getByKey("map");
+  })
+  .chain((v) {
+  	p("Value is $v and ${v['x']}!");
   	return idb.removeByKey('key');
   })
   .chain((v) {
