@@ -5688,10 +5688,10 @@ function html_get$$document() {
 // ********** Code for top level **************
 //  ********** Library lawndart **************
 // ********** Code for IndexedDbAdapter **************
-function IndexedDbAdapter(dbName, storeName) {
-  this.dbName = dbName;
-  this.storeName = storeName;
+function IndexedDbAdapter(options) {
   this.isReady = false;
+  this.dbName = options.$index("dbName");
+  this.storeName = options.$index("storeName");
 }
 IndexedDbAdapter.prototype._throwNotReady = function() {
   $throw("Database not opened or ready");
@@ -5943,59 +5943,62 @@ function p(msg) {
   li.set$text(msg);
   output.get$elements().add$1(li);
 }
-function main() {
-  var idb = new IndexedDbAdapter("test", "test");
-  idb.open$0().chain((function (v) {
+function testAdapter(adapter) {
+  adapter.open$0().chain((function (v) {
     p("Database opened");
-    return idb.nuke();
+    return adapter.nuke();
   })
   ).chain((function (v) {
     p("Nuked!");
-    return idb.save$2("hello, world", "key");
+    return adapter.save$2("hello, world", "key");
   })
   ).chain((function (v) {
     p(("Added with key " + v + "!"));
-    return idb.save$2(_map(["x", ["foo", _map(["bar", (2)])]]), "map");
+    return adapter.save$2(_map(["x", ["foo", _map(["bar", (2)])]]), "map");
   })
   ).chain((function (v) {
     p("Added map of list of maps!");
-    return idb.getByKey("map");
+    return adapter.getByKey("map");
   })
   ).chain((function (v) {
-    return idb.removeByKey("key");
+    p(("Value is " + v + " and " + v.$index("x") + "!"));
+    return adapter.removeByKey("key");
   })
   ).chain((function (v) {
     p(("Removed a single key: " + v));
-    return idb.all();
+    return adapter.all();
   })
   ).chain((function (v) {
     p(("All that's left: " + v));
-    return idb.batch(["o1", "o2", "o3"], ["k1", "k2", "k3"]);
+    return adapter.batch(["o1", "o2", "o3"], ["k1", "k2", "k3"]);
   })
   ).chain((function (v) {
     p("Stored three new keys!");
-    return idb.all();
+    return adapter.all();
   })
   ).chain((function (v) {
     p(("Got them all: " + v));
-    return idb.getByKeys(["k1", "k2"]);
+    return adapter.getByKeys(["k1", "k2"]);
   })
   ).chain((function (v) {
     p(("Got some: " + v));
-    return idb.getByKey("does not exist");
+    return adapter.getByKey("does not exist");
   })
   ).chain((function (v) {
     p(("Does not exist: " + v));
-    return idb.removeByKeys(["k1", "k2"]);
+    return adapter.removeByKeys(["k1", "k2"]);
   })
   ).chain((function (v) {
     p(("Removed some: " + v));
-    return idb.all();
+    return adapter.all();
   })
   ).then((function (v) {
     p(("Got all remaining: " + v));
   })
   );
+}
+function main() {
+  testAdapter(new IndexedDbAdapter(_map(["dbName", "test", "storeName", "test"])));
 }
 // 110 dynamic types.
 // 504 types

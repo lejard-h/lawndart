@@ -7,7 +7,10 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   dom.IDBDatabase _db;
   bool isReady = false;
   
-  IndexedDbAdapter(this.dbName, this.storeName);
+  IndexedDbAdapter([Map options]) {
+    this.dbName = options['dbName'];
+    this.storeName = options['storeName'];
+  }
   
   String get adapter() => "indexeddb";
   

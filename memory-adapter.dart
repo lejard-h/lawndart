@@ -1,11 +1,11 @@
 class MemoryAdapter<K extends Hashable, V> implements Adapter<K, V> {
   Map<K, V> storage;
   
-  MemoryAdapter() : storage = new Map<K, V>();
-  
   String get adapter() => 'memory';
   
   bool get valid() => true;
+
+  MemoryAdapter([Map options]) : storage = new Map<K, V>();
   
   Future<Collection<K>> keys() {
     return _results(storage.getKeys());

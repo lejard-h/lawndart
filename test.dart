@@ -8,58 +8,61 @@ p(msg) {
   output.elements.add(li);
 }
 
-main() {
-  var idb = new IndexedDbAdapter("test", "test");
-  idb.open()
+testAdapter(adapter) {
+  adapter.open()
   .chain((v) {
-  	p('Database opened');
-  	return idb.nuke();
+    p('Database opened');
+    return adapter.nuke();
   })
   .chain((v) {
-  	p('Nuked!');
-  	return idb.save("hello, world", "key");
+    p('Nuked!');
+    return adapter.save("hello, world", "key");
   })
   .chain((v) {
-  	p('Added with key $v!');
-  	return idb.save({'x': ['foo', {'bar':2}]}, "map");
+    p('Added with key $v!');
+    return adapter.save({'x': ['foo', {'bar':2}]}, "map");
   })
   .chain((v) {
-  	p('Added map of list of maps!');
-  	return idb.getByKey("map");
+    p('Added map of list of maps!');
+    return adapter.getByKey("map");
   })
   .chain((v) {
-  	//p("Value is $v and ${v['x']}!");
-  	return idb.removeByKey('key');
+    p("Value is $v and ${v['x']}!");
+    return adapter.removeByKey('key');
   })
   .chain((v) {
-  	p('Removed a single key: $v');
-  	return idb.all();
+    p('Removed a single key: $v');
+    return adapter.all();
   })
   .chain((v) {
-  	p("All that's left: $v");
-  	return idb.batch(['o1', 'o2', 'o3'], ['k1', 'k2', 'k3']);
+    p("All that's left: $v");
+    return adapter.batch(['o1', 'o2', 'o3'], ['k1', 'k2', 'k3']);
   })
   .chain((v) {
-  	p("Stored three new keys!");
-  	return idb.all();
+    p("Stored three new keys!");
+    return adapter.all();
   })
   .chain((v) {
-  	p('Got them all: $v');
-  	return idb.getByKeys(['k1', 'k2']);
+    p('Got them all: $v');
+    return adapter.getByKeys(['k1', 'k2']);
   })
   .chain((v) {
-  	p('Got some: $v');
-  	return idb.getByKey('does not exist');
+    p('Got some: $v');
+    return adapter.getByKey('does not exist');
   })
   .chain((v) {
-  	p('Does not exist: $v');
-  	return idb.removeByKeys(['k1', 'k2']);
+    p('Does not exist: $v');
+    return adapter.removeByKeys(['k1', 'k2']);
   })
   .chain((v) {
-  	p('Removed some: $v');
-  	return idb.all();
+    p('Removed some: $v');
+    return adapter.all();
   })
   .then((v) {
-  	p('Got all remaining: $v');
+    p('Got all remaining: $v');
   });
+}
+
+main() {
+  testAdapter(new IndexedDbAdapter({'dbName': "test", 'storeName': "test"}));
 }

@@ -9,7 +9,7 @@ class LocalStorageAdapter<K extends String, V> implements Adapter<K, V> {
   // Dart targets modern browsers, so this is assumed
   bool get valid() => true;
   
-  LocalStorageAdapter() {
+  LocalStorageAdapter([Map options]) {
     storage = window.localStorage;
   }
   
