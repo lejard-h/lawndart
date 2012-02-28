@@ -2,6 +2,7 @@
 #import('dart:html');
 
 p(msg) {
+  print(msg);
   var output = document.query('#output');
   var li = new Element.tag('li');
   li.text = msg;
@@ -64,5 +65,6 @@ testAdapter(adapter) {
 }
 
 main() {
-  testAdapter(new IndexedDbAdapter({'dbName': "test", 'storeName': "test"}));
+  //testAdapter(new IndexedDbAdapter({'dbName': "test", 'storeName': "test"}));
+  testAdapter(new WebSqlAdapter({'dbName': "test", 'storeName': "test"}));
 }

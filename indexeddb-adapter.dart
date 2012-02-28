@@ -152,6 +152,9 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   
   Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
     if (!isReady) _throwNotReady();
+    if (_keys != null && objs.length != _keys.length) {
+      throw "length of _keys must match length of objs";
+    }
     
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
     var newKeys = <K>[];

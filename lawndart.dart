@@ -7,6 +7,7 @@
 #source('memory-adapter.dart');
 #source('local-storage-adapter.dart');
 #source('indexeddb-adapter.dart');
+#source('websql-adapter.dart');
 
 _uuid() {
   return "RANDOM STRING";
@@ -17,6 +18,7 @@ _results(obj) => new Future.immediate(obj);
 interface Store<K, V> {
   Future<Collection<K>> keys();
   Future<K> save(V obj, [K key]);
+  // TODO: no guaranteed ordering of returned keys, so not sure how useful this is
   Future<Collection<K>> batch(List<V> objs, [List<K> _keys]);
   Future<V> getByKey(K key);
   Future<Collection<V>> getByKeys(Collection<K> _keys);
