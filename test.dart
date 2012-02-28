@@ -28,7 +28,7 @@ main() {
   	return idb.getByKey("map");
   })
   .chain((v) {
-  	p("Value is $v and ${v['x']}!");
+  	//p("Value is $v and ${v['x']}!");
   	return idb.removeByKey('key');
   })
   .chain((v) {

@@ -107,6 +107,8 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   
   Future<bool> nuke() {
     if (!isReady) _throwNotReady();
+
+    print('nuke called');
     
     Completer<bool> completer = new Completer<bool>();
     
@@ -116,7 +118,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
 
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
     dom.IDBRequest clearRequest = objectStore.clear();
-    clearRequest.addEventListener('complete', (e) => completer.complete(true));
+    clearRequest.addEventListener('success', (e) => completer.complete(true));
     
     return completer.future;
   }

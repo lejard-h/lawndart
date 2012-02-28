@@ -5797,6 +5797,7 @@ IndexedDbAdapter.prototype.removeByKey = function(key) {
 }
 IndexedDbAdapter.prototype.nuke = function() {
   if (!this.isReady) this._throwNotReady();
+  print$("nuke called");
   var completer = new CompleterImpl_bool();
   var txn = this._db.transaction(this.storeName, (1));
   txn.addEventListener("error", $wrap_call$1((function (e) {
@@ -5809,7 +5810,7 @@ IndexedDbAdapter.prototype.nuke = function() {
   ));
   var objectStore = txn.objectStore(this.storeName);
   var clearRequest = objectStore.clear();
-  clearRequest.addEventListener("complete", $wrap_call$1((function (e) {
+  clearRequest.addEventListener("success", $wrap_call$1((function (e) {
     return completer.complete(true);
   })
   ));
@@ -5961,7 +5962,6 @@ function main() {
     return idb.getByKey("map");
   })
   ).chain((function (v) {
-    p(("Value is " + v + " and " + v.$index("x") + "!"));
     return idb.removeByKey("key");
   })
   ).chain((function (v) {
