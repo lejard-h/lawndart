@@ -63,6 +63,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     if (!isReady) _throwNotReady();
     
     Completer<K> completer = new Completer<K>();
+    var jsonObj = JSON.stringify(obj);
     
     dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
     txn.addEventListener('complete', (e) => completer.complete(key));
@@ -71,7 +72,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
 
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
     key = key == null ? _uuid() : key;
-    dom.IDBRequest addRequest = objectStore.put(obj, key);
+    dom.IDBRequest addRequest = objectStore.put(jsonObj, key);
     
     return completer.future;
   }
@@ -87,7 +88,11 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
 
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
     dom.IDBRequest getRequest = objectStore.getObject(key);
-    getRequest.addEventListener('success', (e) => completer.complete(e.target.result));
+    getRequest.addEventListener('success', (e) {
+      var jsonObj = e.target.result;
+      var obj = (jsonObj == null) ? null : JSON.parse(jsonObj);
+      completer.complete(obj);
+    });
     
     return completer.future;
   }
@@ -142,7 +147,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     cursorRequest.addEventListener("success", (e) {
       var cursor = e.target.result;
       if (cursor != null) {
-        values.add(cursor.value);
+        values.add(JSON.parse(cursor.value));
         cursor.continueFunction();
       }
     });
@@ -167,9 +172,10 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     dom.IDBObjectStore objectStore = txn.objectStore(storeName);
     for (int i = 0; i < objs.length; i++) {
       V obj = objs[i];
+      var jsonObj = JSON.stringify(obj);
       K key = _keys[i];
       key = key == null ? _uuid() : key;
-      dom.IDBRequest addRequest = objectStore.put(obj, key);
+      dom.IDBRequest addRequest = objectStore.put(jsonObj, key);
       addRequest.addEventListener("success", (e) {
         newKeys.add(key);
       });
@@ -193,7 +199,9 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     _keys.forEach((key) {
       dom.IDBRequest getRequest = objectStore.getObject(key);
       getRequest.addEventListener("success", (e) {
-        values.add(e.target.result);
+        var jsonObj = e.target.result;
+        var obj = (jsonObj == null) ? null : JSON.parse(jsonObj);
+        values.add(obj);
       });
     });
     
