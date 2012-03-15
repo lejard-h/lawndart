@@ -10,7 +10,7 @@
 #source('websql-adapter.dart');
 
 _uuid() {
-  throw new NotImplementedException("generate your own keys");
+  throw new NotImplementedException();
 }
 
 _results(obj) => new Future.immediate(obj);
