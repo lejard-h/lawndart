@@ -1,4 +1,4 @@
-#import('lawndart.dart');
+#import('../lib/lawndart.dart');
 #import('dart:html');
 
 p(msg) {
@@ -65,6 +65,7 @@ testAdapter(adapter) {
 }
 
 main() {
-  testAdapter(new IndexedDbAdapter({'dbName': "test", 'storeName': "test"}));
+  //testAdapter(new IndexedDbAdapter({'dbName': "test", 'storeName': "test"}));
   //testAdapter(new WebSqlAdapter({'dbName': "test", 'storeName': "test"}));
+  testAdapter(new LocalStorageAdapter());
 }

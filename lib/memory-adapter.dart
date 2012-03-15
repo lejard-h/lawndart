@@ -6,6 +6,10 @@ class MemoryAdapter<K extends Hashable, V> implements Adapter<K, V> {
   bool get valid() => true;
 
   MemoryAdapter([Map options]) : storage = new Map<K, V>();
+
+  Future<bool> open() {
+    return new Future.immediate(true);
+  }
   
   Future<Collection<K>> keys() {
     return _results(storage.getKeys());

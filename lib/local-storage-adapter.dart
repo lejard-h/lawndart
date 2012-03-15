@@ -4,16 +4,23 @@ class LocalStorageAdapter<K extends String, V> implements Adapter<K, V> {
   
   Storage storage;
   
-  String get adapter() => 'local-storage';
+  String get adapter() {
+    return 'local-storage';
+  }
   
-  // Dart targets modern browsers, so this is assumed
-  bool get valid() => true;
+  bool get valid() {
+    return true;
+  }
   
   LocalStorageAdapter([Map options]) {
     storage = window.localStorage;
   }
   
   List<K> get _allKeys() => JSON.parse(storage.getItem(INDEX_KEY));
+
+  Future<bool> open() {
+    return new Future.immediate(true);
+  }
   
   Future<Collection<K>> keys() {
     return _results(_allKeys);

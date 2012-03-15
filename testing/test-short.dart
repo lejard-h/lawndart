@@ -1,4 +1,5 @@
-#import('lawndart.dart');
+#library('test');
+
 #import('dart:html');
 
 p(msg) {

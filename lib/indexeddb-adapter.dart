@@ -115,8 +115,6 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   
   Future<bool> nuke() {
     if (!isReady) _throwNotReady();
-
-    print('nuke called');
     
     Completer<bool> completer = new Completer<bool>();
     
