@@ -4,7 +4,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   
   String dbName;
   String storeName;
-  dom.IDBDatabase _db;
+  IDBDatabase _db;
   bool isReady = false;
   
   IndexedDbAdapter([Map options]) {
@@ -15,7 +15,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   String get adapter() => "indexeddb";
   
   bool get valid() {
-    return dom.window.webkitIndexedDB != null;
+    return window.webkitIndexedDB != null;
   }
 
   _throwNotReady() {
@@ -24,7 +24,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   
   Future<bool> open() {
     Completer completer = new Completer();
-    dom.IDBRequest request = dom.window.webkitIndexedDB.open(dbName);
+    IDBRequest request = window.webkitIndexedDB.open(dbName);
     print('requested open');
     request.addEventListener('success', (e) {
       print('success');
@@ -40,7 +40,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   
   void _initDb(Completer completer) {
     if (VERSION != _db.version) {
-      dom.IDBVersionChangeRequest versionChange = _db.setVersion(VERSION);
+      IDBVersionChangeRequest versionChange = _db.setVersion(VERSION);
       versionChange.addEventListener('success', (e) {
         _db.createObjectStore(storeName);
         isReady = true;
@@ -65,14 +65,14 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     Completer<K> completer = new Completer<K>();
     var jsonObj = JSON.stringify(obj);
     
-    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
     txn.addEventListener('complete', (e) => completer.complete(key));
     txn.addEventListener('error', (e) => completer.completeException(e.target.error));
     txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
 
-    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    IDBObjectStore objectStore = txn.objectStore(storeName);
     key = key == null ? _uuid() : key;
-    dom.IDBRequest addRequest = objectStore.put(jsonObj, key);
+    IDBRequest addRequest = objectStore.put(jsonObj, key);
     
     return completer.future;
   }
@@ -82,12 +82,12 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     
     Completer<V> completer = new Completer<V>();
     
-    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_ONLY);
+    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_ONLY);
     txn.addEventListener('error', (e) => completer.completeException(e.target.error));
     txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
 
-    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
-    dom.IDBRequest getRequest = objectStore.getObject(key);
+    IDBObjectStore objectStore = txn.objectStore(storeName);
+    IDBRequest getRequest = objectStore.getObject(key);
     getRequest.addEventListener('success', (e) {
       var jsonObj = e.target.result;
       var obj = (jsonObj == null) ? null : JSON.parse(jsonObj);
@@ -102,12 +102,12 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     
     Completer<bool> completer = new Completer<bool>();
     
-    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
     txn.addEventListener('error', (e) => completer.completeException(e.target.error));
     txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
 
-    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
-    dom.IDBRequest removeRequest = objectStore.delete(key);
+    IDBObjectStore objectStore = txn.objectStore(storeName);
+    IDBRequest removeRequest = objectStore.delete(key);
     removeRequest.addEventListener('success', (e) => completer.complete(true));
     
     return completer.future;
@@ -118,12 +118,12 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     
     Completer<bool> completer = new Completer<bool>();
     
-    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
     txn.addEventListener('error', (e) => completer.completeException(e.target.error));
     txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
 
-    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
-    dom.IDBRequest clearRequest = objectStore.clear();
+    IDBObjectStore objectStore = txn.objectStore(storeName);
+    IDBRequest clearRequest = objectStore.clear();
     clearRequest.addEventListener('success', (e) => completer.complete(true));
     
     return completer.future;
@@ -135,13 +135,13 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
     var values = <V>[];
     
-    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_ONLY);
+    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_ONLY);
     txn.addEventListener('complete', (e) => completer.complete(values));
     txn.addEventListener('error', (e) => completer.completeException(e.target.error));
     txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
 
-    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
-    dom.IDBRequest cursorRequest = objectStore.openCursor();
+    IDBObjectStore objectStore = txn.objectStore(storeName);
+    IDBRequest cursorRequest = objectStore.openCursor();
     cursorRequest.addEventListener("success", (e) {
       var cursor = e.target.result;
       if (cursor != null) {
@@ -162,18 +162,18 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
     var newKeys = <K>[];
     
-    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
     txn.addEventListener('complete', (e) => completer.complete(newKeys));
     txn.addEventListener('error', (e) => completer.completeException(e.target.error));
     txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
     
-    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    IDBObjectStore objectStore = txn.objectStore(storeName);
     for (int i = 0; i < objs.length; i++) {
       V obj = objs[i];
       var jsonObj = JSON.stringify(obj);
       K key = _keys[i];
       key = key == null ? _uuid() : key;
-      dom.IDBRequest addRequest = objectStore.put(jsonObj, key);
+      IDBRequest addRequest = objectStore.put(jsonObj, key);
       addRequest.addEventListener("success", (e) {
         newKeys.add(key);
       });
@@ -188,14 +188,14 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
     var values = <V>[];
     
-    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_ONLY);
+    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_ONLY);
     txn.addEventListener('complete', (e) => completer.complete(values));
     txn.addEventListener('error', (e) => completer.completeException(e.target.error));
     txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
     
-    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    IDBObjectStore objectStore = txn.objectStore(storeName);
     _keys.forEach((key) {
-      dom.IDBRequest getRequest = objectStore.getObject(key);
+      IDBRequest getRequest = objectStore.getObject(key);
       getRequest.addEventListener("success", (e) {
         var jsonObj = e.target.result;
         var obj = (jsonObj == null) ? null : JSON.parse(jsonObj);
@@ -211,15 +211,15 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     
     Completer<bool> completer = new Completer<bool>();
     
-    dom.IDBTransaction txn = _db.transaction(storeName, dom.IDBTransaction.READ_WRITE);
+    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
     txn.addEventListener('complete', (e) => completer.complete(true));
     txn.addEventListener('error', (e) => completer.completeException(e.target.error));
     txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
     
-    dom.IDBObjectStore objectStore = txn.objectStore(storeName);
+    IDBObjectStore objectStore = txn.objectStore(storeName);
     _keys.forEach((key) {
       print('removing $key');
-      dom.IDBRequest removeRequest = objectStore.delete(key);
+      IDBRequest removeRequest = objectStore.delete(key);
       print('removed key');
     });
     

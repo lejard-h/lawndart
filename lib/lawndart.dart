@@ -1,6 +1,5 @@
 #library('lawndart');
 
-#import('dart:dom', prefix:'dom');
 #import('dart:html');
 #import('dart:json');
 

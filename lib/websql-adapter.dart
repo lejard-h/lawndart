@@ -5,7 +5,7 @@ class WebSqlAdapter<K, V> implements Adapter<K, V> {
   String dbName;
   String storeName;
   int estimatedSize;
-  dom.Database _db;
+  Database _db;
   bool isReady = false;
   
   WebSqlAdapter([Map options]) {
@@ -31,7 +31,7 @@ class WebSqlAdapter<K, V> implements Adapter<K, V> {
   
   Future<bool> open() {
     Completer completer = new Completer();
-    _db = dom.window.openDatabase(dbName, VERSION, dbName, estimatedSize);
+    _db = window.openDatabase(dbName, VERSION, dbName, estimatedSize);
     _initDb(completer);
     return completer.future;
   }
