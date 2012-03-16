@@ -30,13 +30,18 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     });
     request.addEventListener('error', (e) {
       print('error');
-      completer.completeException(e.target.error);
+      completer.completeException(e.result);
+    });
+    request.addEventListener('blocked', (e) {
+      print('blocked');
+      completer.completeException(e.result);
     });
     return completer.future;
   }
   
   void _initDb(Completer completer) {
     if (version != _db.version) {
+      print('upgrading ${_db.version} to $version');
       IDBVersionChangeRequest versionChange = _db.setVersion(version);
       versionChange.addEventListener('success', (e) {
         _db.createObjectStore(storeName);
@@ -47,6 +52,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
         completer.completeException(e);
       });
     } else {
+      print('version good to go');
       isReady = true;
       completer.complete(true);
     }
