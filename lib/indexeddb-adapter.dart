@@ -37,7 +37,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   
   void _initDb(Completer completer) {
     if (version != _db.version) {
-      IDBVersionChangeRequest versionChange = _db.setVersion(VERSION);
+      IDBVersionChangeRequest versionChange = _db.setVersion(version);
       versionChange.addEventListener('success', (e) {
         _db.createObjectStore(storeName);
         isReady = true;
