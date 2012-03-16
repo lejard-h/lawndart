@@ -65,7 +65,7 @@ testAdapter(adapter) {
 }
 
 main() {
-  testAdapter(new IndexedDbAdapter({'dbName': "test", 'storeName': "test"}));
+  testAdapter(new IndexedDbAdapter("test", "test"));
   //testAdapter(new WebSqlAdapter({'dbName': "test", 'storeName': "test"}));
   //testAdapter(new LocalStorageAdapter());
 }
