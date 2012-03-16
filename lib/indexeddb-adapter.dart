@@ -1,13 +1,13 @@
 class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   
-  static final String VERSION = "1";
-  
   String dbName;
   String storeName;
   IDBDatabase _db;
   bool isReady = false;
+  String version;
   
-  IndexedDbAdapter(String this.dbName, String this.storeName);
+  IndexedDbAdapter(String this.dbName, String this.storeName,
+    [String this.version = "1"]);
   
   String get adapter() => "indexeddb";
   
