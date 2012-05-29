@@ -1,39 +1,37 @@
-class IndexedDbAdapter<K, V> implements Adapter<K, V> {
-  
+//Copyright 2012 Seth Ladd
+//
+//Licensed under the Apache License, Version 2.0 (the "License");
+//you may not use this file except in compliance with the License.
+//You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+//Unless required by applicable law or agreed to in writing, software
+//distributed under the License is distributed on an "AS IS" BASIS,
+//WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//See the License for the specific language governing permissions and
+//limitations under the License.
+
+class IndexedDb<K, V> {
   String dbName;
-  String storeName;
+  List<String> storeNames;
+  String version;
   IDBDatabase _db;
   bool isReady = false;
-  String version;
   
-  IndexedDbAdapter(String this.dbName, String this.storeName,
-    [String this.version = "1"]);
-  
-  String get adapter() => "indexeddb";
-  
-  bool get valid() {
-    return window.webkitIndexedDB != null;
-  }
-
-  _throwNotReady() {
-    throw "Database not opened or ready";
-  }
+  IndexedDb(String this.dbName, List<String> this.storeNames, String this.version);
   
   Future<bool> open() {
     Completer completer = new Completer();
     IDBRequest request = window.webkitIndexedDB.open(dbName);
-    print('requested open');
-    request.addEventListener('success', (e) {
+    print('requested open for $dbName');
+    request.on.success.add((e) {
       print('success');
       _db = e.target.result;
       _initDb(completer);
     });
-    request.addEventListener('error', (e) {
+    request.on.error.add((e) {
       print('error');
-      completer.completeException(e.result);
-    });
-    request.addEventListener('blocked', (e) {
-      print('blocked');
       completer.completeException(e.result);
     });
     return completer.future;
@@ -41,111 +39,123 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   
   void _initDb(Completer completer) {
     if (version != _db.version) {
-      print('upgrading ${_db.version} to $version');
+      print('upgrading ${_db.version} to $version for $dbName');
       IDBVersionChangeRequest versionChange = _db.setVersion(version);
-      versionChange.addEventListener('success', (e) {
-        _db.createObjectStore(storeName);
+      versionChange.on.success.add((e) {
+        storeNames.forEach((storeName) {
+          if (_db.objectStoreNames.indexOf(storeName) == -1) {
+            print('creating $storeName');
+            _db.createObjectStore(storeName);
+          }
+        });
         isReady = true;
         completer.complete(true);
       });
-      versionChange.addEventListener('error', (e) {
+      versionChange.on.error.add((e) {
         completer.completeException(e);
       });
     } else {
-      print('version good to go');
+      print('version good to go for $dbName');
       isReady = true;
       completer.complete(true);
     }
   }
   
-  /*
-  Future<Collection<K>> keys();
-  */
+  Store<K, V> store(String storeName) {
+    if (!isReady) {
+      throw "Database not opened or ready";
+    }
+    if (storeNames.indexOf(storeName) == -1) {
+      throw "Store name $storeName is unknown to database $dbName";
+    }
+    return new _IndexedDbAdapter<K, V>(_db, storeName);
+  }
+}
+
+class _IndexedDbAdapter<K, V> implements Store<K, V> {
+  
+  IDBDatabase _db;
+  String storeName;
+  
+  _IndexedDbAdapter(IDBDatabase this._db, String this.storeName);
+  
+  IDBTransaction _createTxn(String type, Completer completer, onComplete(e)) {
+    int mode = (type == "readwrite") ? IDBTransaction.READ_WRITE : IDBTransaction.READ_ONLY;
+    print("opening $type txn for store $storeName");
+    IDBTransaction txn = _db.transaction(storeName, mode);
+    txn.on.complete.add((e) {
+      print('txn completed');
+      completer.complete(onComplete(e));
+    });
+    txn.on.error.add((e) {
+      print("txn error: $e");
+      completer.completeException(e.target.error);
+    });
+    txn.on.abort.add((e) {
+      print("txn aborted: $e");
+      completer.completeException("txn aborted");
+    });
+    return txn;
+  }
   
   Future<K> save(V obj, [K key]) {
-    if (!isReady) _throwNotReady();
-    
     Completer<K> completer = new Completer<K>();
     var jsonObj = JSON.stringify(obj);
     
-    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
-    txn.addEventListener('complete', (e) => completer.complete(key));
-    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
-    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
-
+    IDBTransaction txn = _createTxn("readwrite", completer, (e) => key);
     IDBObjectStore objectStore = txn.objectStore(storeName);
     key = key == null ? _uuid() : key;
-    IDBRequest addRequest = objectStore.put(jsonObj, key);
+    print("Saving $jsonObj with key $key");
+    objectStore.put(jsonObj, key);
     
     return completer.future;
   }
   
   Future<V> getByKey(K key) {
-    if (!isReady) _throwNotReady();
-    
     Completer<V> completer = new Completer<V>();
+    var obj;
     
-    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_ONLY);
-    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
-    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+    IDBTransaction txn = _createTxn("readonly", completer, (e) => obj);
 
     IDBObjectStore objectStore = txn.objectStore(storeName);
-    IDBRequest getRequest = objectStore.getObject(key);
-    getRequest.addEventListener('success', (e) {
+    IDBRequest request = objectStore.getObject(key);
+    request.on.success.add((e) {
       var jsonObj = e.target.result;
-      var obj = (jsonObj == null) ? null : JSON.parse(jsonObj);
-      completer.complete(obj);
+      obj = (jsonObj == null) ? null : JSON.parse(jsonObj);
     });
     
     return completer.future;
   }
   
   Future<bool> removeByKey(K key) {
-    if (!isReady) _throwNotReady();
-    
     Completer<bool> completer = new Completer<bool>();
     
-    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
-    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
-    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
-
+    IDBTransaction txn = _createTxn("readwrite", completer, (e) => true);
     IDBObjectStore objectStore = txn.objectStore(storeName);
-    IDBRequest removeRequest = objectStore.delete(key);
-    removeRequest.addEventListener('success', (e) => completer.complete(true));
+    objectStore.delete(key);
     
     return completer.future;
   }
   
   Future<bool> nuke() {
-    if (!isReady) _throwNotReady();
-    
     Completer<bool> completer = new Completer<bool>();
     
-    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
-    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
-    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
-
+    IDBTransaction txn = _createTxn("readwrite", completer, (e) => true);
     IDBObjectStore objectStore = txn.objectStore(storeName);
-    IDBRequest clearRequest = objectStore.clear();
-    clearRequest.addEventListener('success', (e) => completer.complete(true));
+    objectStore.clear();
     
     return completer.future;
   }
   
   Future<Collection<V>> all() {
-    if (!isReady) _throwNotReady();
-    
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
     var values = <V>[];
     
-    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_ONLY);
-    txn.addEventListener('complete', (e) => completer.complete(values));
-    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
-    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+    IDBTransaction txn = _createTxn("readonly", completer, (e) => values);
 
     IDBObjectStore objectStore = txn.objectStore(storeName);
     IDBRequest cursorRequest = objectStore.openCursor();
-    cursorRequest.addEventListener("success", (e) {
+    cursorRequest.on.success.add((e) {
       var cursor = e.target.result;
       if (cursor != null) {
         values.add(JSON.parse(cursor.value));
@@ -157,7 +167,6 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   }
   
   Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
-    if (!isReady) _throwNotReady();
     if (_keys != null && objs.length != _keys.length) {
       throw "length of _keys must match length of objs";
     }
@@ -165,10 +174,7 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
     var newKeys = <K>[];
     
-    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
-    txn.addEventListener('complete', (e) => completer.complete(newKeys));
-    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
-    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+    IDBTransaction txn = _createTxn("readwrite", completer, (e) => newKeys);
     
     IDBObjectStore objectStore = txn.objectStore(storeName);
     for (int i = 0; i < objs.length; i++) {
@@ -177,29 +183,22 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
       K key = _keys[i];
       key = key == null ? _uuid() : key;
       IDBRequest addRequest = objectStore.put(jsonObj, key);
-      addRequest.addEventListener("success", (e) {
-        newKeys.add(key);
-      });
+      addRequest.on.success.add((e) => newKeys.add(key));
     }
     
     return completer.future;
   }
 
   Future<Collection<V>> getByKeys(Collection<K> _keys) {
-    if (!isReady) _throwNotReady();
-
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
     var values = <V>[];
     
-    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_ONLY);
-    txn.addEventListener('complete', (e) => completer.complete(values));
-    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
-    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+    IDBTransaction txn = _createTxn("readonly", completer, (e) => values);
     
     IDBObjectStore objectStore = txn.objectStore(storeName);
     _keys.forEach((key) {
       IDBRequest getRequest = objectStore.getObject(key);
-      getRequest.addEventListener("success", (e) {
+      getRequest.on.success.add((e) {
         var jsonObj = e.target.result;
         var obj = (jsonObj == null) ? null : JSON.parse(jsonObj);
         values.add(obj);
@@ -210,29 +209,41 @@ class IndexedDbAdapter<K, V> implements Adapter<K, V> {
   }
 
   Future<bool> removeByKeys(Collection<K> _keys) {
-    if (!isReady) _throwNotReady();
-    
     Completer<bool> completer = new Completer<bool>();
     
-    IDBTransaction txn = _db.transaction(storeName, IDBTransaction.READ_WRITE);
-    txn.addEventListener('complete', (e) => completer.complete(true));
-    txn.addEventListener('error', (e) => completer.completeException(e.target.error));
-    txn.addEventListener('abort', (e) => completer.completeException("txn aborted"));
+    IDBTransaction txn = _createTxn("readwrite", completer, (e) => true);
     
     IDBObjectStore objectStore = txn.objectStore(storeName);
     _keys.forEach((key) {
-      print('removing $key');
-      IDBRequest removeRequest = objectStore.delete(key);
-      print('removed key');
+      objectStore.delete(key);
     });
     
     return completer.future;
   }
-  
-  /*
 
-  Future<bool> exists(K key);
-  Future<Collection<K>> keys()
-  
-  */
+  Future<bool> exists(K key) {
+    Completer<bool> completer = new Completer<bool>();
+    getByKey(key).then((value) => completer.complete(value != null));
+    return completer.future;
+  }
+
+  Future<Collection<K>> keys() {
+    Completer completer = new Completer();
+    List<K> _keys = new List<K>();
+    
+    IDBTransaction txn = _createTxn("readonly", completer, (e) => _keys);
+    
+    IDBObjectStore objectStore = txn.objectStore(storeName);
+    IDBRequest allObjects = objectStore.openCursor();
+    allObjects.on.success.add((e) {
+      IDBCursor cursor = e.target.result;
+      if (cursor != null) {
+        _keys.add(cursor.key);
+        cursor.continueFunction();
+      }
+    });
+    
+    return completer.future;
+  }
+
 }
