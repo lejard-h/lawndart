@@ -17,10 +17,10 @@
 #import('dart:html');
 #import('dart:json');
 
-#source('memory-adapter.dart');
-#source('local-storage-adapter.dart');
-#source('indexeddb-adapter.dart');
-#source('websql-adapter.dart');
+#source('src/memory-adapter.dart');
+#source('src/local-storage-adapter.dart');
+#source('src/indexeddb-adapter.dart');
+#source('src/websql-adapter.dart');
 
 _uuid() {
   throw new NotImplementedException();
