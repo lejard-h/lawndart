@@ -1,5 +1,13 @@
+# Dart Excludes
+*~
+*.js
+*.js_
 .children
 .project
-pubspec.lock
-*.js
-*.js.map
+.gitmodules
+*.map
+*.lock
+*.tmp
+packages
+packages/
+null/
