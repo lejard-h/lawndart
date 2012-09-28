@@ -1,2 +1,5 @@
 .children
 .project
+pubspec.lock
+*.js
+*.js.map
