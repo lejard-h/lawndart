@@ -13,12 +13,12 @@
 //limitations under the License.
 
 #import('dart:html');
-#import('../lib/lawndart.dart');
+#import('package:lawndart/lawndart.dart');
 
 main() {
   IndexedDb idb = new IndexedDb("chat-db", ["chat-db", "delayed-messages"], "4");
   Store delayedMessagesDb;
-  
+
   Future test = idb.open();
   test.handleException((e) => print("ERROR: $e"));
   test

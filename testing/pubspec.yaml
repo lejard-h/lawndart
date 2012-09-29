@@ -1,0 +1,8 @@
+name: testidb
+description: A Lawndart example application.
+version: 0.0.1
+author: Seth Ladd (http://profiles.google.com/sethladd)
+homepage: https://github.com/sethladd/lawndart
+dependencies:
+  lawndart:
+    git: git://github.com/danschubert/lawndart.git
