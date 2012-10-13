@@ -11,39 +11,33 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
+part of lawndart;
+class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
+  Map<K, V> storage;
 
-// TODO: error handling
-class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
-  static final INDEX_KEY = "__lawndart__keys";
-  
-  Storage storage;
-  
-  LocalStorageAdapter([Map options]) {
-    storage = window.localStorage;
-  }
-  
-  List<K> get _allKeys() => JSON.parse(storage[INDEX_KEY]);
+  MemoryAdapter([Map options]) : storage = new Map<K, V>();
 
   Future<bool> open() {
     return new Future.immediate(true);
   }
   
   Future<Collection<K>> keys() {
-    return _results(_allKeys);
+    return _results(storage.getKeys());
   }
   
   Future<K> save(V obj, [K key]) {
     key = key == null ? _uuid() : key;
-    storage[key] = JSON.stringify(obj);
+    storage[key] = obj;
     return _results(key);
   }
   
   Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
-    var newKeys = <K>[];
+    List<K> newKeys = <K>[];
     for (var i = 0; i < objs.length; i++) {
       K key = keys[i];
       key = key == null ? _uuid() : key;
-      storage[key] = JSON.stringify(objs[i]);
+      newKeys.add(key);
+      storage[key] = objs[i];
     }
     return _results(newKeys);
   }
@@ -58,29 +52,24 @@ class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
   }
   
   Future<bool> exists(K key) {
-    return _results(storage[key] != null);
+    return _results(storage.containsKey(key));
   }
   
   Future<Collection<V>> all() {
-    var values = _allKeys.map((key) => storage[key]);
-    return _results(values);
+    return _results(storage.getKeys());
   }
   
   Future<bool> removeByKey(K key) {
-    List<K> _keys = _allKeys;
-    _keys.removeRange(_keys.indexOf(key), 1);
     storage.remove(key);
-    storage[INDEX_KEY] = JSON.stringify(_keys);
     return _results(true);
   }
   
   Future<bool> removeByKeys(Collection<K> _keys) {
-    _keys.forEach((key) => removeByKey(key));
+    _keys.forEach((key) => storage.remove(key));
     return _results(true);
   }
   
   Future<bool> nuke() {
-    storage.remove(INDEX_KEY);
     storage.clear();
     return _results(true);
   }

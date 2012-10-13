@@ -12,32 +12,39 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
-class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
-  Map<K, V> storage;
-
-  MemoryAdapter([Map options]) : storage = new Map<K, V>();
+part of lawndart;
+// TODO: error handling
+class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
+  static final INDEX_KEY = "__lawndart__keys";
+  
+  Storage storage;
+  
+  LocalStorageAdapter([Map options]) {
+    storage = window.localStorage;
+  }
+  
+  List<K> get _allKeys() => JSON.parse(storage[INDEX_KEY]);
 
   Future<bool> open() {
     return new Future.immediate(true);
   }
   
   Future<Collection<K>> keys() {
-    return _results(storage.getKeys());
+    return _results(_allKeys);
   }
   
   Future<K> save(V obj, [K key]) {
     key = key == null ? _uuid() : key;
-    storage[key] = obj;
+    storage[key] = JSON.stringify(obj);
     return _results(key);
   }
   
   Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
-    List<K> newKeys = <K>[];
+    var newKeys = <K>[];
     for (var i = 0; i < objs.length; i++) {
       K key = keys[i];
       key = key == null ? _uuid() : key;
-      newKeys.add(key);
-      storage[key] = objs[i];
+      storage[key] = JSON.stringify(objs[i]);
     }
     return _results(newKeys);
   }
@@ -52,24 +59,29 @@ class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
   }
   
   Future<bool> exists(K key) {
-    return _results(storage.containsKey(key));
+    return _results(storage[key] != null);
   }
   
   Future<Collection<V>> all() {
-    return _results(storage.getKeys());
+    var values = _allKeys.map((key) => storage[key]);
+    return _results(values);
   }
   
   Future<bool> removeByKey(K key) {
+    List<K> _keys = _allKeys;
+    _keys.removeRange(_keys.indexOf(key), 1);
     storage.remove(key);
+    storage[INDEX_KEY] = JSON.stringify(_keys);
     return _results(true);
   }
   
   Future<bool> removeByKeys(Collection<K> _keys) {
-    _keys.forEach((key) => storage.remove(key));
+    _keys.forEach((key) => removeByKey(key));
     return _results(true);
   }
   
   Future<bool> nuke() {
+    storage.remove(INDEX_KEY);
     storage.clear();
     return _results(true);
   }

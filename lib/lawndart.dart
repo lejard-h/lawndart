@@ -12,15 +12,15 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
-#library('lawndart');
+library lawndart;
 
-#import('dart:html');
-#import('dart:json');
+import 'dart:html';
+import 'dart:json';
 
-#source('memory-adapter.dart');
-#source('local-storage-adapter.dart');
-#source('indexeddb-adapter.dart');
-#source('websql-adapter.dart');
+part 'src/memory-adapter.dart';
+part 'src/local-storage-adapter.dart';
+part 'src/indexeddb-adapter.dart';
+part 'src/websql-adapter.dart';
 
 _uuid() {
   throw new NotImplementedException();

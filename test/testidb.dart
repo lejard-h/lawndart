@@ -12,8 +12,8 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
-#import('dart:html');
-#import('../lib/lawndart.dart');
+import 'dart:html';
+import 'package:lawndart/lawndart.dart';
 
 main() {
   IndexedDb idb = new IndexedDb("chat-db", ["chat-db", "delayed-messages"], '2');
