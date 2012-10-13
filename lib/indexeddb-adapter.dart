@@ -80,16 +80,17 @@ class _IndexedDbAdapter<K, V> implements Store<K, V> {
   _IndexedDbAdapter(IDBDatabase this._db, String this.storeName);
   
   IDBTransaction _createTxn(String type, Completer completer, onComplete(e)) {
-    int mode = (type == "readwrite") ? IDBTransaction.READ_WRITE : IDBTransaction.READ_ONLY;
+//    int mode = (type == "readwrite") ? IDBTransaction.READ_WRITE : IDBTransaction.READ_ONLY;
     print("opening $type txn for store $storeName");
-    IDBTransaction txn = _db.transaction(storeName, mode);
+    IDBTransaction txn = _db.transaction(storeName, type);
     txn.on.complete.add((e) {
       print('txn completed');
       completer.complete(onComplete(e));
     });
     txn.on.error.add((e) {
+      print('I here in OnError');
       print("txn error: $e");
-      completer.completeException(e.target.error);
+      completer.completeException(e.target/*.error*/);
     });
     txn.on.abort.add((e) {
       print("txn aborted: $e");
@@ -166,9 +167,9 @@ class _IndexedDbAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
-  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
-    if (_keys != null && objs.length != _keys.length) {
-      throw "length of _keys must match length of objs";
+  Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
+    if (keys != null && objs.length != keys.length) {
+      throw "length of keys must match length of objs";
     }
     
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
@@ -180,7 +181,7 @@ class _IndexedDbAdapter<K, V> implements Store<K, V> {
     for (int i = 0; i < objs.length; i++) {
       V obj = objs[i];
       var jsonObj = JSON.stringify(obj);
-      K key = _keys[i];
+      K key = keys[i];
       key = key == null ? _uuid() : key;
       IDBRequest addRequest = objectStore.put(jsonObj, key);
       addRequest.on.success.add((e) => newKeys.add(key));

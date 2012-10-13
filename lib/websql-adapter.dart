@@ -140,7 +140,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
-  Future<Collection<V>> all() {
+  Future all() {
     if (!isReady) _throwNotReady();
     
     var sql = 'SELECT * FROM $storeName';
@@ -150,8 +150,8 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     
     _db.transaction((txn) {
       txn.executeSql(sql, [], (txn, resultSet) {
-        for (var i = 0; i < resultSet.length; i++) {
-          values.add(JSON.parse(resultSet.rows.items(i).value));
+        for (var each in resultSet.rows) {
+          values.add(each);
         }
         completer.complete(values);
       });
@@ -160,9 +160,9 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
-  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
+  Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
     if (!isReady) _throwNotReady();
-    if (_keys != null && objs.length != _keys.length) {
+    if (keys != null && objs.length != keys.length) {
       throw "length of _keys must match length of objs";
     }
     
@@ -176,7 +176,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
       for (int i = 0; i < objs.length; i++) {
         V obj = objs[i];
         var value = JSON.stringify(obj);
-        K key = _keys[i];
+        K key = keys[i];
         
         if (key == null) {
           txn.executeSql(noKeySql, [value], (txn, resultSet) {

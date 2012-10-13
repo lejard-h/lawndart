@@ -16,7 +16,8 @@
 #import('../lib/lawndart.dart');
 
 main() {
-  IndexedDb idb = new IndexedDb("chat-db", ["chat-db", "delayed-messages"], "4");
+  IndexedDb idb = new IndexedDb("chat-db", ["chat-db", "delayed-messages"], '2');
+ 
   Store delayedMessagesDb;
   
   Future test = idb.open();
@@ -26,5 +27,5 @@ main() {
     delayedMessagesDb = idb.store("delayed-messages");
     return delayedMessagesDb.save("hello", "world");
   })
-  .then((_) => print('all done'));
+  .then((_) => print('all done'));  
 }

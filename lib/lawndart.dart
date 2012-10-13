@@ -33,7 +33,7 @@ interface Store<K, V> {
   Future<Collection<K>> keys();
   Future<K> save(V obj, [K key]);
   // TODO: no guaranteed ordering of returned keys, so not sure how useful this is
-  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]);
+  Future<Collection<K>> batch(List<V> objs, [List<K> keys]);
   Future<V> getByKey(K key);
   Future<Collection<V>> getByKeys(Collection<K> _keys);
   Future<bool> exists(K key);

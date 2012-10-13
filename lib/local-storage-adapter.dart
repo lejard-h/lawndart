@@ -38,10 +38,10 @@ class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
     return _results(key);
   }
   
-  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
+  Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
     var newKeys = <K>[];
     for (var i = 0; i < objs.length; i++) {
-      K key = _keys[i];
+      K key = keys[i];
       key = key == null ? _uuid() : key;
       storage[key] = JSON.stringify(objs[i]);
     }
