@@ -98,7 +98,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
 
     _db.readTransaction((txn) {
       txn.executeSql(sql, [key], (txn, resultSet) {
-        completer.complete(JSON.parse(resultSet.rows.item(0).value));
+        completer.complete(JSON.parse(resultSet.rows[0]['value']));
       });
     }, (error) => completer.completeException(error));
     
@@ -130,33 +130,30 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     
     Completer<bool> completer = new Completer<bool>();
     
-    var sql = 'TRUNCATE TABLE $storeName';
-
+//    var sql = 'TRUNCATE TABLE $storeName';
+    var sql = 'DELETE FROM $storeName';
     _db.transaction((txn) {
-      txn.executeSql(sql, [], (txn, resultSet) {
-        completer.complete(true);
-      });
-    }, (error) => completer.completeException(error));
-    
+      txn.executeSql(sql, [], 
+          (txn, resultSet) => completer.complete(true), 
+          _onError);
+    });
     return completer.future;
   }
   
   Future all() {
-    if (!isReady) _throwNotReady();
-    
-    var sql = 'SELECT * FROM $storeName';
+    if (!isReady) _throwNotReady();    
+    var sql = 'SELECT id,value FROM $storeName';
 
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
-    var values = <V>[];
-    
+    var values = [];    
     _db.transaction((txn) {
       txn.executeSql(sql, [], (txn, resultSet) {
         for (var each in resultSet.rows) {
-          values.add(each);
+          values.add(each['value']);
         }
         completer.complete(values);
-      });
-    }, (error) => completer.completeException(error));
+      }, _onError);
+    });
     
     return completer.future;
   }
@@ -190,7 +187,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
         }
       }
     }, (error) => completer.completeException(error),
-       (success) => completer.complete(newKeys));
+       () { completer.complete(newKeys); return true;});
     
     return completer.future;
   }
@@ -233,6 +230,10 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
+  bool _onError(SQLTransaction transaction, SQLError error){
+    print('Database error: ${error.code} ${error.message}');
+    return true;
+  }
   /*
 
   Future<bool> exists(K key);
