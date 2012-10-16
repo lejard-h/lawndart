@@ -12,6 +12,7 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
+part of lawndart;
 // TODO: error handling
 class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
   static final INDEX_KEY = "__lawndart__keys";
@@ -38,10 +39,10 @@ class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
     return _results(key);
   }
   
-  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
+  Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
     var newKeys = <K>[];
     for (var i = 0; i < objs.length; i++) {
-      K key = _keys[i];
+      K key = keys[i];
       key = key == null ? _uuid() : key;
       storage[key] = JSON.stringify(objs[i]);
     }

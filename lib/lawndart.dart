@@ -12,15 +12,15 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
-#library('lawndart');
+library lawndart;
 
-#import('dart:html');
-#import('dart:json');
+import 'dart:html';
+import 'dart:json';
 
-#source('memory-adapter.dart');
-#source('local-storage-adapter.dart');
-#source('indexeddb-adapter.dart');
-#source('websql-adapter.dart');
+part 'src/memory-adapter.dart';
+part 'src/local-storage-adapter.dart';
+part 'src/indexeddb-adapter.dart';
+part 'src/websql-adapter.dart';
 
 _uuid() {
   throw new NotImplementedException();
@@ -33,7 +33,7 @@ interface Store<K, V> {
   Future<Collection<K>> keys();
   Future<K> save(V obj, [K key]);
   // TODO: no guaranteed ordering of returned keys, so not sure how useful this is
-  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]);
+  Future<Collection<K>> batch(List<V> objs, [List<K> keys]);
   Future<V> getByKey(K key);
   Future<Collection<V>> getByKeys(Collection<K> _keys);
   Future<bool> exists(K key);
