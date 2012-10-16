@@ -32,8 +32,7 @@ class IndexedDb<K, V> {
   
   Future<bool> open() {
     Completer completer = new Completer();
-    var request = window.indexedDB.open(dbName);
-    print('requested open for $dbName');
+    var request = window.indexedDB.open(dbName);    
     request.on.success.add((e) => _onDbOpened(request.result, completer));
     request.on.error.add(_onError);
     request.on.upgradeNeeded.add((e) => _onUpgradeNeeded(request.transaction));    
