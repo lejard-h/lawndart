@@ -24,35 +24,36 @@ void _onError(e) {
 
 class IndexedDb<K, V> {
   String dbName;
-  List<String> storeNames;
-  int version;
+  List<String> storeNames;  
   IDBDatabase _db;
   bool isReady = false;
   
-  IndexedDb(String this.dbName, List<String> this.storeNames, this.version);
+  IndexedDb(String this.dbName, List<String> this.storeNames);
   
   Future<bool> open() {
     Completer completer = new Completer();
-    var request = window.indexedDB.open(dbName,version);
+    var request = window.indexedDB.open(dbName);
     print('requested open for $dbName');
     request.on.success.add((e) => _onDbOpened(request.result, completer));
     request.on.error.add(_onError);
     request.on.upgradeNeeded.add((e) => _onUpgradeNeeded(request.transaction));    
     return completer.future;
   }
-  void _onDbOpened(IDBDatabase db, Completer completer) {
-    window.console.log('In _onDbOpened');
+  void _onDbOpened(IDBDatabase db, Completer completer) {    
     _db = db;
     isReady = true;
-    completer.complete(true);
+    completer.complete(true);    
   }
   
   void _onUpgradeNeeded(IDBTransaction changeVersionTransaction) {
     window.console.log('Db upgrading');
     changeVersionTransaction.on.complete.add((e) => e);
     changeVersionTransaction.on.error.add(_onError);
+    var db = changeVersionTransaction.db; 
     for (var storeName in storeNames) {
-      changeVersionTransaction.db.createObjectStore(storeName);
+      if (db.objectStoreNames.indexOf(storeName) == -1) {  
+        db.createObjectStore(storeName);
+      }        
     }    
   }
   

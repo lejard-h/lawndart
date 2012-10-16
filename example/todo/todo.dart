@@ -24,18 +24,11 @@ class TodoList {
   }
 
   void open() {
-    idb = new IndexedDb(_TODOS_DB, [_TODOS_STORE], 1);
+    idb = new IndexedDb(_TODOS_DB, [_TODOS_STORE]);
     idb.open().then((_) {
       store = idb.store(_TODOS_STORE);
       _getAllTodoItems();
     });
-  }
-
-  void _onError(e) {
-    // Get the user's attention for the sake of this tutorial. (Of course we
-    // would *never* use window.alert() in real life.)
-    window.alert('Oh no! Something went wrong. See the console for details.');
-    window.console.log('An error occurred: ${e} ${e.target.error.code}');
   }
 
   void _onAddTodo() {
