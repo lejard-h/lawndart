@@ -11,7 +11,7 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
-
+part of lawndart;
 class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
   Map<K, V> storage;
 
@@ -31,10 +31,10 @@ class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
     return _results(key);
   }
   
-  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
+  Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
     List<K> newKeys = <K>[];
     for (var i = 0; i < objs.length; i++) {
-      K key = _keys[i];
+      K key = keys[i];
       key = key == null ? _uuid() : key;
       newKeys.add(key);
       storage[key] = objs[i];

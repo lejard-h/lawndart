@@ -11,6 +11,7 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
+part of lawndart;
 
 class WebSqlAdapter<K, V> implements Store<K, V> {
   
@@ -97,7 +98,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
 
     _db.readTransaction((txn) {
       txn.executeSql(sql, [key], (txn, resultSet) {
-        completer.complete(JSON.parse(resultSet.rows.item(0).value));
+        completer.complete(JSON.parse(resultSet.rows[0]['value']));
       });
     }, (error) => completer.completeException(error));
     
@@ -129,40 +130,37 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     
     Completer<bool> completer = new Completer<bool>();
     
-    var sql = 'TRUNCATE TABLE $storeName';
-
+//    var sql = 'TRUNCATE TABLE $storeName';
+    var sql = 'DELETE FROM $storeName';
     _db.transaction((txn) {
-      txn.executeSql(sql, [], (txn, resultSet) {
-        completer.complete(true);
-      });
-    }, (error) => completer.completeException(error));
-    
+      txn.executeSql(sql, [], 
+          (txn, resultSet) => completer.complete(true), 
+          _onError);
+    });
     return completer.future;
   }
   
-  Future<Collection<V>> all() {
-    if (!isReady) _throwNotReady();
-    
-    var sql = 'SELECT * FROM $storeName';
+  Future all() {
+    if (!isReady) _throwNotReady();    
+    var sql = 'SELECT id,value FROM $storeName';
 
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
-    var values = <V>[];
-    
+    var values = [];    
     _db.transaction((txn) {
       txn.executeSql(sql, [], (txn, resultSet) {
-        for (var i = 0; i < resultSet.length; i++) {
-          values.add(JSON.parse(resultSet.rows.items(i).value));
+        for (var each in resultSet.rows) {
+          values.add(each['value']);
         }
         completer.complete(values);
-      });
-    }, (error) => completer.completeException(error));
+      }, _onError);
+    });
     
     return completer.future;
   }
   
-  Future<Collection<K>> batch(List<V> objs, [List<K> _keys]) {
+  Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
     if (!isReady) _throwNotReady();
-    if (_keys != null && objs.length != _keys.length) {
+    if (keys != null && objs.length != keys.length) {
       throw "length of _keys must match length of objs";
     }
     
@@ -176,7 +174,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
       for (int i = 0; i < objs.length; i++) {
         V obj = objs[i];
         var value = JSON.stringify(obj);
-        K key = _keys[i];
+        K key = keys[i];
         
         if (key == null) {
           txn.executeSql(noKeySql, [value], (txn, resultSet) {
@@ -189,7 +187,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
         }
       }
     }, (error) => completer.completeException(error),
-       (success) => completer.complete(newKeys));
+       () { completer.complete(newKeys); return true;});
     
     return completer.future;
   }
@@ -232,6 +230,10 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
+  bool _onError(SQLTransaction transaction, SQLError error){
+    print('Database error: ${error.code} ${error.message}');
+    return true;
+  }
   /*
 
   Future<bool> exists(K key);

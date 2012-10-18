@@ -1,2 +1,7 @@
 .children
 .project
+packages
+/pubspec.lock
+*.dart.js
+*.dart.js.map
+
