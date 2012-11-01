@@ -16,7 +16,7 @@ import 'dart:html';
 import 'package:lawndart/lawndart.dart';
 
 main() {
-  IndexedDb idb = new IndexedDb("chat-db", ["chat-db", "delayed-messages"], '2');
+  var idb = new IndexedDb("chat-db", ["chat-db", "delayed-messages"], 3);
  
   Store delayedMessagesDb;
   

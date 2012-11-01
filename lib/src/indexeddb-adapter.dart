@@ -11,49 +11,70 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
+
 part of lawndart;
 
-
-void _onError(e) {
-  // Get the user's attention for the sake of this tutorial. (Of course we
-  // would *never* use window.alert() in real life.)
-//    window.alert('Oh no! Something went wrong. See the console for details.');
-  window.console.log('An error occurred: ${e.target.error.name}');
+void _onError(Event e) {
+  print('An error occurred: ${(e.target as IDBRequest).error.name}');
 }
-
 
 class IndexedDb<K, V> {
   String dbName;
   List<String> storeNames;  
   IDBDatabase _db;
   bool isReady = false;
+  int version;
   
-  IndexedDb(String this.dbName, List<String> this.storeNames);
+  IndexedDb(String this.dbName, List<String> this.storeNames, [int this.version = 1]) {
+    if (version == null) {
+      throw "version must not be null";
+    }
+  }
   
   Future<bool> open() {
     Completer completer = new Completer();
-    var request = window.indexedDB.open(dbName);    
-    request.on.success.add((e) => _onDbOpened(request.result, completer));
+    var request = window.indexedDB.open(dbName, version);
+    if (request is IDBOpenDBRequest) {
+      request.on.success.add((e) {
+        _db = request.result;
+        isReady = true;
+        completer.complete(true);
+      });
+      request.on.upgradeNeeded.add((e) {
+        _db = request.result;
+        _createObjectStoresForUpgrade();
+      });
+    } else {
+      request.on.success.add((e) {
+        _db = request.result;
+        if (_db.version != '$version') {
+          var setRequest = _db.setVersion('$version');
+          setRequest.on.success.add((e) {
+            _createObjectStoresForUpgrade();
+            var transaction = e.target.result;
+            transaction.on.complete.add((_) {
+              isReady = true;
+              completer.complete(true);
+            });
+            transaction.on.error.add(_onError);
+          });
+          setRequest.on.error.add(_onError);
+        } else {
+          isReady = true;
+          completer.complete(true);
+        }
+      });
+    }
     request.on.error.add(_onError);
-    request.on.upgradeNeeded.add((e) => _onUpgradeNeeded(request.transaction));    
     return completer.future;
   }
-  void _onDbOpened(IDBDatabase db, Completer completer) {    
-    _db = db;
-    isReady = true;
-    completer.complete(true);    
-  }
   
-  void _onUpgradeNeeded(IDBTransaction changeVersionTransaction) {
-    window.console.log('Db upgrading');
-    changeVersionTransaction.on.complete.add((e) => e);
-    changeVersionTransaction.on.error.add(_onError);
-    var db = changeVersionTransaction.db; 
+  void _createObjectStoresForUpgrade() {
     for (var storeName in storeNames) {
-      if (db.objectStoreNames.indexOf(storeName) == -1) {  
-        db.createObjectStore(storeName);
+      if (_db.objectStoreNames.indexOf(storeName) == -1) {  
+        _db.createObjectStore(storeName);
       }        
-    }    
+    } 
   }
   
   Store<K, V> store(String storeName) {
@@ -91,7 +112,6 @@ class _IndexedDbAdapter<K, V> implements Store<K, V> {
     return _doCommand((IDBObjectStore store) => store.getObject(key), (e) => e.target.result);    
   }
   
-  
   Future<bool> nuke() {    
     Completer<bool> completer = new Completer<bool>();
     var trans = _db.transaction(storeName, 'readwrite');
@@ -114,7 +134,7 @@ class _IndexedDbAdapter<K, V> implements Store<K, V> {
   
   Future<Collection<V>> all() {
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
-    var trans = _db.transaction(storeName, 'readwrite');
+    var trans = _db.transaction(storeName, 'readonly');
     var store = trans.objectStore(storeName);
     var values = <V>[];
     // Get everything in the store.
@@ -124,25 +144,14 @@ class _IndexedDbAdapter<K, V> implements Store<K, V> {
       if (cursor != null && cursor.value != null) {
         values.add(cursor.value);
         cursor.continueFunction();
-      }
-      else {
+      } else {
         completer.complete(values);
       }
     });
     request.on.error.add(_onError);
     return completer.future;
   }
-  
- 
-  
-  void _onError(e) {
-    // Get the user's attention for the sake of this tutorial. (Of course we
-    // would *never* use window.alert() in real life.)
-//    window.alert('Oh no! Something went wrong. See the console for details.');
-    window.console.log('An error occurred: {$e}');
-  }
 
-  
   Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
     if (keys != null && objs.length != keys.length) {
       throw "length of keys must match length of objs";

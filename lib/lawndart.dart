@@ -28,8 +28,8 @@ _uuid() {
 
 _results(obj) => new Future.immediate(obj);
 
-interface Store<K, V> {
-  Future<bool> open();
+abstract class Store<K, V> {
+  Future open();
   Future<Collection<K>> keys();
   Future<K> save(V obj, [K key]);
   // TODO: no guaranteed ordering of returned keys, so not sure how useful this is

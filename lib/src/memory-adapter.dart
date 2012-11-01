@@ -11,7 +11,9 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
+
 part of lawndart;
+
 class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
   Map<K, V> storage;
 
@@ -22,7 +24,7 @@ class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
   }
   
   Future<Collection<K>> keys() {
-    return _results(storage.getKeys());
+    return _results(storage.keys);
   }
   
   Future<K> save(V obj, [K key]) {
@@ -56,7 +58,7 @@ class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
   }
   
   Future<Collection<V>> all() {
-    return _results(storage.getKeys());
+    return _results(storage.keys);
   }
   
   Future<bool> removeByKey(K key) {

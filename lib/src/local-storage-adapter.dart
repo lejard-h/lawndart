@@ -13,6 +13,7 @@
 //limitations under the License.
 
 part of lawndart;
+
 // TODO: error handling
 class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
   static final INDEX_KEY = "__lawndart__keys";
