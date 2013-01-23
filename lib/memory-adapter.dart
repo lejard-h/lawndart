@@ -14,42 +14,38 @@
 
 part of lawndart;
 
-class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
-  Map<K, V> storage;
-
-  MemoryAdapter([Map options]) : storage = new Map<K, V>();
+class MemoryAdapter<K, V> implements Store<K, V> {
+  Map<K, V> storage = new Map<K, V>();
 
   Future<bool> open() {
     return new Future.immediate(true);
   }
   
-  Future<Collection<K>> keys() {
+  Future<Iterable<K>> keys() {
     return _results(storage.keys);
   }
   
-  Future<K> save(V obj, [K key]) {
-    key = key == null ? _uuid() : key;
+  Future save(V obj, K key) {
+    if (key == null) {
+      throw new ArgumentError("key must not be null");
+    }
     storage[key] = obj;
-    return _results(key);
+    return _results(true);
   }
   
-  Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
-    List<K> newKeys = <K>[];
-    for (var i = 0; i < objs.length; i++) {
-      K key = keys[i];
-      key = key == null ? _uuid() : key;
-      newKeys.add(key);
-      storage[key] = objs[i];
+  Future batch(Map<K, V> objs) {
+    for (var key in objs.keys) {
+      storage[key] = objs[key];
     }
-    return _results(newKeys);
+    return _results(true);
   }
   
   Future<V> getByKey(K key) {
     return _results(storage[key]);
   }
   
-  Future<Collection<V>> getByKeys(Collection<K> _keys) {
-    var values = _keys.map((key) => storage[key]);
+  Future<Iterable<V>> getByKeys(Iterable<K> _keys) {
+    var values = _keys.mappedBy((key) => storage[key]);
     return _results(values);
   }
   
@@ -57,7 +53,7 @@ class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
     return _results(storage.containsKey(key));
   }
   
-  Future<Collection<V>> all() {
+  Future<Iterable<V>> all() {
     return _results(storage.keys);
   }
   
@@ -66,7 +62,7 @@ class MemoryAdapter<K extends Hashable, V> implements Store<K, V> {
     return _results(true);
   }
   
-  Future<bool> removeByKeys(Collection<K> _keys) {
+  Future<bool> removeByKeys(Iterable<K> _keys) {
     _keys.forEach((key) => storage.remove(key));
     return _results(true);
   }

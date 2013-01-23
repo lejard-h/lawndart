@@ -15,31 +15,28 @@
 library lawndart;
 
 import 'dart:html';
-import 'dart:json';
+import 'dart:indexed_db' as idb;
+import 'dart:json' as JSON;
+import 'dart:async';
 
-part 'src/memory-adapter.dart';
-part 'src/local-storage-adapter.dart';
-part 'src/indexeddb-adapter.dart';
-part 'src/websql-adapter.dart';
-
-_uuid() {
-  throw new NotImplementedException();
-}
+part 'indexeddb-adapter.dart';
+part 'memory-adapter.dart';
+part 'local-storage-adapter.dart';
+part 'websql-adapter.dart';
 
 _results(obj) => new Future.immediate(obj);
 
 abstract class Store<K, V> {
   Future open();
-  Future<Collection<K>> keys();
-  Future<K> save(V obj, [K key]);
-  // TODO: no guaranteed ordering of returned keys, so not sure how useful this is
-  Future<Collection<K>> batch(List<V> objs, [List<K> keys]);
+  Future<Iterable<K>> keys();
+  Future save(V obj, K key);
+  Future batch(Map<K, V> objectsByKey);
   Future<V> getByKey(K key);
-  Future<Collection<V>> getByKeys(Collection<K> _keys);
+  Future<Iterable<V>> getByKeys(Iterable<K> _keys);
   Future<bool> exists(K key);
-  Future<Collection<V>> all();
+  Future<Iterable<V>> all();
   Future<bool> removeByKey(K key);
   // TODO: what are the semantics of bool here?
-  Future<bool> removeByKeys(Collection<K> _keys);
+  Future<bool> removeByKeys(Iterable<K> _keys);
   Future<bool> nuke();
 }

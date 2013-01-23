@@ -13,6 +13,7 @@
 //limitations under the License.
 
 import 'dart:html';
+import 'dart:async';
 import 'package:lawndart/lawndart.dart';
 
 main() {
@@ -20,12 +21,11 @@ main() {
  
   Store delayedMessagesDb;
   
-  Future test = idb.open();
-  test.handleException((e) => print("ERROR: $e"));
-  test
-  .chain((_) {
+  idb.open()
+  .then((_) {
     delayedMessagesDb = idb.store("delayed-messages");
     return delayedMessagesDb.save("hello", "world");
   })
-  .then((_) => print('all done'));  
+  .then((_) => print('all done'))
+  .catchError((e) => print("ERROR: $e"));
 }

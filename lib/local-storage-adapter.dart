@@ -20,42 +20,42 @@ class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
   
   Storage storage;
   
-  LocalStorageAdapter([Map options]) {
+  LocalStorageAdapter() {
     storage = window.localStorage;
   }
   
-  List<K> get _allKeys() => JSON.parse(storage[INDEX_KEY]);
+  List<K> get _allKeys => JSON.parse(storage[INDEX_KEY]);
 
   Future<bool> open() {
     return new Future.immediate(true);
   }
   
-  Future<Collection<K>> keys() {
+  Future<Iterable<K>> keys() {
     return _results(_allKeys);
   }
   
-  Future<K> save(V obj, [K key]) {
-    key = key == null ? _uuid() : key;
+  Future save(V obj, K key) {
+    if (key == null) {
+      throw new ArgumentError("key must not be null");
+    }
     storage[key] = JSON.stringify(obj);
-    return _results(key);
+    return _results(true);
   }
   
-  Future<Collection<K>> batch(List<V> objs, [List<K> keys]) {
-    var newKeys = <K>[];
-    for (var i = 0; i < objs.length; i++) {
-      K key = keys[i];
-      key = key == null ? _uuid() : key;
-      storage[key] = JSON.stringify(objs[i]);
+  Future batch(Map<K, V> objs) {
+    for (var key in objs.keys) {
+      var obj = objs[key];
+      storage[key] = JSON.stringify(obj);
     }
-    return _results(newKeys);
+    return _results(true);
   }
   
   Future<V> getByKey(K key) {
     return _results(storage[key]);
   }
   
-  Future<Collection<V>> getByKeys(Collection<K> _keys) {
-    var values = _keys.map((key) => storage[key]);
+  Future<Iterable<V>> getByKeys(Iterable<K> _keys) {
+    var values = _keys.mappedBy((key) => storage[key]);
     return _results(values);
   }
   
@@ -63,8 +63,8 @@ class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
     return _results(storage[key] != null);
   }
   
-  Future<Collection<V>> all() {
-    var values = _allKeys.map((key) => storage[key]);
+  Future<Iterable<V>> all() {
+    var values = _allKeys.mappedBy((key) => storage[key]);
     return _results(values);
   }
   
@@ -76,7 +76,7 @@ class LocalStorageAdapter<K extends String, V> implements Store<K, V> {
     return _results(true);
   }
   
-  Future<bool> removeByKeys(Collection<K> _keys) {
+  Future<bool> removeByKeys(Iterable<K> _keys) {
     _keys.forEach((key) => removeByKey(key));
     return _results(true);
   }
