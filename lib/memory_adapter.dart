@@ -15,17 +15,25 @@
 part of lawndart;
 
 class MemoryAdapter<K, V> implements Store<K, V> {
+  bool isOpen = false;
   Map<K, V> storage = new Map<K, V>();
+  
+  _checkOpen() {
+    if (!isOpen) throw new StateError('not open');
+  }
 
   Future<bool> open() {
+    isOpen = true;
     return new Future.immediate(true);
   }
   
   Future<Iterable<K>> keys() {
+    _checkOpen();
     return _results(storage.keys);
   }
   
   Future save(V obj, K key) {
+    _checkOpen();
     if (key == null) {
       throw new ArgumentError("key must not be null");
     }
@@ -34,6 +42,7 @@ class MemoryAdapter<K, V> implements Store<K, V> {
   }
   
   Future batch(Map<K, V> objs) {
+    _checkOpen();
     for (var key in objs.keys) {
       storage[key] = objs[key];
     }
