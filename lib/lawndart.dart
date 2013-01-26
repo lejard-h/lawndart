@@ -19,10 +19,10 @@ import 'dart:indexed_db' as idb;
 import 'dart:json' as JSON;
 import 'dart:async';
 
-part 'indexeddb-adapter.dart';
-part 'memory-adapter.dart';
-part 'local-storage-adapter.dart';
-part 'websql-adapter.dart';
+part 'indexeddb_adapter.dart';
+part 'memory_adapter.dart';
+part 'local_storage_adapter.dart';
+part 'websql_adapter.dart';
 
 _results(obj) => new Future.immediate(obj);
 
