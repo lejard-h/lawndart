@@ -1,7 +1,10 @@
+library memory_tests;
+
 import 'package:unittest/unittest.dart';
 import 'package:lawndart/lawndart.dart';
 
 main() {
+  
   group('memory', () {
     Store store;
     setUp(() => store = new MemoryAdapter());

@@ -6,3 +6,4 @@ homepage: https://github.com/sethladd/lawndart
 
 dependencies:
   unittest: any
+  browser: any
