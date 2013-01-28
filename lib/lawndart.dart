@@ -35,8 +35,16 @@ abstract class Store<K, V> {
   Future<Iterable<V>> getByKeys(Iterable<K> _keys);
   Future<bool> exists(K key);
   Future<Iterable<V>> all();
-  Future<bool> removeByKey(K key);
-  // TODO: what are the semantics of bool here?
-  Future<bool> removeByKeys(Iterable<K> _keys);
-  Future<bool> nuke();
+  
+  /// Removes a value from storage, given a key. The value
+  /// returned by the Future is undefined.
+  Future removeByKey(K key);
+  
+  /// Removes all values from storage, given one or more keys. The value
+  /// returned by the Future is undefined.
+  Future removeByKeys(Iterable<K> _keys);
+  
+  /// Removes all values from storage.
+  /// The value returned by the Future is undefined.
+  Future nuke();
 }

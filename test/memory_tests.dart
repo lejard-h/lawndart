@@ -80,7 +80,12 @@ main() {
         expect(future, completion(null));
       });
       
-      test('save returns true', () {
+      test('get by keys return null', () {
+        var future = store.getByKeys(["foo"]);
+        expect(future, completion(hasLength(0)));
+      });
+      
+      test('save completes', () {
         var future = store.save("key", "value");
         expect(future, completion(true));
       });
@@ -88,6 +93,31 @@ main() {
       test('exists returns false', () {
         var future = store.exists("foo");
         expect(future, completion(false));
+      });
+      
+      test('all is empty', () {
+        var future = store.all();
+        expect(future, completion(hasLength(0)));
+      });
+      
+      test('remove by key completes', () {
+        var future = store.removeByKey("foo");
+        expect(future, completes);
+      });
+      
+      test('remove by keys completes', () {
+        var future = store.removeByKeys(["foo"]);
+        expect(future, completes);
+      });
+      
+      test('nuke completes', () {
+        var future = store.nuke();
+        expect(future, completes);
+      });
+      
+      test('batch completes', () {
+        var future = store.batch({'foo':'bar'});
+        expect(future, completes);
       });
     });
   });
