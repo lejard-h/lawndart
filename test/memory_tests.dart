@@ -70,22 +70,24 @@ main() {
       
       test('keys is empty', () {
         var future = store.keys();
-        future.then((keys) {
-          expect(keys.length, 0);
-        });
+        expect(future, completion(hasLength(0)));
+          // See http://dartbug.com/8159
+          //expect(future, completion(isEmpty));
       });
       
-      test('save', () {
+      test('get by key return null', () {
+        var future = store.getByKey("foo");
+        expect(future, completion(null));
+      });
+      
+      test('save returns true', () {
         var future = store.save("key", "value");
         expect(future, completion(true));
       });
-    });
-    
-    group('with saved value', () {
-      setUp(() => store.save("key", "value"));
       
-      test('keys', () {
-        
+      test('exists returns false', () {
+        var future = store.exists("foo");
+        expect(future, completion(false));
       });
     });
   });
