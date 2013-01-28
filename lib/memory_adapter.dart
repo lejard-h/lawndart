@@ -50,33 +50,40 @@ class MemoryAdapter<K, V> implements Store<K, V> {
   }
   
   Future<V> getByKey(K key) {
+    _checkOpen();
     return _results(storage[key]);
   }
   
   Future<Iterable<V>> getByKeys(Iterable<K> _keys) {
+    _checkOpen();
     var values = _keys.mappedBy((key) => storage[key]);
     return _results(values);
   }
   
   Future<bool> exists(K key) {
+    _checkOpen();
     return _results(storage.containsKey(key));
   }
   
   Future<Iterable<V>> all() {
+    _checkOpen();
     return _results(storage.keys);
   }
   
   Future<bool> removeByKey(K key) {
+    _checkOpen();
     storage.remove(key);
     return _results(true);
   }
   
   Future<bool> removeByKeys(Iterable<K> _keys) {
+    _checkOpen();
     _keys.forEach((key) => storage.remove(key));
     return _results(true);
   }
   
   Future<bool> nuke() {
+    _checkOpen();
     storage.clear();
     return _results(true);
   }
