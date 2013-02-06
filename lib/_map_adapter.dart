@@ -55,7 +55,7 @@ abstract class _MapAdapter<K, V> extends Store<K, V> {
   }
   
   Future<Iterable<V>> _all() {
-    return _results(storage.keys);
+    return _results(storage.values);
   }
   
   Future _removeByKey(K key) {
