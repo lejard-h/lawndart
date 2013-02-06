@@ -77,18 +77,16 @@ run(StoreGenerator generator) {
       });
       expect(future, completes);
     });
+
+    test('get by key return null', () {
+      var future = asyncSetup().then((_) => store.getByKey("foo"));
+      expect(future, completion(null));
+    });
     
-  });
-//    
-//    test('get by key return null', () {
-//      var future = store.getByKey("foo");
-//      expect(future, completion(null));
-//    });
-//    
-//    test('get by keys return empty collection', () {
-//      var future = store.getByKeys(["foo"]);
-//      expect(future, completion(hasLength(0)));
-//    });
+    test('get by keys return empty collection', () {
+      var future = asyncSetup().then((_) => store.getByKeys(["foo"]));
+      expect(future, completion(hasLength(0)));
+    });
 //    
 //    test('save completes', () {
 //      var future = store.save("key", "value");
@@ -124,7 +122,7 @@ run(StoreGenerator generator) {
 //      var future = store.batch({'foo':'bar'});
 //      expect(future, completes);
 //    });
-//  });
+  });
   
 //  group('with a few values', () {
 //    setUp(() {
