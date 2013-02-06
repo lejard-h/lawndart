@@ -1,5 +1,6 @@
 library store_tests;
 
+import 'dart:async';
 import 'package:unittest/unittest.dart';
 import 'package:lawndart/lawndart.dart';
 
@@ -62,83 +63,90 @@ run(StoreGenerator generator) {
   
   group('with no values', () {
     setUp(() {
-      // ensure it's clear for each test, see http://dartbug.com/8157
       store = generator();
-      store.open();
-      store.nuke();
     });
+    
+    Future asyncSetup() {
+      return store.open().then((_) => store.nuke());
+    }
     
     test('keys is empty', () {
-      var future = store.keys();
-      expect(future, completion(hasLength(0)));
-      // See http://dartbug.com/8159
-      //expect(future, completion(isEmpty));
-    });
-    
-    test('get by key return null', () {
-      var future = store.getByKey("foo");
-      expect(future, completion(null));
-    });
-    
-    test('get by keys return empty collection', () {
-      var future = store.getByKeys(["foo"]);
-      expect(future, completion(hasLength(0)));
-    });
-    
-    test('save completes', () {
-      var future = store.save("key", "value");
-      expect(future, completion(true));
-    });
-    
-    test('exists returns false', () {
-      var future = store.exists("foo");
-      expect(future, completion(false));
-    });
-    
-    test('all is empty', () {
-      var future = store.all();
-      expect(future, completion(hasLength(0)));
-    });
-    
-    test('remove by key completes', () {
-      var future = store.removeByKey("foo");
-      expect(future, completes);
-    });
-    
-    test('remove by keys completes', () {
-      var future = store.removeByKeys(["foo"]);
-      expect(future, completes);
-    });
-    
-    test('nuke completes', () {
-      var future = store.nuke();
-      expect(future, completes);
-    });
-    
-    test('batch completes', () {
-      var future = store.batch({'foo':'bar'});
-      expect(future, completes);
-    });
-  });
-  
-  group('with a few values', () {
-    setUp(() {
-      // ensure it's clear for each test, see http://dartbug.com/8157
-      store = generator();
-      store.open();
-      store.nuke();
-      store.save("hello", "world");
-    });
-    
-    test('keys has it', () {
-      var future = store.keys();
+      var future = asyncSetup().then((_) => store.keys());
       future.then((keys) {
-        expect(keys, hasLength(1));
-        expect(keys.first, "world");
+        expect(keys, hasLength(0));
       });
       expect(future, completes);
     });
+    
   });
+//    
+//    test('get by key return null', () {
+//      var future = store.getByKey("foo");
+//      expect(future, completion(null));
+//    });
+//    
+//    test('get by keys return empty collection', () {
+//      var future = store.getByKeys(["foo"]);
+//      expect(future, completion(hasLength(0)));
+//    });
+//    
+//    test('save completes', () {
+//      var future = store.save("key", "value");
+//      expect(future, completion(true));
+//    });
+//    
+//    test('exists returns false', () {
+//      var future = store.exists("foo");
+//      expect(future, completion(false));
+//    });
+//    
+//    test('all is empty', () {
+//      var future = store.all();
+//      expect(future, completion(hasLength(0)));
+//    });
+//    
+//    test('remove by key completes', () {
+//      var future = store.removeByKey("foo");
+//      expect(future, completes);
+//    });
+//    
+//    test('remove by keys completes', () {
+//      var future = store.removeByKeys(["foo"]);
+//      expect(future, completes);
+//    });
+//    
+//    test('nuke completes', () {
+//      var future = store.nuke();
+//      expect(future, completes);
+//    });
+//    
+//    test('batch completes', () {
+//      var future = store.batch({'foo':'bar'});
+//      expect(future, completes);
+//    });
+//  });
+  
+//  group('with a few values', () {
+//    setUp(() {
+//      // ensure it's clear for each test, see http://dartbug.com/8157
+//      store = generator();
+//    });
+//    
+//    Future asyncSetup() {
+//      store.open().then((_) => store.nuke()).then((_) => store.save("hello", "world"));
+//    }
+//    
+//    test('keys has it', () {
+//      asyncSetup().then((_) {
+//        var future = store.keys();
+//        future.then((keys) {
+//          expect(keys, hasLength(1));
+//          expect(keys.first, "world");
+//        });
+//        expect(future, completes);
+//      });
+//    });
+//  });
 }
 
 main() {
