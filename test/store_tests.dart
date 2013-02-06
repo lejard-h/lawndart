@@ -188,6 +188,16 @@ run(StoreGenerator generator) {
       });
       expect(future, completes);
     });
+    
+    test('remove by key', () {
+      Future future = asyncSetup().then((_) => store.removeByKey("hello")).then((_) => store.all());
+      future.then((remaining) {
+        expect(remaining, hasLength(1));
+        expect(remaining.contains("world"), false);
+        expect(remaining.contains("is fun"), true);
+      });
+      expect(future, completes);
+    });
   });
 }
 
