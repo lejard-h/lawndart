@@ -1,8 +1,8 @@
 import 'package:unittest/unittest.dart';
 import 'package:unittest/html_enhanced_config.dart';
-import 'memory_tests.dart' as memory;
+import 'store_tests.dart' as tests;
 
 main() {
   useHtmlEnhancedConfiguration();
-  memory.main();
+  tests.main();
 }
