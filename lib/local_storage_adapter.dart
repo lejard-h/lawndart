@@ -15,64 +15,9 @@
 part of lawndart;
 
 // TODO: error handling
-class LocalStorageAdapter<K extends String, V> extends Store<K, V> {
-  Storage storage;
-  
-  LocalStorageAdapter() {
-    storage = window.localStorage;
-  }
-
-  Future open() {
-    _isOpen = true;
-    return new Future.immediate(true);
-  }
-  
-  Future<Iterable<K>> _keys() {
-    return _results(storage.keys);
-  }
-  
-  Future _save(V obj, K key) {
-    storage[key] = JSON.stringify(obj);
-    return _results(true);
-  }
-  
-  Future _batch(Map<K, V> objs) {
-    for (var key in objs.keys) {
-      var obj = objs[key];
-      storage[key] = JSON.stringify(obj);
-    }
-    return _results(true);
-  }
-  
-  Future<V> _getByKey(K key) {
-    return _results(storage[key]);
-  }
-  
-  Future<Iterable<V>> _getByKeys(Iterable<K> _keys) {
-    var values = _keys.mappedBy((key) => storage[key]).where((v) => v != null);
-    return _results(values);
-  }
-  
-  Future<bool> _exists(K key) {
-    return _results(storage[key] != null);
-  }
-  
-  Future<Iterable<V>> _all() {
-    return _results(storage.values);
-  }
-  
-  Future<bool> _removeByKey(K key) {
-    storage.remove(key);
-    return _results(true);
-  }
-  
-  Future<bool> _removeByKeys(Iterable<K> _keys) {
-    _keys.forEach((key) => removeByKey(key));
-    return _results(true);
-  }
-  
-  Future<bool> _nuke() {
-    storage.clear();
-    return _results(true);
+class LocalStorageAdapter<K, V> extends _MapAdapter<K, V> {
+  @override
+  Map<K, V> _generateMap() {
+    return window.localStorage;
   }
 }
