@@ -2,4 +2,4 @@
 .project
 packages
 /pubspec.lock
-
+.buildlog

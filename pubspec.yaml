@@ -8,3 +8,4 @@ dependencies:
   unittest: any
   browser: any
   meta: any
+  web_ui: any

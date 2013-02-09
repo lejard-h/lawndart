@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+<html>
+  <body>   
+    <element name="x-todo-input" constructor="TodoInput">
+      <template>
+        <input type="text" id="new-todo" on-key-up="if (new KeyEvent($event).keyCode == KeyCode.ENTER) createNewTodo()">
+    
+        <button on-click="createNewTodo()">
+          Create New Todo
+        </button>
+      </template>
+      <script type="application/dart" src="todo_input_component.dart"></script>
+    </element>
+  </body>
+</html>
