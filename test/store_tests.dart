@@ -21,43 +21,43 @@ run(StoreGenerator generator) {
     
     test('keys throws stateerror', () {
       // TODO replace with type check
-      expect(() => store.keys(), throws);
+      expect(() => store.keys(), throwsStateError);
     });
     
     test('save throws stateerror', () {
-      expect(() => store.save('key', 'value'), throws);
+      expect(() => store.save('key', 'value'), throwsStateError);
     });
     
     test('batch throws stateerror', () {
-      expect(() => store.batch({'foo': 'bar'}), throws);
+      expect(() => store.batch({'foo': 'bar'}), throwsStateError);
     });
     
     test('get by key throws stateerror', () {
-      expect(() => store.getByKey('foo'), throws);
+      expect(() => store.getByKey('foo'), throwsStateError);
     });
     
     test('get by keys throws stateerror', () {
-      expect(() => store.getByKeys(['foo']), throws);
+      expect(() => store.getByKeys(['foo']), throwsStateError);
     });
     
     test('exists throws stateerror', () {
-      expect(() => store.exists('foo'), throws);
+      expect(() => store.exists('foo'), throwsStateError);
     });
     
     test('all throws stateerror', () {
-      expect(() => store.all(), throws);
+      expect(() => store.all(), throwsStateError);
     });
     
     test('remove by key throws stateerror', () {
-      expect(() => store.removeByKey('foo'), throws);
+      expect(() => store.removeByKey('foo'), throwsStateError);
     });
     
     test('remove by keys throws stateerror', () {
-      expect(() => store.removeByKeys(['foo']), throws);
+      expect(() => store.removeByKeys(['foo']), throwsStateError);
     });
     
     test('nuke throws stateerror', () {
-      expect(() => store.nuke(), throws);
+      expect(() => store.nuke(), throwsStateError);
     });
   });
   
@@ -209,4 +209,12 @@ main() {
   group('local storage', () {
     run(() => new LocalStorageAdapter<String, String>());
   });
+  
+  var idb = new IndexedDb("test-db", ["test-store"]);
+  idb.open()
+    .then((_) {
+      group('indexed db', () {
+        run(() => idb.store("test-store"));
+      });
+    });
 }

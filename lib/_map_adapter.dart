@@ -20,7 +20,7 @@ abstract class _MapAdapter<K, V> extends Store<K, V> {
   Future<bool> open() {
     storage = _generateMap();
     _isOpen = true;
-    return new Future.immediate(true);
+    return _results(true);
   }
   
   Map<K, V> _generateMap();

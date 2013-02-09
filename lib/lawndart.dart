@@ -19,6 +19,7 @@ import 'dart:indexed_db' as idb;
 import 'dart:json' as JSON;
 import 'dart:async';
 import 'package:meta/meta.dart';
+import 'dart:collection';
 
 part 'indexeddb_adapter.dart';
 part '_map_adapter.dart';

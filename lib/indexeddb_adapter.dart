@@ -27,19 +27,19 @@ class IndexedDb<K, V> {
     }
   }
   
-  Future<bool> open() {
+  Future open() {
     var completer = new Completer();
     var request = window.indexedDB.open(dbName, version);
-    request.on.success.add((e) {
+    request.onSuccess.listen((e) {
       _db = request.result;
       isReady = true;
       completer.complete(true);
     });
-    request.on.upgradeNeeded.add((e) {
+    request.onUpgradeNeeded.listen((e) {
       _db = request.result;
       _createObjectStoresForUpgrade();
     });
-    request.on.error.add((e) => completer.completeError(e));
+    request.onError.listen((e) => completer.completeError(e));
     return completer.future;
   }
   
@@ -62,73 +62,78 @@ class IndexedDb<K, V> {
   }
 }
 
-class _IndexedDbAdapter<K, V> implements Store<K, V> {
+class _IndexedDbAdapter<K, V> extends Store<K, V> {
   
   idb.Database _db;
   String storeName;
   
   _IndexedDbAdapter(idb.Database this._db, String this.storeName);
-  
-  Future<bool> removeByKey(K key) {
-    return _doCommand((idb.ObjectStore store) => store.delete(key), (e) => true);
-  }
 
-  Future<bool> open() {
+  Future open() {
+    _isOpen = true;
     return _results(true);
   }
   
-  Future<K> save(V obj, K key) {
-    if (key == null) {
-      throw new ArgumentError("key must not be null");
-    }
-    return _doCommand((idb.ObjectStore store) => store.put(obj, key), (e) => key);
+  @override
+  Future _removeByKey(K key) {
+    return _doCommand((idb.ObjectStore store) => store.delete(key), (e) => true);
   }
   
-  Future<V> getByKey(K key) {
-    return _doCommand((idb.ObjectStore store) => store.getObject(key), (e) => e.target.result);    
+  @override
+  Future<K> _save(V obj, K key) {
+    return _doCommand((idb.ObjectStore store) => store.put(obj, key),
+        (e) => true);
   }
   
-  Future<bool> nuke() {    
-    var completer = new Completer<bool>();
-    var trans = _db.transaction(storeName, 'readwrite');
-    var store = trans.objectStore(storeName);    
-    var request = store.clear();
-    request.on.success.add((e) => completer.complete(true));
-    request.on.error.add((e) => completer.completeError(e));
-    return completer.future;    
+  @override
+  Future<V> _getByKey(K key) {
+    return _doCommand((idb.ObjectStore store) => store.getObject(key),
+        (e) => e.target.result, 'readonly');
   }
   
-  _doCommand(requestCommand, onComplete) {
+  @override
+  Future _nuke() {
+    return _doCommand((idb.ObjectStore store) => store.clear(), (e) => true);
+  }
+  
+  _doCommand(requestCommand(idb.ObjectStore store), onComplete(e),
+             [String txnMode = 'readwrite']) {
     var completer = new Completer();
-    var trans = _db.transaction(storeName, 'readwrite');
+    var trans = _db.transaction(storeName, txnMode);
     var store = trans.objectStore(storeName);
     var request = requestCommand(store);
-    request.on.success.add((e) => completer.complete(onComplete(e)));
-    request.on.error.add((e) => completer.completeError(e));
+    request.onSuccess.listen((e) => completer.complete(onComplete(e)));
+    request.onError.listen((e) => completer.completeError(e));
     return completer.future;
   }
   
-  Future<Iterable<V>> all() {
+  _doGetAll(dynamic onCursor(idb.CursorWithValue cursor)) {
     var completer = new Completer<Collection<V>>();
     var trans = _db.transaction(storeName, 'readonly');
     var store = trans.objectStore(storeName);
-    var values = <V>[];
+    var values = new Queue<V>();
     // Get everything in the store.
     var request = store.openCursor();
-    request.on.success.add((e) {
+    request.onSuccess.listen((e) {
       var cursor = request.result;
       if (cursor != null && cursor.value != null) {
-        values.add(cursor.value);
+        values.add(onCursor(cursor));
         cursor.continueFunction();
       } else {
         completer.complete(values);
       }
     });
-    request.on.error.add((e) => completer.completeError(e));
+    request.onError.listen((e) => completer.completeError(e));
     return completer.future;
   }
+  
+  @override
+  Future<Iterable<V>> _all() {
+    return _doGetAll((idb.CursorWithValue cursor) => cursor.value);
+  }
 
-  Future batch(Map<K, V> objs) {
+  @override
+  Future _batch(Map<K, V> objs) {
     var futures = <Future>[];
     var completer = new Completer<Collection<V>>();
     
@@ -140,11 +145,14 @@ class _IndexedDbAdapter<K, V> implements Store<K, V> {
     return Future.wait(futures);
   }
 
-  Future<Iterable<V>> getByKeys(Iterable<K> keys) {
-    return Future.wait(keys.mappedBy((key) => getByKey(key)));
+  @override
+  Future<Iterable<V>> _getByKeys(Iterable<K> keys) {
+    return Future.wait(keys.mappedBy((key) => getByKey(key)))
+        .then((values) => new Future.immediate(values.where((v) => v != null)));
   }
 
-  Future<bool> removeByKeys(Iterable<K> keys) {
+  @override
+  Future<bool> _removeByKeys(Iterable<K> keys) {
     var completer = new Completer();
     Future.wait(keys.mappedBy((key) => removeByKey(key))).then((_) {
       completer.complete(true);
@@ -152,13 +160,15 @@ class _IndexedDbAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
 
-  Future<bool> exists(K key) {
-    Completer<bool> completer = new Completer<bool>();
+  @override
+  Future<bool> _exists(K key) {
+    var completer = new Completer<bool>();
     getByKey(key).then((value) => completer.complete(value != null));
     return completer.future;
   }
 
-  Future<Iterable<K>> keys() {
-    throw new UnsupportedError("keys is not supprted");
+  @override
+  Future<Iterable<K>> _keys() {
+    return _doGetAll((idb.CursorWithValue cursor) => cursor.key);
   }
 }
