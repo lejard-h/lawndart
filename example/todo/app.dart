@@ -7,9 +7,9 @@ import 'dart:json' as json;
 import 'dart:async';
 
 List<TodoItem> todoItems = new List<TodoItem>();
+Store store;
 
 init() {
-  Store store;
   var db = new IndexedDb("simple-todo", ['todos']);
   db.open()
     .then((_) {
@@ -25,7 +25,11 @@ init() {
       }
       
       var stop = watch(() => todoItems, (e) {
-        store.save(json.stringify(todoItems), "todos");
+        storeAllTodos();
       });
     });
+}
+
+storeAllTodos() {
+  store.save(json.stringify(todoItems), "todos");
 }

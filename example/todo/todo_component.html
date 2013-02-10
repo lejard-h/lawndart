@@ -5,7 +5,7 @@
              apply-author-styles="" extends="div">
       <template>
         <label class="{{ completeClass }}">
-          <input type="checkbox" on-change="toggle()">
+          <input type="checkbox" on-change="toggle()" checked="{{ isChecked }}">
           <span>{{ todo.actionItem }}</span>
         </label>
       </template>
