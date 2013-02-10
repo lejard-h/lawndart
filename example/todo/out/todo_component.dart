@@ -79,6 +79,8 @@ class TodoItemComponent extends WebComponent {
   
   @override
   void inserted() {
+    // just experimenting, the call to save is probably
+    // better placed inside of toggle()
     stopWatcher = watch(() => todo.hashCode, (_) => app.storeAllTodos());
   }
   
