@@ -21,7 +21,7 @@ class IndexedDb<K, V> {
   bool isReady = false;
   int version;
   
-  IndexedDb(String this.dbName, List<String> this.storeNames, [int this.version = 1]) {
+  IndexedDb(this.dbName, this.storeNames, [this.version = 1]) {
     if (version == null) {
       throw new ArgumentError("version must not be null");
     }

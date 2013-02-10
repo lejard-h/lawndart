@@ -15,7 +15,7 @@
     
     <x-todo-input></x-todo-input>
     
-    <ul template id="todos" iterate="todo in todoItems">
+    <ul template id="todos" iterate="todo in app.todoItems">
       <li>
         <x-todo-item bind-todo="todo"></x-todo-item>
       </li>

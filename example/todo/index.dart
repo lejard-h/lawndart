@@ -1,6 +1,7 @@
 library index;
 
-import 'app.dart';
+import 'app.dart' as app;
 
-main() { }
-
+main() {
+   app.init();
+}
