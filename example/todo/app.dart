@@ -16,7 +16,14 @@ init() {
       store = db.store('todos');
       return store.open();
     })
-    .then((_) {
+    .then((_) => store.getByKey("todos"))
+    .then((todosString) {
+      if (todosString != null) {
+        var list = (json.parse(todosString) as List);
+        todoItems = list.map((t) => new TodoItem.fromMap(t)).toList();
+        dispatch();
+      }
+      
       var stop = watch(() => todoItems, (e) {
         store.save(json.stringify(todoItems), "todos");
       });

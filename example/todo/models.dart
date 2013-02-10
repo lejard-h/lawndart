@@ -6,6 +6,11 @@ class TodoItem {
   
   TodoItem(this.actionItem);
   
+  TodoItem.fromMap(Map data) {
+    actionItem = data['actionItem'];
+    complete = data['complete'];
+  }
+  
   toggle() => complete = !complete;
   
   Map toJson() {
