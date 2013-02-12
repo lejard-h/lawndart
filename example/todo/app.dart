@@ -9,6 +9,8 @@ import 'dart:async';
 List<TodoItem> todoItems = new List<TodoItem>();
 Store store;
 
+bool initialized = false;
+
 init() {
   var db = new IndexedDb("simple-todo", ['todos']);
   db.open()
@@ -21,8 +23,10 @@ init() {
       if (todosString != null) {
         var list = (json.parse(todosString) as List);
         todoItems = list.map((t) => new TodoItem.fromMap(t)).toList();
-        dispatch();
       }
+      
+      initialized = true;
+      dispatch();
       
       var stop = watch(() => todoItems, (e) {
         storeAllTodos();

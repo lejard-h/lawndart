@@ -7,21 +7,12 @@ class TodoItemComponent extends WebComponent {
   TodoItem todo;
   WatcherDisposer stopWatcher;
   
-  toggle() => todo.toggle();
+  toggle() {
+    todo.toggle();
+    app.storeAllTodos();
+  }
   
   bool get isChecked => todo.complete;
-  
-  @override
-  void inserted() {
-    // just experimenting, the call to save is probably
-    // better placed inside of toggle()
-    stopWatcher = watch(() => todo.hashCode, (_) => app.storeAllTodos());
-  }
-  
-  @override
-  void removed() {
-    stopWatcher();
-  }
   
   String get completeClass => todo.complete ? 'completed' : '';
 }

@@ -13,13 +13,21 @@
     
     <h1>Simple TODO</h1>
     
-    <x-todo-input></x-todo-input>
+    <template if="app.initialized">
     
-    <ul template id="todos" iterate="todo in app.todoItems">
-      <li>
-        <x-todo-item bind-todo="todo"></x-todo-item>
-      </li>
-    </ul>
+      <x-todo-input></x-todo-input>
+      
+      <ul template id="todos" iterate="todo in app.todoItems">
+        <li>
+          <x-todo-item bind-todo="todo"></x-todo-item>
+        </li>
+      </ul>
+    
+    </template>
+    
+    <template if="!app.initialized">
+      <div>Loading...</div>
+    </template>
     
     <script type="application/dart" src="index.dart"></script>
     <!-- for this next line to work, your pubspec.yaml file must have a dependency on 'browser' -->
