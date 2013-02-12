@@ -14,7 +14,7 @@
 
 part of lawndart;
 
-class WebSqlAdapter<K, V> implements Store<K, V> {
+class WebSqlAdapter<K, V> extends Store<K, V> {
   
   static final String VERSION = "1";
   
@@ -22,13 +22,8 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
   String storeName;
   int estimatedSize;
   Database _db;
-  bool isReady = false;
   
   WebSqlAdapter(this.dbName, this.storeName, {this.estimatedSize: 5 * 1024 * 1024});
-
-  _throwNotReady() {
-    throw new StateError("Database not opened or ready");
-  }
   
   Future<bool> open() {
     var completer = new Completer();
@@ -53,13 +48,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     throw new UnimplementedError();
   }
   
-  Future save(V obj, K key) {
-    if (key == null) {
-      throw new ArgumentError("key must not be null");
-    }
-
-    if (!isReady) _throwNotReady();
-
+  Future _save(V obj, K key) {
     String value = JSON.stringify(obj);
     var completer = new Completer<K>();
 
@@ -74,9 +63,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
-  Future<V> getByKey(K key) {
-    if (!isReady) _throwNotReady();
-    
+  Future<V> _getByKey(K key) {
     var completer = new Completer<V>();
     
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
@@ -95,9 +82,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
-  Future<bool> removeByKey(K key) {
-    if (!isReady) _throwNotReady();
-    
+  Future<bool> _removeByKey(K key) {
     var completer = new Completer<bool>();
     
     var sql = 'DELETE FROM $storeName WHERE id = ?';
@@ -115,9 +100,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
-  Future<bool> nuke() {
-    if (!isReady) _throwNotReady();
-    
+  Future<bool> _nuke() {
     Completer<bool> completer = new Completer<bool>();
     
 //    var sql = 'TRUNCATE TABLE $storeName';
@@ -130,8 +113,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
-  Future all() {
-    if (!isReady) _throwNotReady();    
+  Future _all() {  
     var sql = 'SELECT id,value FROM $storeName';
 
     Completer<Collection<V>> completer = new Completer<Collection<V>>();
@@ -148,9 +130,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
   
-  Future batch(Map<K, V> objs) {
-    if (!isReady) _throwNotReady();
-    
+  Future _batch(Map<K, V> objs) {
     var completer = new Completer();
 
     var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
@@ -170,9 +150,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
 
-  Future<Iterable<V>> getByKeys(Iterable<K> _keys) {
-    if (!isReady) _throwNotReady();
-
+  Future<Iterable<V>> _getByKeys(Iterable<K> _keys) {
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
     var completer = new Completer<Iterable<V>>();
@@ -191,9 +169,7 @@ class WebSqlAdapter<K, V> implements Store<K, V> {
     return completer.future;
   }
 
-  Future<bool> removeByKeys(Iterable<K> _keys) {
-    if (!isReady) _throwNotReady();
-
+  Future<bool> _removeByKeys(Iterable<K> _keys) {
     var sql = 'DELETE FROM $storeName WHERE id = ?';
     
     var completer = new Completer<bool>();
