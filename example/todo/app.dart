@@ -26,11 +26,13 @@ init() {
       }
       
       initialized = true;
-      dispatch();
       
       var stop = watch(() => todoItems, (e) {
         storeAllTodos();
       });
+      
+
+      dispatch(); // when observables arrive, remove this.
     });
 }
 
