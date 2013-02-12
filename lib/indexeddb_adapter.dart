@@ -88,7 +88,7 @@ class _IndexedDbAdapter<K, V> extends Store<K, V> {
   @override
   Future<V> _getByKey(K key) {
     return _doCommand((idb.ObjectStore store) => store.getObject(key),
-        (e) => e.target.result, 'readonly');
+        (req) => req.result, 'readonly');
   }
   
   @override
@@ -96,13 +96,13 @@ class _IndexedDbAdapter<K, V> extends Store<K, V> {
     return _doCommand((idb.ObjectStore store) => store.clear(), (e) => true);
   }
   
-  _doCommand(requestCommand(idb.ObjectStore store), onComplete(e),
+  _doCommand(requestCommand(idb.ObjectStore store), onComplete(idb.Request req),
              [String txnMode = 'readwrite']) {
     var completer = new Completer();
     var trans = _db.transaction(storeName, txnMode);
     var store = trans.objectStore(storeName);
     var request = requestCommand(store);
-    request.onSuccess.listen((e) => completer.complete(onComplete(e)));
+    trans.onComplete.listen((e) => completer.complete(onComplete(request)));
     request.onError.listen((e) => completer.completeError(e));
     return completer.future;
   }
