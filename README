@@ -1,9 +1,0 @@
-A port of Lawnchair to Dart.
-
-Lawnchair (http://westcoastlogic.com/lawnchair/) is a
-"lightweight, adaptive, simple and elegant persistence solution".
-
-Lawndart is a (not completely 100% matching) port of Lawnchair.
-
-Contact Seth Ladd (http://profiles.google.com/sethladd) with questions
-or fork this code on GitHub: https://github.com/sethladd/lawndart
