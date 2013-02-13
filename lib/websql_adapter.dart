@@ -26,6 +26,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
   
   WebSqlAdapter(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
   
+  @override
   Future<bool> open() {
     var completer = new Completer();
     _db = window.openDatabase(dbName, VERSION, dbName, estimatedSize);
@@ -44,11 +45,24 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     }, (error) => completer.completeError(error));
   }
   
-  // TODO
-  Future<Collection<K>> _keys() {
-    throw new UnimplementedError();
+  @override
+  Future<Iterable<K>> _keys() {
+    var sql = 'SELECT id FROM $storeName';
+    var completer = new Completer<Iterable<K>>();
+    var keys = new Queue<K>();    
+    _db.transaction((txn) {
+      txn.executeSql(sql, [], (txn, resultSet) {
+        for (var row in resultSet.rows) {
+          keys.add(row['id']);
+        }
+        completer.complete(keys);
+      });
+    }, (error) => completer.completeError(error));
+    
+    return completer.future;
   }
   
+  @override
   Future _save(V obj, K key) {
     var completer = new Completer();
     var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
@@ -62,13 +76,19 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     return completer.future;
   }
   
+  @override
+  Future<bool> _exists(K key) {
+    return _getByKey(key).then((v) => v != null);
+  }
+  
+  @override
   Future<V> _getByKey(K key) {
     var completer = new Completer();
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
     _db.readTransaction((txn) {
       txn.executeSql(sql, [key], (txn, resultSet) {
-        var row = resultSet.first;
+        var row = resultSet.rows.first;
         if (row == null) {
           completer.complete(null);
         } else {
@@ -80,6 +100,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     return completer.future;
   }
   
+  @override
   Future _removeByKey(K key) {
     var completer = new Completer();
     var sql = 'DELETE FROM $storeName WHERE id = ?';
@@ -94,6 +115,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     return completer.future;
   }
   
+  @override
   Future _nuke() {
     var completer = new Completer();
     
@@ -105,6 +127,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     return completer.future;
   }
   
+  @override
   Future<Iterable<V>> _all() {  
     var sql = 'SELECT id,value FROM $storeName';
     var completer = new Completer<Collection<V>>();
@@ -121,6 +144,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     return completer.future;
   }
   
+  @override
   Future _batch(Map<K, V> objs) {
     var completer = new Completer();
     var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
@@ -138,6 +162,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     return completer.future;
   }
 
+  @override
   Future<Iterable<V>> _getByKeys(Iterable<K> _keys) {
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
@@ -147,7 +172,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     _db.transaction((txn) {
       _keys.forEach((key) {
         txn.executeSql(sql, [key], (txn, resultSet) {
-          values.add(resultSet.rows.item(0).value);
+          values.add(resultSet.rows.item(0)['value']);
         });
       });
     },
@@ -157,6 +182,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     return completer.future;
   }
 
+  @override
   Future _removeByKeys(Iterable<K> _keys) {
     var sql = 'DELETE FROM $storeName WHERE id = ?'; 
     var completer = new Completer<bool>();

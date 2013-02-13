@@ -162,9 +162,7 @@ class _IndexedDbAdapter<K, V> extends Store<K, V> {
 
   @override
   Future<bool> _exists(K key) {
-    var completer = new Completer<bool>();
-    getByKey(key).then((value) => completer.complete(value != null));
-    return completer.future;
+    return getByKey(key).then((value) => value != null);
   }
 
   @override
