@@ -59,6 +59,18 @@ to Tools, and run Pub Install.
 If you use the command line, ensure the Dart SDK is on your path, and
 the run: `pub install`
 
+# Support
+
+Lawndart is hosted at https://github.com/sethladd/lawndart
+
+You can file issues at https://github.com/sethladd/lawndart/issues
+
+This library is open source, pull requests welcome!
+
+# Authors
+
+* Seth Ladd (sethladd@gmail.com)
+
 # License
 
 	Copyright 2013 Seth Ladd
