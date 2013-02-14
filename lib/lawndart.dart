@@ -21,11 +21,11 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'dart:collection';
 
-part 'indexeddb_adapter.dart';
-part '_map_adapter.dart';
-part 'memory_adapter.dart';
-part 'local_storage_adapter.dart';
-part 'websql_adapter.dart';
+part 'src/indexeddb_adapter.dart';
+part 'src/_map_adapter.dart';
+part 'src/memory_adapter.dart';
+part 'src/local_storage_adapter.dart';
+part 'src/websql_adapter.dart';
 
 _results(obj) => new Future.immediate(obj);
 
