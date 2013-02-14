@@ -25,6 +25,42 @@ following: local storage, indexed db, and websql.
 
 See the example/ directory for more sample code.
 
+# API
+
+`open()`
+Opens the database and makes it available for reading and writing.
+
+`nuke()`
+Wipes the database clean. All records are deleted.
+
+`save(value, key)`
+Stores a value accessible by a key.
+
+`getByKey(key)`
+Retrieves a value, given a key.
+
+`keys()`
+Returns all keys.
+
+`all()`
+Returns all values.
+
+`batch(map)`
+Stores all values and their keys.
+
+`getByKeys(keys)`
+Returns all values, given keys.
+
+`exists(key)`
+Returns true if the key exists, or false.
+
+`removeByKey(key)`
+Removes the value for the key.
+
+`removeByKeys(keys)`
+Removes all values for the keys.
+
+
 # Usage
 
 Lawndart does not choose a storage mechanism for you. Instead, you must
@@ -70,6 +106,12 @@ This library is open source, pull requests welcome!
 # Authors
 
 * Seth Ladd (sethladd@gmail.com)
+
+# TODO
+
+* Use streams for getByKeys and all.
+* Handle non-String keys and values appropriately.
+* Wire into drone.io.
 
 # License
 

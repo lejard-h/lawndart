@@ -40,12 +40,14 @@ abstract class Store<K, V> {
   
   Future open();
   
+  /// Returns all the keys.
   Future<Iterable<K>> keys() {
     _checkOpen();
     return _keys();
   }
   Future<Iterable<K>> _keys();
   
+  /// Stores an [obj] accessible by [key].
   Future save(V obj, K key) {
     _checkOpen();
     if (key == null) {
@@ -55,30 +57,37 @@ abstract class Store<K, V> {
   }
   Future _save(V obj, K key);
   
+  /// Stores all objects by their keys. This should happen in a single
+  /// transaction if the underlying store supports it.
   Future batch(Map<K, V> objectsByKey) {
     _checkOpen();
     return _batch(objectsByKey);
   }
   Future _batch(Map<K, V> objectsByKey);
   
+  /// Returns a value for a key, or null if the key does not exist.
   Future<V> getByKey(K key) {
     _checkOpen();
     return _getByKey(key);
   }
   Future<V> _getByKey(K key);
   
+  /// Returns all values for the keys. If a particular key is not found,
+  /// no value will be returned, not even null.
   Future<Iterable<V>> getByKeys(Iterable<K> _keys) {
     _checkOpen();
     return _getByKeys(_keys);
   }
   Future<Iterable<V>> _getByKeys(Iterable<K> _keys);
   
+  /// Returns true if the key exists, or false.
   Future<bool> exists(K key) {
     _checkOpen();
     return _exists(key);
   }
   Future<bool> _exists(K key);
   
+  /// Returns all values.
   Future<Iterable<V>> all() {
     _checkOpen();
     return _all();
