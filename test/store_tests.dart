@@ -213,11 +213,7 @@ main() {
     run(() => new WebSqlAdapter<String, String>('test', 'test'));
   });
   
-  var idb = new IndexedDb("test-db", ["test-store"]);
-  idb.open()
-  .then((_) {
-    group('indexed db', () {
-      run(() => idb.store("test-store"));
-    });
+  group('indexed db', () {
+    run(() => new IndexedDbAdapter("test-db", "test-store"));
   });
 }

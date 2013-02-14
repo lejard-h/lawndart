@@ -12,12 +12,8 @@ Store store;
 bool initialized = false;
 
 init() {
-  var db = new IndexedDb("simple-todo", ['todos']);
+  var db = new IndexedDbAdapter("simple-todo", 'todos');
   db.open()
-    .then((_) {
-      store = db.store('todos');
-      return store.open();
-    })
     .then((_) => store.getByKey("todos"))
     .then((todosString) {
       if (todosString != null) {
