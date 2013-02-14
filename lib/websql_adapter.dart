@@ -69,7 +69,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     
     _db.transaction((txn) {
       txn.executeSql(upsertSql, [key, obj], (txn, resultSet) {
-        completer.complete(key);
+        completer.complete(true);
       });
     }, (error) => completer.completeError(error));
     
@@ -88,10 +88,10 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
 
     _db.readTransaction((txn) {
       txn.executeSql(sql, [key], (txn, resultSet) {
-        var row = resultSet.rows.first;
-        if (row == null) {
+        if (resultSet.rows.isEmpty) {
           completer.complete(null);
         } else {
+          var row = resultSet.rows.first;
           completer.complete(row['value']);
         }
       });
@@ -172,7 +172,9 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     _db.transaction((txn) {
       _keys.forEach((key) {
         txn.executeSql(sql, [key], (txn, resultSet) {
-          values.add(resultSet.rows.item(0)['value']);
+          if (!resultSet.rows.isEmpty) {
+            values.add(resultSet.rows.first['value']);
+          }
         });
       });
     },

@@ -209,6 +209,10 @@ main() {
     run(() => new LocalStorageAdapter<String, String>());
   });
   
+  group('websql', () {
+    run(() => new WebSqlAdapter<String, String>('test', 'test'));
+  });
+  
   var idb = new IndexedDb("test-db", ["test-store"]);
   idb.open()
   .then((_) {
