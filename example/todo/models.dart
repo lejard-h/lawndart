@@ -1,5 +1,6 @@
 library models;
 
+@observable
 class TodoItem {
   String actionItem;
   bool complete = false;
@@ -15,16 +16,5 @@ class TodoItem {
   
   Map toJson() {
     return {"actionItem": actionItem, "complete": complete};
-  }
-  
-  bool operator ==(TodoItem other) {
-    return other.actionItem == actionItem && other.complete == complete;
-  }
-  
-  int get hashCode {
-    int result = 17;
-    result = result * 37 * actionItem.hashCode;
-    result = result * 37 * complete.hashCode;
-    return result;
   }
 }

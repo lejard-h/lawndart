@@ -35,7 +35,7 @@ abstract class Store<K, V> {
   bool get isOpen => _isOpen;
   
   _checkOpen() {
-    if (!isOpen) throw new StateError('not open');
+    if (!isOpen) throw new StateError('$runtimeType is not open');
   }
   
   Future open();

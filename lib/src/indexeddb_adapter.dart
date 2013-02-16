@@ -28,25 +28,18 @@ class IndexedDbAdapter<K, V> extends Store<K, V> {
   }
   
   Future open() {
-    var completer = new Completer();
-    var request = window.indexedDB.open(dbName, version);
-    request.onSuccess.listen((e) {
-      _db = request.result;
-      _isOpen = true;
-      completer.complete(true);
-    });
-    request.onUpgradeNeeded.listen((e) {
-      _db = request.result;
-      _createObjectStoresForUpgrade();
-    });
-    request.onError.listen((e) => completer.completeError(e));
-    return completer.future;
-  }
-  
-  void _createObjectStoresForUpgrade() {
-    if (_db.objectStoreNames.indexOf(storeName) == -1) {  
-      _db.createObjectStore(storeName);
-    }
+    return window.indexedDB.open(dbName, version: version,
+        onUpgradeNeeded: (e) {
+          _db = e.target.result;
+          if (!_db.objectStoreNames.contains(storeName)) {  
+            _db.createObjectStore(storeName);
+          }
+        })
+        .then((db) {
+          _db = db;
+          _isOpen = true;
+          return true;
+        });
   }
   
   @override
@@ -56,13 +49,13 @@ class IndexedDbAdapter<K, V> extends Store<K, V> {
   
   @override
   Future<K> _save(V obj, K key) {
-    return _doCommand((idb.ObjectStore store) => store.put(obj, key),
+    return _doCommand((idb.ObjectStore store) => store.$dom_put(obj, key),
         (e) => true);
   }
   
   @override
   Future<V> _getByKey(K key) {
-    return _doCommand((idb.ObjectStore store) => store.getObject(key),
+    return _doCommand((idb.ObjectStore store) => store.$dom_getObject(key),
         (req) => req.result, 'readonly');
   }
   
@@ -71,7 +64,8 @@ class IndexedDbAdapter<K, V> extends Store<K, V> {
     return _doCommand((idb.ObjectStore store) => store.clear(), (e) => true);
   }
   
-  _doCommand(requestCommand(idb.ObjectStore store), onComplete(idb.Request req),
+  _doCommand(idb.Request requestCommand(idb.ObjectStore store),
+             dynamic onComplete(idb.Request req),
              [String txnMode = 'readwrite']) {
     var completer = new Completer();
     var trans = _db.transaction(storeName, txnMode);
@@ -88,17 +82,10 @@ class IndexedDbAdapter<K, V> extends Store<K, V> {
     var store = trans.objectStore(storeName);
     var values = new Queue<V>();
     // Get everything in the store.
-    var request = store.openCursor();
-    request.onSuccess.listen((e) {
-      var cursor = request.result;
-      if (cursor != null && cursor.value != null) {
-        values.add(onCursor(cursor));
-        cursor.continueFunction();
-      } else {
-        completer.complete(values);
-      }
-    });
-    request.onError.listen((e) => completer.completeError(e));
+    store.openCursor(autoAdvance: true).listen(
+        (cursor) => values.add(onCursor(cursor)),
+        onDone: () => completer.complete(values),
+        onError: (e) => completer.completeError(e));
     return completer.future;
   }
   

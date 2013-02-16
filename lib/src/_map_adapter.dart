@@ -46,7 +46,7 @@ abstract class _MapAdapter<K, V> extends Store<K, V> {
   }
   
   Future<Iterable<V>> _getByKeys(Iterable<K> _keys) {
-    var values = _keys.mappedBy((key) => storage[key]).where((v) => v != null);
+    var values = _keys.map((key) => storage[key]).where((v) => v != null);
     return _results(values);
   }
   
