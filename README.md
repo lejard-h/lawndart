@@ -17,10 +17,10 @@ following: local storage, indexed db, and websql.
 	  
 	  var db = new IndexedDbAdapter("simple-run-through", 'test');
 	  db.open()
-	  .then((_) => store.nuke())
-	  .then((_) => store.save("world", "hello"))
-	  .then((_) => store.save("is fun", "dart"))
-	  .then((_) => store.getByKey("hello"))
+	  .then((_) => db.nuke())
+	  .then((_) => db.save("world", "hello"))
+	  .then((_) => db.save("is fun", "dart"))
+	  .then((_) => db.getByKey("hello"))
 	  .then((value) => query('#text').text = value);
 
 See the example/ directory for more sample code.
