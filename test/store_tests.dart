@@ -3,6 +3,7 @@ library store_tests;
 import 'dart:async';
 import 'dart:html' as html;
 import 'dart:indexed_db';
+import 'dart:web_sql';
 import 'package:unittest/unittest.dart';
 import 'package:lawndart/lawndart.dart';
 
@@ -201,7 +202,7 @@ main() {
     run(() => new LocalStorageAdapter<String, String>());
   });
   
-  if (html.Database.supported) {
+  if (SqlDatabase.supported) {
     group('websql', () {
       run(() => new WebSqlAdapter<String, String>('test', 'test'));
     });

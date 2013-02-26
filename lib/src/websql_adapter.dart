@@ -22,7 +22,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
   String dbName;
   String storeName;
   int estimatedSize;
-  Database _db;
+  SqlDatabase _db;
   
   WebSqlAdapter(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
   
@@ -52,7 +52,8 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     var keys = new Queue<K>();    
     _db.transaction((txn) {
       txn.executeSql(sql, [], (txn, resultSet) {
-        for (var row in resultSet.rows) {
+        for (var i = 0; i < resultSet.rows.length; ++i) {
+          var row = resultSet.rows.item(i);
           keys.add(row['id']);
         }
         completer.complete(keys);
@@ -91,7 +92,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
         if (resultSet.rows.isEmpty) {
           completer.complete(null);
         } else {
-          var row = resultSet.rows.first;
+          var row = resultSet.rows.item(0);
           completer.complete(row['value']);
         }
       });
@@ -134,8 +135,9 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
     var values = new Queue<V>();    
     _db.transaction((txn) {
       txn.executeSql(sql, [], (txn, resultSet) {
-        for (var each in resultSet.rows) {
-          values.add(each['value']);
+        for (var i = 0; i < resultSet.rows.length; ++i) {
+          var row = resultSet.rows.item(i);
+          values.add(row['value']);
         }
         completer.complete(values);
       });
@@ -173,7 +175,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
       _keys.forEach((key) {
         txn.executeSql(sql, [key], (txn, resultSet) {
           if (!resultSet.rows.isEmpty) {
-            values.add(resultSet.rows.first['value']);
+            values.add(resultSet.rows.item(0)['value']);
           }
         });
       });

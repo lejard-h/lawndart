@@ -16,6 +16,7 @@ library lawndart;
 
 import 'dart:html';
 import 'dart:indexed_db' as idb;
+import 'dart:web_sql';
 import 'dart:json' as JSON;
 import 'dart:async';
 import 'package:meta/meta.dart';
