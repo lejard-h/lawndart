@@ -5,6 +5,8 @@ description: An easier way to access storage APIs in the browser.
 homepage: https://github.com/sethladd/lawndart
 dependencies:
   unittest: any
+  bot:
+    git: https://github.com/kevmoo/bot.dart
   browser: any
   web_ui: any
   meta: any
