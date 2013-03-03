@@ -1,0 +1,411 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>IndexedDbAdapter&lt;K, V&gt; class / lawndart Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="lawndart" data-type="IndexedDbAdapter&amp;lt;K, V&amp;gt;">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../lawndart.html">lawndart</a> &rsaquo; <a href="../lawndart/IndexedDbAdapter.html">IndexedDbAdapter&lt;K, V&gt;</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>IndexedDbAdapter&lt;K, V&gt;</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class IndexedDbAdapter&lt;K, V&gt; extends Store&lt;K, V&gt; {
+ 
+ String dbName;
+ int version;
+ idb.Database _db;
+ String storeName;
+ 
+ IndexedDbAdapter(this.dbName, this.storeName, {this.version: 1}) {
+   if (version == null) {
+     throw new ArgumentError("version must not be null");
+   }
+ }
+ 
+ Future open() {
+   return window.indexedDB.open(dbName, version: version,
+       onUpgradeNeeded: (e) {
+         _db = e.target.result;
+         if (!_db.objectStoreNames.contains(storeName)) {  
+           _db.createObjectStore(storeName);
+         }
+       })
+       .then((db) {
+         _db = db;
+         _isOpen = true;
+         return true;
+       });
+ }
+ 
+ @override
+ Future _removeByKey(K key) {
+   return _doCommand((idb.ObjectStore store) =&gt; store.delete(key), (e) =&gt; true);
+ }
+ 
+ @override
+ Future&lt;K&gt; _save(V obj, K key) {
+   return _doCommand((idb.ObjectStore store) =&gt; store.$dom_put(obj, key),
+       (e) =&gt; true);
+ }
+ 
+ @override
+ Future&lt;V&gt; _getByKey(K key) {
+   return _doCommand((idb.ObjectStore store) =&gt; store.$dom_getObject(key),
+       (req) =&gt; req.result, 'readonly');
+ }
+ 
+ @override
+ Future _nuke() {
+   return _doCommand((idb.ObjectStore store) =&gt; store.clear(), (e) =&gt; true);
+ }
+ 
+ _doCommand(idb.Request requestCommand(idb.ObjectStore store),
+            dynamic onComplete(idb.Request req),
+            [String txnMode = 'readwrite']) {
+   var completer = new Completer();
+   var trans = _db.transaction(storeName, txnMode);
+   var store = trans.objectStore(storeName);
+   var request = requestCommand(store);
+   trans.onComplete.listen((e) =&gt; completer.complete(onComplete(request)));
+   request.onError.listen((e) =&gt; completer.completeError(e));
+   return completer.future;
+ }
+ 
+ _doGetAll(dynamic onCursor(idb.CursorWithValue cursor)) {
+   var completer = new Completer&lt;Collection&lt;V&gt;&gt;();
+   var trans = _db.transaction(storeName, 'readonly');
+   var store = trans.objectStore(storeName);
+   var values = new Queue&lt;V&gt;();
+   // Get everything in the store.
+   store.openCursor(autoAdvance: true).listen(
+       (cursor) =&gt; values.add(onCursor(cursor)),
+       onDone: () =&gt; completer.complete(values),
+       onError: (e) =&gt; completer.completeError(e));
+   return completer.future;
+ }
+ 
+ @override
+ Future&lt;Iterable&lt;V&gt;&gt; _all() {
+   return _doGetAll((idb.CursorWithValue cursor) =&gt; cursor.value);
+ }
+
+ @override
+ Future _batch(Map&lt;K, V&gt; objs) {
+   var futures = &lt;Future&gt;[];
+   var completer = new Completer&lt;Collection&lt;V&gt;&gt;();
+   
+   for (var key in objs.keys) {
+     var obj = objs[key];
+     futures.add(save(obj, key));
+   }
+   
+   return Future.wait(futures);
+ }
+
+ @override
+ Future&lt;Iterable&lt;V&gt;&gt; _getByKeys(Iterable&lt;K&gt; keys) {
+   return Future.wait(keys.map((key) =&gt; getByKey(key)))
+       .then((values) =&gt; new Future.immediate(values.where((v) =&gt; v != null)));
+ }
+
+ @override
+ Future&lt;bool&gt; _removeByKeys(Iterable&lt;K&gt; keys) {
+   var completer = new Completer();
+   Future.wait(keys.map((key) =&gt; removeByKey(key))).then((_) {
+     completer.complete(true);
+   });  
+   return completer.future;
+ }
+
+ @override
+ Future&lt;bool&gt; _exists(K key) {
+   return getByKey(key).then((value) =&gt; value != null);
+ }
+
+ @override
+ Future&lt;Iterable&lt;K&gt;&gt; _keys() {
+   return _doGetAll((idb.CursorWithValue cursor) =&gt; cursor.key);
+ }
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../lawndart/Store.html">Store&lt;K, V&gt;</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>IndexedDbAdapter&lt;K, V&gt;</strong></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="IndexedDbAdapter">
+<button class="show-code">Code</button>
+new <strong>IndexedDbAdapter</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> dbName, <a href="http://api.dartlang.org/dart_core/String.html">String</a> storeName, {<a href="http://api.dartlang.org/dart_core/int.html">int</a> version: 1}) <a class="anchor-link" href="#IndexedDbAdapter"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.IndexedDbAdapter">#</a></h4>
+<div class="doc">
+<pre class="source">
+IndexedDbAdapter(this.dbName, this.storeName, {this.version: 1}) {
+ if (version == null) {
+   throw new ArgumentError("version must not be null");
+ }
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="dbName">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>dbName</strong> <a class="anchor-link"
+            href="#dbName"
+            title="Permalink to IndexedDbAdapter&lt;K, V&gt;.dbName">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+dbName
+</pre>
+</div>
+</div>
+<div class="field inherited"><h4 id="isOpen">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>isOpen</strong> <a class="anchor-link"
+            href="#isOpen"
+            title="Permalink to IndexedDbAdapter&lt;K, V&gt;.isOpen">#</a>
+        </h4>
+        <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<pre class="source">
+bool get isOpen =&gt; _isOpen;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="storeName">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>storeName</strong> <a class="anchor-link"
+            href="#storeName"
+            title="Permalink to IndexedDbAdapter&lt;K, V&gt;.storeName">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+storeName
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="version">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>version</strong> <a class="anchor-link"
+            href="#version"
+            title="Permalink to IndexedDbAdapter&lt;K, V&gt;.version">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+version
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method inherited"><h4 id="all">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">V</a>&gt;&gt; <strong>all</strong>() <a class="anchor-link" href="#all"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.all">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Returns all values.</p>
+<pre class="source">
+Future&lt;Iterable&lt;V&gt;&gt; all() {
+ _checkOpen();
+ return _all();
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="batch">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>batch</strong>(<a href="http://api.dartlang.org/dart_core/Map.html">Map</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">K</a>, <a href="../lawndart/IndexedDbAdapter.html">V</a>&gt; objectsByKey) <a class="anchor-link" href="#batch"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.batch">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Stores all objects by their keys. This should happen in a single
+transaction if the underlying store supports it.</p>
+<pre class="source">
+Future batch(Map&lt;K, V&gt; objectsByKey) {
+ _checkOpen();
+ return _batch(objectsByKey);
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="exists">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>exists</strong>(<a href="../lawndart/IndexedDbAdapter.html">K</a> key) <a class="anchor-link" href="#exists"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.exists">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Returns true if the key exists, or false.</p>
+<pre class="source">
+Future&lt;bool&gt; exists(K key) {
+ _checkOpen();
+ return _exists(key);
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="getByKey">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">V</a>&gt; <strong>getByKey</strong>(<a href="../lawndart/IndexedDbAdapter.html">K</a> key) <a class="anchor-link" href="#getByKey"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.getByKey">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Returns a value for a key, or null if the key does not exist.</p>
+<pre class="source">
+Future&lt;V&gt; getByKey(K key) {
+ _checkOpen();
+ return _getByKey(key);
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="getByKeys">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">V</a>&gt;&gt; <strong>getByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">K</a>&gt; _keys) <a class="anchor-link" href="#getByKeys"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.getByKeys">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Returns all values for the keys. If a particular key is not found,
+no value will be returned, not even null.</p>
+<pre class="source">
+Future&lt;Iterable&lt;V&gt;&gt; getByKeys(Iterable&lt;K&gt; _keys) {
+ _checkOpen();
+ return _getByKeys(_keys);
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="keys">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">K</a>&gt;&gt; <strong>keys</strong>() <a class="anchor-link" href="#keys"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.keys">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Returns all the keys.</p>
+<pre class="source">
+Future&lt;Iterable&lt;K&gt;&gt; keys() {
+ _checkOpen();
+ return _keys();
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="nuke">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>nuke</strong>() <a class="anchor-link" href="#nuke"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.nuke">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Removes all values from storage.
+The value returned by the Future is undefined.</p>
+<pre class="source">
+Future nuke() {
+ _checkOpen();
+ return _nuke();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="open">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>open</strong>() <a class="anchor-link" href="#open"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.open">#</a></h4>
+<div class="doc">
+<pre class="source">
+Future open() {
+ return window.indexedDB.open(dbName, version: version,
+     onUpgradeNeeded: (e) {
+       _db = e.target.result;
+       if (!_db.objectStoreNames.contains(storeName)) {  
+         _db.createObjectStore(storeName);
+       }
+     })
+     .then((db) {
+       _db = db;
+       _isOpen = true;
+       return true;
+     });
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="removeByKey">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKey</strong>(<a href="../lawndart/IndexedDbAdapter.html">K</a> key) <a class="anchor-link" href="#removeByKey"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.removeByKey">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Removes a value from storage, given a key. The value
+returned by the Future is undefined.</p>
+<pre class="source">
+Future removeByKey(K key) {
+ _checkOpen();
+ return _removeByKey(key);
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="removeByKeys">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">K</a>&gt; _keys) <a class="anchor-link" href="#removeByKeys"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.removeByKeys">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Removes all values from storage, given one or more keys. The value
+returned by the Future is undefined.</p>
+<pre class="source">
+Future removeByKeys(Iterable&lt;K&gt; _keys) {
+ _checkOpen();
+ return _removeByKeys(_keys);
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="save">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>save</strong>(<a href="../lawndart/IndexedDbAdapter.html">V</a> obj, <a href="../lawndart/IndexedDbAdapter.html">K</a> key) <a class="anchor-link" href="#save"
+              title="Permalink to IndexedDbAdapter&lt;K, V&gt;.save">#</a></h4>
+<div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
+<p>Stores an 
+<span class="param">obj</span> accessible by 
+<span class="param">key</span>.</p>
+<pre class="source">
+Future save(V obj, K key) {
+ _checkOpen();
+ if (key == null) {
+   throw new ArgumentError("key must not be null");
+ }
+ return _save(obj, key);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        
