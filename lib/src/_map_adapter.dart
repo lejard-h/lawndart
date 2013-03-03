@@ -14,8 +14,8 @@
 
 part of lawndart;
 
-abstract class _MapAdapter<K, V> extends Store<K, V> {
-  Map<K, V> storage;
+abstract class _MapAdapter<V> extends Store<V> {
+  Map<String, V> storage;
 
   Future<bool> open() {
     storage = _generateMap();
@@ -23,34 +23,34 @@ abstract class _MapAdapter<K, V> extends Store<K, V> {
     return _results(true);
   }
   
-  Map<K, V> _generateMap();
+  Map<String, V> _generateMap();
   
-  Future<Iterable<K>> _keys() {
+  Future<Iterable<String>> _keys() {
     return _results(storage.keys);
   }
   
-  Future _save(V obj, K key) {
+  Future _save(V obj, String key) {
     storage[key] = obj;
     return _results(true);
   }
   
-  Future _batch(Map<K, V> objs) {
+  Future _batch(Map<String, V> objs) {
     for (var key in objs.keys) {
       storage[key] = objs[key];
     }
     return _results(true);
   }
   
-  Future<V> _getByKey(K key) {
+  Future<V> _getByKey(String key) {
     return _results(storage[key]);
   }
   
-  Future<Iterable<V>> _getByKeys(Iterable<K> _keys) {
+  Future<Iterable<V>> _getByKeys(Iterable<String> _keys) {
     var values = _keys.map((key) => storage[key]).where((v) => v != null);
     return _results(values);
   }
   
-  Future<bool> _exists(K key) {
+  Future<bool> _exists(String key) {
     return _results(storage.containsKey(key));
   }
   
@@ -58,12 +58,12 @@ abstract class _MapAdapter<K, V> extends Store<K, V> {
     return _results(storage.values);
   }
   
-  Future _removeByKey(K key) {
+  Future _removeByKey(String key) {
     storage.remove(key);
     return _results(true);
   }
   
-  Future _removeByKeys(Iterable<K> _keys) {
+  Future _removeByKeys(Iterable<String> _keys) {
     _keys.forEach((key) => storage.remove(key));
     return _results(true);
   }

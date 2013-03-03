@@ -14,7 +14,7 @@
 
 part of lawndart;
 
-class IndexedDbAdapter<K, V> extends Store<K, V> {
+class IndexedDbAdapter<V> extends Store<V> {
   
   String dbName;
   int version;
@@ -43,18 +43,18 @@ class IndexedDbAdapter<K, V> extends Store<K, V> {
   }
   
   @override
-  Future _removeByKey(K key) {
+  Future _removeByKey(String  key) {
     return _doCommand((idb.ObjectStore store) => store.delete(key), (e) => true);
   }
   
   @override
-  Future<K> _save(V obj, K key) {
+  Future<String> _save(V obj, String key) {
     return _doCommand((idb.ObjectStore store) => store.$dom_put(obj, key),
         (e) => true);
   }
   
   @override
-  Future<V> _getByKey(K key) {
+  Future<V> _getByKey(String key) {
     return _doCommand((idb.ObjectStore store) => store.$dom_getObject(key),
         (req) => req.result, 'readonly');
   }
@@ -95,7 +95,7 @@ class IndexedDbAdapter<K, V> extends Store<K, V> {
   }
 
   @override
-  Future _batch(Map<K, V> objs) {
+  Future _batch(Map<String, V> objs) {
     var futures = <Future>[];
     var completer = new Completer<Collection<V>>();
     
@@ -108,13 +108,13 @@ class IndexedDbAdapter<K, V> extends Store<K, V> {
   }
 
   @override
-  Future<Iterable<V>> _getByKeys(Iterable<K> keys) {
+  Future<Iterable<V>> _getByKeys(Iterable<String> keys) {
     return Future.wait(keys.map((key) => getByKey(key)))
         .then((values) => new Future.immediate(values.where((v) => v != null)));
   }
 
   @override
-  Future<bool> _removeByKeys(Iterable<K> keys) {
+  Future<bool> _removeByKeys(Iterable<String> keys) {
     var completer = new Completer();
     Future.wait(keys.map((key) => removeByKey(key))).then((_) {
       completer.complete(true);
@@ -123,12 +123,12 @@ class IndexedDbAdapter<K, V> extends Store<K, V> {
   }
 
   @override
-  Future<bool> _exists(K key) {
+  Future<bool> _exists(String key) {
     return getByKey(key).then((value) => value != null);
   }
 
   @override
-  Future<Iterable<K>> _keys() {
+  Future<Iterable<String>> _keys() {
     return _doGetAll((idb.CursorWithValue cursor) => cursor.key);
   }
 }

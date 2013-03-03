@@ -7,7 +7,7 @@ import 'dart:web_sql';
 import 'package:unittest/unittest.dart';
 import 'package:lawndart/lawndart.dart';
 
-typedef Store<String, String> StoreGenerator();
+typedef Store<String> StoreGenerator();
 
 run(StoreGenerator generator) {
   Store store;
@@ -195,16 +195,16 @@ run(StoreGenerator generator) {
 
 main() {
   group('memory', () {
-    run(() => new MemoryAdapter<String, String>());
+    run(() => new MemoryAdapter<String>());
   });
   
   group('local storage', () {
-    run(() => new LocalStorageAdapter<String, String>());
+    run(() => new LocalStorageAdapter<String>());
   });
   
   if (SqlDatabase.supported) {
     group('websql', () {
-      run(() => new WebSqlAdapter<String, String>('test', 'test'));
+      run(() => new WebSqlAdapter<String>('test', 'test'));
     });
   }
   

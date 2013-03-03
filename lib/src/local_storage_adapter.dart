@@ -14,10 +14,9 @@
 
 part of lawndart;
 
-// TODO: error handling
-class LocalStorageAdapter<K, V> extends _MapAdapter<K, V> {
+class LocalStorageAdapter<V> extends _MapAdapter<V> {
   @override
-  Map<K, V> _generateMap() {
+  Map<String, V> _generateMap() {
     return window.localStorage;
   }
 }
