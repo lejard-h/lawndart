@@ -72,7 +72,7 @@ run(StoreGenerator generator) {
     });
     
     test('keys is empty', () {
-      var future = store.keys();
+      Future future = store.keys().toList();
       future.then((keys) {
         expect(keys, hasLength(0));
       });
@@ -80,47 +80,47 @@ run(StoreGenerator generator) {
     });
 
     test('get by key return null', () {
-      var future = store.getByKey("foo");
+      Future future = store.getByKey("foo");
       expect(future, completion(null));
     });
     
     test('get by keys return empty collection', () {
-      var future = store.getByKeys(["foo"]);
+      Future future = store.getByKeys(["foo"]).toList();
       expect(future, completion(hasLength(0)));
     });
     
     test('save completes', () {
-      var future = store.save("key", "value");
+      Future future = store.save("key", "value");
       expect(future, completion(true));
     });
     
     test('exists returns false', () {
-      var future = store.exists("foo");
+      Future future = store.exists("foo");
       expect(future, completion(false));
     });
     
     test('all is empty', () {
-      var future = store.all();
+      Future future = store.all().toList();
       expect(future, completion(hasLength(0)));
     });
     
     test('remove by key completes', () {
-      var future = store.removeByKey("foo");
+      Future future = store.removeByKey("foo");
       expect(future, completes);
     });
     
     test('remove by keys completes', () {
-      var future = store.removeByKeys(["foo"]);
+      Future future = store.removeByKeys(["foo"]);
       expect(future, completes);
     });
     
     test('nuke completes', () {
-      var future = store.nuke();
+      Future future = store.nuke();
       expect(future, completes);
     });
     
     test('batch completes', () {
-      var future = store.batch({'foo':'bar'});
+      Future future = store.batch({'foo':'bar'});
       expect(future, completes);
     });
   });
@@ -136,7 +136,7 @@ run(StoreGenerator generator) {
     });
     
     test('keys has them', () {
-      Future<Iterable> future = store.keys();
+      Future future = store.keys().toList();
       future.then((Iterable keys) {
           expect(keys, hasLength(2));
           expect(keys, contains("hello"));
@@ -154,7 +154,7 @@ run(StoreGenerator generator) {
     });
     
     test('get by keys', () {
-      Future future = store.getByKeys(["hello", "dart"]);
+      Future future = store.getByKeys(["hello", "dart"]).toList();
       future.then((values) {
         expect(values, hasLength(2));
         expect(values.contains("world"), true);
@@ -172,7 +172,7 @@ run(StoreGenerator generator) {
     });
     
     test('all has everything', () {
-      Future future = store.all();
+      Future future = store.all().toList();
       future.then((all) {
         expect(all, hasLength(2));
         expect(all.contains("world"), true);
@@ -182,7 +182,7 @@ run(StoreGenerator generator) {
     });
     
     test('remove by key', () {
-      Future future = store.removeByKey("hello").then((_) => store.all());
+      Future future = store.removeByKey("hello").then((_) => store.all().toList());
       future.then((remaining) {
         expect(remaining, hasLength(1));
         expect(remaining.contains("world"), false);
