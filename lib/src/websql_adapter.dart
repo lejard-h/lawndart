@@ -14,7 +14,7 @@
 
 part of lawndart;
 
-class WebSqlAdapter<K, V> extends Store<K, V> {
+class WebSqlAdapter<V> extends Store<V> {
   
   static final String VERSION = "1";
   static const int INITIAL_SIZE = 5 * 1024 * 1024;
@@ -46,25 +46,25 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
   }
   
   @override
-  Future<Iterable<K>> _keys() {
+  Stream<String> _keys() {
     var sql = 'SELECT id FROM $storeName';
-    var completer = new Completer<Iterable<K>>();
-    var keys = new Queue<K>();    
+    var controller = new StreamController();
     _db.transaction((txn) {
       txn.executeSql(sql, [], (txn, resultSet) {
         for (var i = 0; i < resultSet.rows.length; ++i) {
           var row = resultSet.rows.item(i);
-          keys.add(row['id']);
+          controller.add(row['id']);
         }
-        completer.complete(keys);
       });
-    }, (error) => completer.completeError(error));
+    },
+    (error) => controller.signalError(error),
+    () => controller.close());
     
-    return completer.future;
+    return controller.stream;
   }
   
   @override
-  Future _save(V obj, K key) {
+  Future _save(V obj, String key) {
     var completer = new Completer();
     var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
     
@@ -78,12 +78,12 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
   }
   
   @override
-  Future<bool> _exists(K key) {
+  Future<bool> _exists(String key) {
     return _getByKey(key).then((v) => v != null);
   }
   
   @override
-  Future<V> _getByKey(K key) {
+  Future<V> _getByKey(String key) {
     var completer = new Completer();
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
@@ -102,7 +102,7 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
   }
   
   @override
-  Future _removeByKey(K key) {
+  Future _removeByKey(String key) {
     var completer = new Completer();
     var sql = 'DELETE FROM $storeName WHERE id = ?';
 
@@ -120,34 +120,33 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
   Future _nuke() {
     var completer = new Completer();
     
-//    var sql = 'TRUNCATE TABLE $storeName';
     var sql = 'DELETE FROM $storeName';
     _db.transaction((txn) {
-      txn.executeSql(sql, [],  (txn, resultSet) => completer.complete(true));
+      txn.executeSql(sql, [], (txn, resultSet) => completer.complete(true));
     }, (error) => completer.completeError(error));
     return completer.future;
   }
   
   @override
-  Future<Iterable<V>> _all() {  
+  Stream<V> _all() {  
     var sql = 'SELECT id,value FROM $storeName';
-    var completer = new Completer<Collection<V>>();
-    var values = new Queue<V>();    
+    var controller = new StreamController<V>();
     _db.transaction((txn) {
       txn.executeSql(sql, [], (txn, resultSet) {
         for (var i = 0; i < resultSet.rows.length; ++i) {
           var row = resultSet.rows.item(i);
-          values.add(row['value']);
+          controller.add(row['value']);
         }
-        completer.complete(values);
       });
-    }, (error) => completer.completeError(error));
+    },
+    (error) => controller.signalError(error),
+    () => controller.close());
     
-    return completer.future;
+    return controller.stream;
   }
   
   @override
-  Future _batch(Map<K, V> objs) {
+  Future _batch(Map<String, V> objs) {
     var completer = new Completer();
     var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
     
@@ -165,29 +164,28 @@ class WebSqlAdapter<K, V> extends Store<K, V> {
   }
 
   @override
-  Future<Iterable<V>> _getByKeys(Iterable<K> _keys) {
+  Stream<V> _getByKeys(Iterable<String> _keys) {
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
-    var completer = new Completer<Iterable<V>>();
-    var values = new Queue<V>();
+    var controller = new StreamController<V>();
     
     _db.transaction((txn) {
       _keys.forEach((key) {
         txn.executeSql(sql, [key], (txn, resultSet) {
           if (!resultSet.rows.isEmpty) {
-            values.add(resultSet.rows.item(0)['value']);
+            controller.add(resultSet.rows.item(0)['value']);
           }
         });
       });
     },
-    (error) => completer.completeError(error),
-    () => completer.complete(values));
+    (error) => controller.signalError(error),
+    () => controller.close());
     
-    return completer.future;
+    return controller.stream;
   }
 
   @override
-  Future _removeByKeys(Iterable<K> _keys) {
+  Future _removeByKeys(Iterable<String> _keys) {
     var sql = 'DELETE FROM $storeName WHERE id = ?'; 
     var completer = new Completer<bool>();
     

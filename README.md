@@ -1,7 +1,8 @@
 # Lawndart
 
 A unified, asynchronous, easy-to-use library for offline-enabled
-browser-based web apps. Kinda sorta a port of Lawnchair to Dart.
+browser-based web apps. Kinda sorta a port of Lawnchair to Dart,
+but with Futures and Streams.
 
 Lawndart uses Futures to provide an asynchronous, yet consistent,
 interface to local storage, indexed db, and websql. This library is designed
@@ -27,37 +28,37 @@ See the example/ directory for more sample code.
 
 # API
 
-`open()`
+`Future open()`
 Opens the database and makes it available for reading and writing.
 
-`nuke()`
+`Future nuke()`
 Wipes the database clean. All records are deleted.
 
-`save(value, key)`
+`Future save(value, key)`
 Stores a value accessible by a key.
 
-`getByKey(key)`
+`Future getByKey(key)`
 Retrieves a value, given a key.
 
-`keys()`
+`Stream keys()`
 Returns all keys.
 
-`all()`
+`Stream all()`
 Returns all values.
 
-`batch(map)`
+`Future batch(map)`
 Stores all values and their keys.
 
-`getByKeys(keys)`
+`Stream getByKeys(keys)`
 Returns all values, given keys.
 
-`exists(key)`
+`Future exists(key)`
 Returns true if the key exists, or false.
 
-`removeByKey(key)`
+`Future removeByKey(key)`
 Removes the value for the key.
 
-`removeByKeys(keys)`
+`Future removeByKeys(keys)`
 Removes all values for the keys.
 
 
@@ -66,7 +67,8 @@ Removes all values for the keys.
 Lawndart does not choose a storage mechanism for you. Instead, you must
 make a choice.
 
-Every method, including opening, saving, and reading, returns a Future.
+Most methods return a Future, like `open` and `save`.
+Methods that would return many things, like `all`, return a Stream.
 
 You must call `open()` before you can use the database.
 	  
@@ -85,7 +87,7 @@ support for the various storage technologies.
 Lawndart is a pub package. To install it, and link it into your app,
 add lawndart to your pubspec.yaml. For example:
 
-    name: your-cool-app
+    name: your_cool_app
     dependencies:
       lawndart: any
       
@@ -100,6 +102,8 @@ the run: `pub install`
 Lawndart is hosted at https://github.com/sethladd/lawndart
 
 You can file issues at https://github.com/sethladd/lawndart/issues
+
+API docs at https://sethladd.github.com/lawndart/
 
 This library is open source, pull requests welcome!
 
