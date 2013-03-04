@@ -14,62 +14,62 @@
 
 part of lawndart;
 
-abstract class _MapAdapter<K, V> extends Store<K, V> {
-  Map<K, V> storage;
+abstract class _MapAdapter<V> extends Store<V> {
+  Map<String, V> storage;
 
   Future<bool> open() {
     storage = _generateMap();
     _isOpen = true;
-    return _results(true);
+    return new Future.immediate(true);
   }
   
-  Map<K, V> _generateMap();
+  Map<String, V> _generateMap();
   
-  Future<Iterable<K>> _keys() {
-    return _results(storage.keys);
+  Stream<String> _keys() {
+    return new Stream.fromIterable(storage.keys);
   }
   
-  Future _save(V obj, K key) {
+  Future _save(V obj, String key) {
     storage[key] = obj;
-    return _results(true);
+    return new Future.immediate(true);
   }
   
-  Future _batch(Map<K, V> objs) {
+  Future _batch(Map<String, V> objs) {
     for (var key in objs.keys) {
       storage[key] = objs[key];
     }
-    return _results(true);
+    return new Future.immediate(true);
   }
   
-  Future<V> _getByKey(K key) {
-    return _results(storage[key]);
+  Future<V> _getByKey(String key) {
+    return new Future.immediate(storage[key]);
   }
   
-  Future<Iterable<V>> _getByKeys(Iterable<K> _keys) {
+  Stream<V> _getByKeys(Iterable<String> _keys) {
     var values = _keys.map((key) => storage[key]).where((v) => v != null);
-    return _results(values);
+    return new Stream.fromIterable(values);
   }
   
-  Future<bool> _exists(K key) {
-    return _results(storage.containsKey(key));
+  Future<bool> _exists(String key) {
+    return new Future.immediate(storage.containsKey(key));
   }
   
-  Future<Iterable<V>> _all() {
-    return _results(storage.values);
+  Stream<V> _all() {
+    return new Stream.fromIterable(storage.values);
   }
   
-  Future _removeByKey(K key) {
+  Future _removeByKey(String key) {
     storage.remove(key);
-    return _results(true);
+    return new Future.immediate(true);
   }
   
-  Future _removeByKeys(Iterable<K> _keys) {
+  Future _removeByKeys(Iterable<String> _keys) {
     _keys.forEach((key) => storage.remove(key));
-    return _results(true);
+    return new Future.immediate(true);
   }
   
   Future _nuke() {
     storage.clear();
-    return _results(true);
+    return new Future.immediate(true);
   }
 }
