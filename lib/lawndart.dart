@@ -28,8 +28,6 @@ part 'src/memory_adapter.dart';
 part 'src/local_storage_adapter.dart';
 part 'src/websql_adapter.dart';
 
-_results(obj) => new Future.immediate(obj);
-
 abstract class Store<V> {
   bool _isOpen = false;
   
@@ -42,11 +40,11 @@ abstract class Store<V> {
   Future open();
   
   /// Returns all the keys.
-  Future<Iterable<String>> keys() {
+  Stream<String> keys() {
     _checkOpen();
     return _keys();
   }
-  Future<Iterable<String>> _keys();
+  Stream<String> _keys();
   
   /// Stores an [obj] accessible by [key].
   Future save(V obj, String key) {
@@ -75,11 +73,11 @@ abstract class Store<V> {
   
   /// Returns all values for the keys. If a particular key is not found,
   /// no value will be returned, not even null.
-  Future<Iterable<V>> getByKeys(Iterable<String> _keys) {
+  Stream<V> getByKeys(Iterable<String> _keys) {
     _checkOpen();
     return _getByKeys(_keys);
   }
-  Future<Iterable<V>> _getByKeys(Iterable<String> _keys);
+  Stream<V> _getByKeys(Iterable<String> _keys);
   
   /// Returns true if the key exists, or false.
   Future<bool> exists(String key) {
@@ -89,11 +87,11 @@ abstract class Store<V> {
   Future<bool> _exists(String key);
   
   /// Returns all values.
-  Future<Iterable<V>> all() {
+  Stream<V> all() {
     _checkOpen();
     return _all();
   }
-  Future<Iterable<V>> _all();
+  Stream<V> _all();
   
   /// Removes a value from storage, given a key. The value
   /// returned by the Future is undefined.

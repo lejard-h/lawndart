@@ -46,21 +46,21 @@ class WebSqlAdapter<V> extends Store<V> {
   }
   
   @override
-  Future<Iterable<String>> _keys() {
+  Stream<String> _keys() {
     var sql = 'SELECT id FROM $storeName';
-    var completer = new Completer<Iterable<String>>();
-    var keys = new Queue<String>();    
+    var controller = new StreamController();
     _db.transaction((txn) {
       txn.executeSql(sql, [], (txn, resultSet) {
         for (var i = 0; i < resultSet.rows.length; ++i) {
           var row = resultSet.rows.item(i);
-          keys.add(row['id']);
+          controller.add(row['id']);
         }
-        completer.complete(keys);
       });
-    }, (error) => completer.completeError(error));
+    },
+    (error) => controller.signalError(error),
+    () => controller.close());
     
-    return completer.future;
+    return controller.stream;
   }
   
   @override
@@ -120,30 +120,29 @@ class WebSqlAdapter<V> extends Store<V> {
   Future _nuke() {
     var completer = new Completer();
     
-//    var sql = 'TRUNCATE TABLE $storeName';
     var sql = 'DELETE FROM $storeName';
     _db.transaction((txn) {
-      txn.executeSql(sql, [],  (txn, resultSet) => completer.complete(true));
+      txn.executeSql(sql, [], (txn, resultSet) => completer.complete(true));
     }, (error) => completer.completeError(error));
     return completer.future;
   }
   
   @override
-  Future<Iterable<V>> _all() {  
+  Stream<V> _all() {  
     var sql = 'SELECT id,value FROM $storeName';
-    var completer = new Completer<Collection<V>>();
-    var values = new Queue<V>();    
+    var controller = new StreamController<V>();
     _db.transaction((txn) {
       txn.executeSql(sql, [], (txn, resultSet) {
         for (var i = 0; i < resultSet.rows.length; ++i) {
           var row = resultSet.rows.item(i);
-          values.add(row['value']);
+          controller.add(row['value']);
         }
-        completer.complete(values);
       });
-    }, (error) => completer.completeError(error));
+    },
+    (error) => controller.signalError(error),
+    () => controller.close());
     
-    return completer.future;
+    return controller.stream;
   }
   
   @override
@@ -165,25 +164,24 @@ class WebSqlAdapter<V> extends Store<V> {
   }
 
   @override
-  Future<Iterable<V>> _getByKeys(Iterable<String> _keys) {
+  Stream<V> _getByKeys(Iterable<String> _keys) {
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
-    var completer = new Completer<Iterable<V>>();
-    var values = new Queue<V>();
+    var controller = new StreamController<V>();
     
     _db.transaction((txn) {
       _keys.forEach((key) {
         txn.executeSql(sql, [key], (txn, resultSet) {
           if (!resultSet.rows.isEmpty) {
-            values.add(resultSet.rows.item(0)['value']);
+            controller.add(resultSet.rows.item(0)['value']);
           }
         });
       });
     },
-    (error) => completer.completeError(error),
-    () => completer.complete(values));
+    (error) => controller.signalError(error),
+    () => controller.close());
     
-    return completer.future;
+    return controller.stream;
   }
 
   @override

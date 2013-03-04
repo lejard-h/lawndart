@@ -16,7 +16,7 @@ part of lawndart;
 
 class LocalStorageAdapter<V> extends _MapAdapter<V> {
   @override
-  Map<String, V> _generateMap() {
+  Map _generateMap() {
     return window.localStorage;
   }
 }

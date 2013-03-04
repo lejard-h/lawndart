@@ -20,56 +20,56 @@ abstract class _MapAdapter<V> extends Store<V> {
   Future<bool> open() {
     storage = _generateMap();
     _isOpen = true;
-    return _results(true);
+    return new Future.immediate(true);
   }
   
   Map<String, V> _generateMap();
   
-  Future<Iterable<String>> _keys() {
-    return _results(storage.keys);
+  Stream<String> _keys() {
+    return new Stream.fromIterable(storage.keys);
   }
   
   Future _save(V obj, String key) {
     storage[key] = obj;
-    return _results(true);
+    return new Future.immediate(true);
   }
   
   Future _batch(Map<String, V> objs) {
     for (var key in objs.keys) {
       storage[key] = objs[key];
     }
-    return _results(true);
+    return new Future.immediate(true);
   }
   
   Future<V> _getByKey(String key) {
-    return _results(storage[key]);
+    return new Future.immediate(storage[key]);
   }
   
-  Future<Iterable<V>> _getByKeys(Iterable<String> _keys) {
+  Stream<V> _getByKeys(Iterable<String> _keys) {
     var values = _keys.map((key) => storage[key]).where((v) => v != null);
-    return _results(values);
+    return new Stream.fromIterable(values);
   }
   
   Future<bool> _exists(String key) {
-    return _results(storage.containsKey(key));
+    return new Future.immediate(storage.containsKey(key));
   }
   
-  Future<Iterable<V>> _all() {
-    return _results(storage.values);
+  Stream<V> _all() {
+    return new Stream.fromIterable(storage.values);
   }
   
   Future _removeByKey(String key) {
     storage.remove(key);
-    return _results(true);
+    return new Future.immediate(true);
   }
   
   Future _removeByKeys(Iterable<String> _keys) {
     _keys.forEach((key) => storage.remove(key));
-    return _results(true);
+    return new Future.immediate(true);
   }
   
   Future _nuke() {
     storage.clear();
-    return _results(true);
+    return new Future.immediate(true);
   }
 }
