@@ -1,1 +1,1 @@
-{"name":"dart:","dependencies":[],"description":"Dart System Libraries","libraries":[{"name":"file:///Users/sethladd/Code/lawndart/lib/lawndart.dart","refId":"lawndart"},{"name":"package:meta/meta.dart","refId":"meta"},{"name":"file:///Users/sethladd/Desktop/dart/dart-sdk/lib/html/html_common/metadata.dart","refId":"metadata"}],"revision":"0"}
+{"name":"dart:","dependencies":[],"description":"Dart System Libraries","libraries":[{"name":"file:///Users/sethladd/Code/lawndart/lib/lawndart.dart","refId":"lawndart"}],"revision":"0"}
