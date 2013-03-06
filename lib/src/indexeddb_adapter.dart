@@ -44,36 +44,34 @@ class IndexedDbAdapter<V> extends Store<V> {
   
   @override
   Future _removeByKey(String  key) {
-    return _doCommand((idb.ObjectStore store) => store.delete(key), (e) => true);
+    return _doCommand((idb.ObjectStore store) => store.delete(key));
   }
   
   @override
-  Future<String> _save(V obj, String key) {
-    return _doCommand((idb.ObjectStore store) => store.$dom_put(obj, key),
-        (e) => true);
+  Future _save(V obj, String key) {
+    return _doCommand((idb.ObjectStore store) {
+      return store.put(obj, key);
+    });
   }
   
   @override
   Future<V> _getByKey(String key) {
-    return _doCommand((idb.ObjectStore store) => store.$dom_getObject(key),
-        (req) => req.result, 'readonly');
+    return _doCommand((idb.ObjectStore store) => store.getObject(key),
+        'readonly');
   }
   
   @override
   Future _nuke() {
-    return _doCommand((idb.ObjectStore store) => store.clear(), (e) => true);
+    return _doCommand((idb.ObjectStore store) => store.clear());
   }
   
-  Future _doCommand(idb.Request requestCommand(idb.ObjectStore store),
-             dynamic onComplete(idb.Request req),
+  Future _doCommand(Future requestCommand(idb.ObjectStore store),
              [String txnMode = 'readwrite']) {
     var completer = new Completer();
     var trans = _db.transaction(storeName, txnMode);
     var store = trans.objectStore(storeName);
-    var request = requestCommand(store);
-    trans.onComplete.listen((e) => completer.complete(onComplete(request)));
-    request.onError.listen((e) => completer.completeError(e));
-    return completer.future;
+    var future = requestCommand(store);
+    return trans.completed.then((_) => future);
   }
   
   Stream _doGetAll(dynamic onCursor(idb.CursorWithValue cursor)) {

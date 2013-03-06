@@ -47,7 +47,7 @@ abstract class Store<V> {
   Stream<String> _keys();
   
   /// Stores an [obj] accessible by [key].
-  Future save(V obj, String key) {
+  Future<String> save(V obj, String key) {
     _checkOpen();
     if (key == null) {
       throw new ArgumentError("key must not be null");

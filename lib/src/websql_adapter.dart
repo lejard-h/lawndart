@@ -70,7 +70,7 @@ class WebSqlAdapter<V> extends Store<V> {
     
     _db.transaction((txn) {
       txn.executeSql(upsertSql, [key, obj], (txn, resultSet) {
-        completer.complete(true);
+        completer.complete(key);
       });
     }, (error) => completer.completeError(error));
     

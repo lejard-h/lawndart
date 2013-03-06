@@ -29,7 +29,7 @@ run(StoreGenerator generator) {
     });
     
     test('save throws stateerror', () {
-      expect(() => store.save('key', 'value'), throwsStateError);
+      expect(() => store.save('value', 'key'), throwsStateError);
     });
     
     test('batch throws stateerror', () {
@@ -90,8 +90,8 @@ run(StoreGenerator generator) {
     });
     
     test('save completes', () {
-      Future future = store.save("key", "value");
-      expect(future, completion(true));
+      Future future = store.save("value", "key");
+      expect(future, completion("key"));
     });
     
     test('exists returns false', () {

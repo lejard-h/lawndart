@@ -31,7 +31,7 @@ abstract class _MapAdapter<V> extends Store<V> {
   
   Future _save(V obj, String key) {
     storage[key] = obj;
-    return new Future.immediate(true);
+    return new Future.immediate(key);
   }
   
   Future _batch(Map<String, V> objs) {
