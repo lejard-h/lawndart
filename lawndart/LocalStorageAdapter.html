@@ -220,14 +220,14 @@ Future removeByKeys(Iterable&lt;String&gt; _keys) {
 </div>
 <div class="method inherited"><h4 id="save">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>save</strong>(<a href="../lawndart/LocalStorageAdapter.html">V</a> obj, <a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#save"
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>save</strong>(<a href="../lawndart/LocalStorageAdapter.html">V</a> obj, <a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#save"
               title="Permalink to LocalStorageAdapter&lt;V&gt;.save">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Stores an 
 <span class="param">obj</span> accessible by 
 <span class="param">key</span>.</p>
 <pre class="source">
-Future save(V obj, String key) {
+Future&lt;String&gt; save(V obj, String key) {
  _checkOpen();
  if (key == null) {
    throw new ArgumentError("key must not be null");
