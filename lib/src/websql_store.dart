@@ -32,6 +32,10 @@ class WebSqlStore<V> extends Store<V> {
   
   @override
   Future<bool> open() {
+    if (!SqlDatabase.supported) {
+      return new Future.immediateError(
+        new UnsupportedError('WebSQL is not supported on this platform'));
+    }
     var completer = new Completer();
     _db = window.openDatabase(dbName, VERSION, dbName, estimatedSize);
     _initDb(completer);

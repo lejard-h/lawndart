@@ -32,6 +32,10 @@ class IndexedDbStore<V> extends Store<V> {
   }
   
   Future open() {
+    if (!idb.IdbFactory.supported) {
+      return new Future.immediateError(
+        new UnsupportedError('IndexedDB is not supported on this platform'));
+    }
     return window.indexedDB.open(dbName, version: version,
         onUpgradeNeeded: (e) {
           _db = e.target.result;
