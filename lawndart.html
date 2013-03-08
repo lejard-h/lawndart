@@ -27,6 +27,28 @@
 </div>
 <div class="content">
 <h2><strong>lawndart</strong> library</h2>
+<div class="doc"><h1>Lawndart</h1>
+<p>A unified, asynchronous, easy-to-use library for offline-enabled
+browser-based web apps. Kinda sorta a port of Lawnchair to Dart,
+but with Futures and Streams.</p>
+<p>Lawndart uses Futures to provide an asynchronous, yet consistent,
+interface to local storage, indexed db, and websql. This library is designed
+for simple key-value usage, and is not designed for complex transactional
+queries. This library prefers simplicity and uniformity over expressiveness.</p>
+<p>You can use this library to help deal with the wide array of client-side
+storage options. You should be able to write your code against the Lawndart
+interface and have it work across browsers that support at least one of the
+following: local storage, indexed db, and websql.</p>
+<h1>Example</h1>
+<pre><code>var db = new IndexedDbAdapter("simple-run-through", 'test');
+db.open()
+  .then((_) =&gt; db.nuke())
+  .then((_) =&gt; db.save("world", "hello"))
+  .then((_) =&gt; db.save("is fun", "dart"))
+  .then((_) =&gt; db.getByKey("hello"))
+  .then((value) =&gt; query('#text').text = value);
+</code></pre>
+<p>See the example/ directory for more sample code.</p></div>
 <div>
 <h3>Abstract Classes</h3>
           <div class="type">
