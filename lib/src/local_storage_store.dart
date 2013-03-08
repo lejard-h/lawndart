@@ -14,7 +14,12 @@
 
 part of lawndart;
 
-class LocalStorageAdapter<V> extends _MapAdapter<V> {
+/**
+ * Wraps the local storage API and exposes it as a [Store].
+ * Local storage is a synchronous API, and generally not recommended
+ * unless all other storage mechanisms are unavailable.
+ */
+class LocalStorageStore<V> extends _MapStore<V> {
   @override
   Map _generateMap() {
     return window.localStorage;

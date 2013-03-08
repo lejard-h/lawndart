@@ -16,7 +16,7 @@ following: local storage, indexed db, and websql.
 
 # Example
 	  
-	  var db = new IndexedDbAdapter("simple-run-through", 'test');
+	  var db = new IndexedDbStore("simple-run-through", 'test');
 	  db.open()
 	  .then((_) => db.nuke())
 	  .then((_) => db.save("world", "hello"))
@@ -103,7 +103,7 @@ Lawndart is hosted at https://github.com/sethladd/lawndart
 
 You can file issues at https://github.com/sethladd/lawndart/issues
 
-API docs at https://sethladd.github.com/lawndart/
+API docs at http://sethladd.github.com/lawndart/
 
 This library is open source, pull requests welcome!
 
@@ -113,7 +113,6 @@ This library is open source, pull requests welcome!
 
 # TODO
 
-* Use streams for getByKeys and all.
 * Handle non-String keys and values appropriately.
 * Wire into drone.io.
 

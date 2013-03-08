@@ -14,7 +14,11 @@
 
 part of lawndart;
 
-class WebSqlAdapter<V> extends Store<V> {
+/**
+ * Wraps the WebSQL API and exposes it as a [Store].
+ * WebSQL is a transactional database.
+ */
+class WebSqlStore<V> extends Store<V> {
   
   static final String VERSION = "1";
   static const int INITIAL_SIZE = 5 * 1024 * 1024;
@@ -24,7 +28,7 @@ class WebSqlAdapter<V> extends Store<V> {
   int estimatedSize;
   SqlDatabase _db;
   
-  WebSqlAdapter(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
+  WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
   
   @override
   Future<bool> open() {

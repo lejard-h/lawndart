@@ -26,7 +26,7 @@ set initialized(bool value) {
   __$initialized = value;
 }
 
-Store db = new IndexedDbAdapter("simple-todo", 'todos');
+Store db = new IndexedDbStore("simple-todo", 'todos');
 
 init() {
   db.open()

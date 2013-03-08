@@ -11,7 +11,7 @@ final List<TodoItem> todoItems = toObservable(new List<TodoItem>());
 @observable
 bool initialized = false;
 
-Store db = new IndexedDbAdapter("simple-todo", 'todos');
+Store db = new IndexedDbStore("simple-todo", 'todos');
 
 init() {
   db.open()

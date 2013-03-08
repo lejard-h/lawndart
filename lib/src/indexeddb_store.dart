@@ -14,14 +14,18 @@
 
 part of lawndart;
 
-class IndexedDbAdapter<V> extends Store<V> {
+/**
+ * Wraps the IndexedDB API and exposes it as a [Store].
+ * IndexedDB is generally the preferred API if it is available.
+ */
+class IndexedDbStore<V> extends Store<V> {
   
   String dbName;
   int version;
   idb.Database _db;
   String storeName;
   
-  IndexedDbAdapter(this.dbName, this.storeName, {this.version: 1}) {
+  IndexedDbStore(this.dbName, this.storeName, {this.version: 1}) {
     if (version == null) {
       throw new ArgumentError("version must not be null");
     }
