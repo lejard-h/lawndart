@@ -32,6 +32,9 @@
         
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
 <div class="doc">
+<p>Represents a Store that can hold key/value pairs. No order
+is guaranteed for either keys or values. You must
+<a class="crossref" href="../lawndart/Store.html#open">open</a> a store before you can use it.</p>
 <pre class="source">
 abstract class Store&lt;V&gt; {
  bool _isOpen = false;
@@ -42,9 +45,12 @@ abstract class Store&lt;V&gt; {
    if (!isOpen) throw new StateError('$runtimeType is not open');
  }
  
+ /// Returns a Future that completes when the store is opened.
+ /// You must call this method before using
+ /// the store.
  Future open();
  
- /// Returns all the keys.
+ /// Returns all the keys as a stream. No order is guaranteed.
  Stream&lt;String&gt; keys() {
    _checkOpen();
    return _keys();
@@ -52,6 +58,8 @@ abstract class Store&lt;V&gt; {
  Stream&lt;String&gt; _keys();
  
  /// Stores an [obj] accessible by [key].
+ /// The returned Future completes with the key when the objects
+ /// is saved in the store.
  Future&lt;String&gt; save(V obj, String key) {
    _checkOpen();
    if (key == null) {
@@ -63,20 +71,24 @@ abstract class Store&lt;V&gt; {
  
  /// Stores all objects by their keys. This should happen in a single
  /// transaction if the underlying store supports it.
+ /// The returned Future completes when all objects have been added
+ /// to the store.
  Future batch(Map&lt;String, V&gt; objectsByKey) {
    _checkOpen();
    return _batch(objectsByKey);
  }
  Future _batch(Map&lt;String, V&gt; objectsByKey);
  
- /// Returns a value for a key, or null if the key does not exist.
+ /// Returns a Future that completes with the value for a key,
+ /// or null if the key does not exist.
  Future&lt;V&gt; getByKey(String key) {
    _checkOpen();
    return _getByKey(key);
  }
  Future&lt;V&gt; _getByKey(String key);
  
- /// Returns all values for the keys. If a particular key is not found,
+ /// Returns a Stream of all values for the keys.
+ /// If a particular key is not found,
  /// no value will be returned, not even null.
  Stream&lt;V&gt; getByKeys(Iterable&lt;String&gt; _keys) {
    _checkOpen();
@@ -84,38 +96,36 @@ abstract class Store&lt;V&gt; {
  }
  Stream&lt;V&gt; _getByKeys(Iterable&lt;String&gt; _keys);
  
- /// Returns true if the key exists, or false.
+ /// Returns a Future that completes with true if the key exists, or false.
  Future&lt;bool&gt; exists(String key) {
    _checkOpen();
    return _exists(key);
  }
  Future&lt;bool&gt; _exists(String key);
  
- /// Returns all values.
+ /// Returns a Stream of all values in no particular order.
  Stream&lt;V&gt; all() {
    _checkOpen();
    return _all();
  }
  Stream&lt;V&gt; _all();
  
- /// Removes a value from storage, given a key. The value
- /// returned by the Future is undefined.
+ /// Returns a Future that completes when the key's value is removed.
  Future removeByKey(String key) {
    _checkOpen();
    return _removeByKey(key);
  }
  Future _removeByKey(key);
  
- /// Removes all values from storage, given one or more keys. The value
- /// returned by the Future is undefined.
+ /// Returns a Future that completes when all the keys' values are removed.
  Future removeByKeys(Iterable&lt;String&gt; _keys) {
    _checkOpen();
    return _removeByKeys(_keys);
  }
  Future _removeByKeys(Iterable&lt;String&gt; _keys);
  
- /// Removes all values from storage.
- /// The value returned by the Future is undefined.
+ /// Returns a Future that completes when all values and keys
+ /// are removed.
  Future nuke() {
    _checkOpen();
    return _nuke();
@@ -126,7 +136,7 @@ abstract class Store&lt;V&gt; {
 </div>
 <h3>Subclasses</h3>
 <p>
-<span class="type-box"><span class="icon-class"></span><a href="../lawndart/IndexedDbAdapter.html">IndexedDbAdapter&lt;V&gt;</a></span>, <span class="type-box"><span class="icon-class"></span><a href="../lawndart/WebSqlAdapter.html">WebSqlAdapter&lt;V&gt;</a></span></p>
+<span class="type-box"><span class="icon-class"></span><a href="../lawndart/IndexedDbStore.html">IndexedDbStore&lt;V&gt;</a></span>, <span class="type-box"><span class="icon-class"></span><a href="../lawndart/WebSqlStore.html">WebSqlStore&lt;V&gt;</a></span></p>
 <div>
 <h3>Properties</h3>
 <div class="field"><h4 id="isOpen">
@@ -149,7 +159,7 @@ bool get isOpen =&gt; _isOpen;
 <a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/Store.html">V</a>&gt; <strong>all</strong>() <a class="anchor-link" href="#all"
               title="Permalink to Store&lt;V&gt;.all">#</a></h4>
 <div class="doc">
-<p>Returns all values.</p>
+<p>Returns a Stream of all values in no particular order.</p>
 <pre class="source">
 Stream&lt;V&gt; all() {
  _checkOpen();
@@ -164,7 +174,9 @@ Stream&lt;V&gt; all() {
               title="Permalink to Store&lt;V&gt;.batch">#</a></h4>
 <div class="doc">
 <p>Stores all objects by their keys. This should happen in a single
-transaction if the underlying store supports it.</p>
+transaction if the underlying store supports it.
+The returned Future completes when all objects have been added
+to the store.</p>
 <pre class="source">
 Future batch(Map&lt;String, V&gt; objectsByKey) {
  _checkOpen();
@@ -178,7 +190,7 @@ Future batch(Map&lt;String, V&gt; objectsByKey) {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>exists</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#exists"
               title="Permalink to Store&lt;V&gt;.exists">#</a></h4>
 <div class="doc">
-<p>Returns true if the key exists, or false.</p>
+<p>Returns a Future that completes with true if the key exists, or false.</p>
 <pre class="source">
 Future&lt;bool&gt; exists(String key) {
  _checkOpen();
@@ -192,7 +204,8 @@ Future&lt;bool&gt; exists(String key) {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../lawndart/Store.html">V</a>&gt; <strong>getByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#getByKey"
               title="Permalink to Store&lt;V&gt;.getByKey">#</a></h4>
 <div class="doc">
-<p>Returns a value for a key, or null if the key does not exist.</p>
+<p>Returns a Future that completes with the value for a key,
+or null if the key does not exist.</p>
 <pre class="source">
 Future&lt;V&gt; getByKey(String key) {
  _checkOpen();
@@ -206,7 +219,8 @@ Future&lt;V&gt; getByKey(String key) {
 <a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/Store.html">V</a>&gt; <strong>getByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; _keys) <a class="anchor-link" href="#getByKeys"
               title="Permalink to Store&lt;V&gt;.getByKeys">#</a></h4>
 <div class="doc">
-<p>Returns all values for the keys. If a particular key is not found,
+<p>Returns a Stream of all values for the keys.
+If a particular key is not found,
 no value will be returned, not even null.</p>
 <pre class="source">
 Stream&lt;V&gt; getByKeys(Iterable&lt;String&gt; _keys) {
@@ -221,7 +235,7 @@ Stream&lt;V&gt; getByKeys(Iterable&lt;String&gt; _keys) {
 <a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>keys</strong>() <a class="anchor-link" href="#keys"
               title="Permalink to Store&lt;V&gt;.keys">#</a></h4>
 <div class="doc">
-<p>Returns all the keys.</p>
+<p>Returns all the keys as a stream. No order is guaranteed.</p>
 <pre class="source">
 Stream&lt;String&gt; keys() {
  _checkOpen();
@@ -235,8 +249,8 @@ Stream&lt;String&gt; keys() {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>nuke</strong>() <a class="anchor-link" href="#nuke"
               title="Permalink to Store&lt;V&gt;.nuke">#</a></h4>
 <div class="doc">
-<p>Removes all values from storage.
-The value returned by the Future is undefined.</p>
+<p>Returns a Future that completes when all values and keys
+are removed.</p>
 <pre class="source">
 Future nuke() {
  _checkOpen();
@@ -249,6 +263,9 @@ Future nuke() {
 abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>open</strong>() <a class="anchor-link" href="#open"
               title="Permalink to Store&lt;V&gt;.open">#</a></h4>
 <div class="doc">
+<p>Returns a Future that completes when the store is opened.
+You must call this method before using
+the store.</p>
 </div>
 </div>
 <div class="method"><h4 id="removeByKey">
@@ -256,8 +273,7 @@ abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <st
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#removeByKey"
               title="Permalink to Store&lt;V&gt;.removeByKey">#</a></h4>
 <div class="doc">
-<p>Removes a value from storage, given a key. The value
-returned by the Future is undefined.</p>
+<p>Returns a Future that completes when the key's value is removed.</p>
 <pre class="source">
 Future removeByKey(String key) {
  _checkOpen();
@@ -271,8 +287,7 @@ Future removeByKey(String key) {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; _keys) <a class="anchor-link" href="#removeByKeys"
               title="Permalink to Store&lt;V&gt;.removeByKeys">#</a></h4>
 <div class="doc">
-<p>Removes all values from storage, given one or more keys. The value
-returned by the Future is undefined.</p>
+<p>Returns a Future that completes when all the keys' values are removed.</p>
 <pre class="source">
 Future removeByKeys(Iterable&lt;String&gt; _keys) {
  _checkOpen();
@@ -288,7 +303,9 @@ Future removeByKeys(Iterable&lt;String&gt; _keys) {
 <div class="doc">
 <p>Stores an 
 <span class="param">obj</span> accessible by 
-<span class="param">key</span>.</p>
+<span class="param">key</span>.
+The returned Future completes with the key when the objects
+is saved in the store.</p>
 <pre class="source">
 Future&lt;String&gt; save(V obj, String key) {
  _checkOpen();

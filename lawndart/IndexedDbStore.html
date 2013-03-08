@@ -2,19 +2,19 @@
         <html>
         <head>
                 <meta charset="utf-8">
-        <title>IndexedDbAdapter&lt;V&gt; class / lawndart Library / Dart Documentation</title>
+        <title>IndexedDbStore&lt;V&gt; class / lawndart Library / Dart Documentation</title>
         <link rel="stylesheet" type="text/css"
             href="../styles.css">
         <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
         <link rel="shortcut icon" href="../favicon.ico">
         
         </head>
-        <body data-library="lawndart" data-type="IndexedDbAdapter&amp;lt;V&amp;gt;">
+        <body data-library="lawndart" data-type="IndexedDbStore&amp;lt;V&amp;gt;">
         <div class="page">
         <div class="header">
           <a href="../index.html"><div class="logo"></div></a>
           <a href="../index.html">Dart Documentation</a>
-         &rsaquo; <a href="../lawndart.html">lawndart</a> &rsaquo; <a href="../lawndart/IndexedDbAdapter.html">IndexedDbAdapter&lt;V&gt;</a>        <div id="search-box">
+         &rsaquo; <a href="../lawndart.html">lawndart</a> &rsaquo; <a href="../lawndart/IndexedDbStore.html">IndexedDbStore&lt;V&gt;</a>        <div id="search-box">
           <input type="search" name="q" id="q" autocomplete="off"
               class="search-input" placeholder="Search API">
         </div>
@@ -26,21 +26,23 @@
         
 </div>
 <div class="content">
-        <h2><strong>IndexedDbAdapter&lt;V&gt;</strong>
+        <h2><strong>IndexedDbStore&lt;V&gt;</strong>
           class
         </h2>
         
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
 <div class="doc">
+<p>Wraps the IndexedDB API and exposes it as a <a class="crossref" href="../lawndart/Store.html">Store</a>.
+IndexedDB is generally the preferred API if it is available.</p>
 <pre class="source">
-class IndexedDbAdapter&lt;V&gt; extends Store&lt;V&gt; {
+class IndexedDbStore&lt;V&gt; extends Store&lt;V&gt; {
  
  String dbName;
  int version;
  idb.Database _db;
  String storeName;
  
- IndexedDbAdapter(this.dbName, this.storeName, {this.version: 1}) {
+ IndexedDbStore(this.dbName, this.storeName, {this.version: 1}) {
    if (version == null) {
      throw new ArgumentError("version must not be null");
    }
@@ -160,16 +162,16 @@ class IndexedDbAdapter&lt;V&gt; extends Store&lt;V&gt; {
 </div>
 <h3>Extends</h3>
 <p>
-<span class="type-box"><span class="icon-class"></span><a href="../lawndart/Store.html">Store&lt;V&gt;</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>IndexedDbAdapter&lt;V&gt;</strong></span></p>
+<span class="type-box"><span class="icon-class"></span><a href="../lawndart/Store.html">Store&lt;V&gt;</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>IndexedDbStore&lt;V&gt;</strong></span></p>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="IndexedDbAdapter">
+<div class="method"><h4 id="IndexedDbStore">
 <button class="show-code">Code</button>
-new <strong>IndexedDbAdapter</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> dbName, <a href="http://api.dartlang.org/dart_core/String.html">String</a> storeName, {<a href="http://api.dartlang.org/dart_core/int.html">int</a> version: 1}) <a class="anchor-link" href="#IndexedDbAdapter"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.IndexedDbAdapter">#</a></h4>
+new <strong>IndexedDbStore</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> dbName, <a href="http://api.dartlang.org/dart_core/String.html">String</a> storeName, {<a href="http://api.dartlang.org/dart_core/int.html">int</a> version: 1}) <a class="anchor-link" href="#IndexedDbStore"
+              title="Permalink to IndexedDbStore&lt;V&gt;.IndexedDbStore">#</a></h4>
 <div class="doc">
 <pre class="source">
-IndexedDbAdapter(this.dbName, this.storeName, {this.version: 1}) {
+IndexedDbStore(this.dbName, this.storeName, {this.version: 1}) {
  if (version == null) {
    throw new ArgumentError("version must not be null");
  }
@@ -184,7 +186,7 @@ IndexedDbAdapter(this.dbName, this.storeName, {this.version: 1}) {
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>dbName</strong> <a class="anchor-link"
             href="#dbName"
-            title="Permalink to IndexedDbAdapter&lt;V&gt;.dbName">#</a>
+            title="Permalink to IndexedDbStore&lt;V&gt;.dbName">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
@@ -196,7 +198,7 @@ dbName
 <button class="show-code">Code</button>
 final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>isOpen</strong> <a class="anchor-link"
             href="#isOpen"
-            title="Permalink to IndexedDbAdapter&lt;V&gt;.isOpen">#</a>
+            title="Permalink to IndexedDbStore&lt;V&gt;.isOpen">#</a>
         </h4>
         <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <pre class="source">
@@ -208,7 +210,7 @@ bool get isOpen =&gt; _isOpen;
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>storeName</strong> <a class="anchor-link"
             href="#storeName"
-            title="Permalink to IndexedDbAdapter&lt;V&gt;.storeName">#</a>
+            title="Permalink to IndexedDbStore&lt;V&gt;.storeName">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
@@ -220,7 +222,7 @@ storeName
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>version</strong> <a class="anchor-link"
             href="#version"
-            title="Permalink to IndexedDbAdapter&lt;V&gt;.version">#</a>
+            title="Permalink to IndexedDbStore&lt;V&gt;.version">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
@@ -233,10 +235,10 @@ version
 <h3>Methods</h3>
 <div class="method inherited"><h4 id="all">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">V</a>&gt; <strong>all</strong>() <a class="anchor-link" href="#all"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.all">#</a></h4>
+<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/IndexedDbStore.html">V</a>&gt; <strong>all</strong>() <a class="anchor-link" href="#all"
+              title="Permalink to IndexedDbStore&lt;V&gt;.all">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
-<p>Returns all values.</p>
+<p>Returns a Stream of all values in no particular order.</p>
 <pre class="source">
 Stream&lt;V&gt; all() {
  _checkOpen();
@@ -247,11 +249,13 @@ Stream&lt;V&gt; all() {
 </div>
 <div class="method inherited"><h4 id="batch">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>batch</strong>(<a href="http://api.dartlang.org/dart_core/Map.html">Map</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>, <a href="../lawndart/IndexedDbAdapter.html">V</a>&gt; objectsByKey) <a class="anchor-link" href="#batch"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.batch">#</a></h4>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>batch</strong>(<a href="http://api.dartlang.org/dart_core/Map.html">Map</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>, <a href="../lawndart/IndexedDbStore.html">V</a>&gt; objectsByKey) <a class="anchor-link" href="#batch"
+              title="Permalink to IndexedDbStore&lt;V&gt;.batch">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Stores all objects by their keys. This should happen in a single
-transaction if the underlying store supports it.</p>
+transaction if the underlying store supports it.
+The returned Future completes when all objects have been added
+to the store.</p>
 <pre class="source">
 Future batch(Map&lt;String, V&gt; objectsByKey) {
  _checkOpen();
@@ -263,9 +267,9 @@ Future batch(Map&lt;String, V&gt; objectsByKey) {
 <div class="method inherited"><h4 id="exists">
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>exists</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#exists"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.exists">#</a></h4>
+              title="Permalink to IndexedDbStore&lt;V&gt;.exists">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
-<p>Returns true if the key exists, or false.</p>
+<p>Returns a Future that completes with true if the key exists, or false.</p>
 <pre class="source">
 Future&lt;bool&gt; exists(String key) {
  _checkOpen();
@@ -276,10 +280,11 @@ Future&lt;bool&gt; exists(String key) {
 </div>
 <div class="method inherited"><h4 id="getByKey">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">V</a>&gt; <strong>getByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#getByKey"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.getByKey">#</a></h4>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../lawndart/IndexedDbStore.html">V</a>&gt; <strong>getByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#getByKey"
+              title="Permalink to IndexedDbStore&lt;V&gt;.getByKey">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
-<p>Returns a value for a key, or null if the key does not exist.</p>
+<p>Returns a Future that completes with the value for a key,
+or null if the key does not exist.</p>
 <pre class="source">
 Future&lt;V&gt; getByKey(String key) {
  _checkOpen();
@@ -290,10 +295,11 @@ Future&lt;V&gt; getByKey(String key) {
 </div>
 <div class="method inherited"><h4 id="getByKeys">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/IndexedDbAdapter.html">V</a>&gt; <strong>getByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; _keys) <a class="anchor-link" href="#getByKeys"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.getByKeys">#</a></h4>
+<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/IndexedDbStore.html">V</a>&gt; <strong>getByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; _keys) <a class="anchor-link" href="#getByKeys"
+              title="Permalink to IndexedDbStore&lt;V&gt;.getByKeys">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
-<p>Returns all values for the keys. If a particular key is not found,
+<p>Returns a Stream of all values for the keys.
+If a particular key is not found,
 no value will be returned, not even null.</p>
 <pre class="source">
 Stream&lt;V&gt; getByKeys(Iterable&lt;String&gt; _keys) {
@@ -306,9 +312,9 @@ Stream&lt;V&gt; getByKeys(Iterable&lt;String&gt; _keys) {
 <div class="method inherited"><h4 id="keys">
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>keys</strong>() <a class="anchor-link" href="#keys"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.keys">#</a></h4>
+              title="Permalink to IndexedDbStore&lt;V&gt;.keys">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
-<p>Returns all the keys.</p>
+<p>Returns all the keys as a stream. No order is guaranteed.</p>
 <pre class="source">
 Stream&lt;String&gt; keys() {
  _checkOpen();
@@ -320,10 +326,10 @@ Stream&lt;String&gt; keys() {
 <div class="method inherited"><h4 id="nuke">
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>nuke</strong>() <a class="anchor-link" href="#nuke"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.nuke">#</a></h4>
+              title="Permalink to IndexedDbStore&lt;V&gt;.nuke">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
-<p>Removes all values from storage.
-The value returned by the Future is undefined.</p>
+<p>Returns a Future that completes when all values and keys
+are removed.</p>
 <pre class="source">
 Future nuke() {
  _checkOpen();
@@ -335,8 +341,13 @@ Future nuke() {
 <div class="method"><h4 id="open">
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>open</strong>() <a class="anchor-link" href="#open"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.open">#</a></h4>
+              title="Permalink to IndexedDbStore&lt;V&gt;.open">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Returns a Future that completes when the store is opened.
+You must call this method before using
+the store.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../lawndart/Store.html">Store</a>&lt;<a href="../lawndart/IndexedDbStore.html">V</a>&gt; </div></div>
 <pre class="source">
 Future open() {
  return window.indexedDB.open(dbName, version: version,
@@ -358,10 +369,9 @@ Future open() {
 <div class="method inherited"><h4 id="removeByKey">
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#removeByKey"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.removeByKey">#</a></h4>
+              title="Permalink to IndexedDbStore&lt;V&gt;.removeByKey">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
-<p>Removes a value from storage, given a key. The value
-returned by the Future is undefined.</p>
+<p>Returns a Future that completes when the key's value is removed.</p>
 <pre class="source">
 Future removeByKey(String key) {
  _checkOpen();
@@ -373,10 +383,9 @@ Future removeByKey(String key) {
 <div class="method inherited"><h4 id="removeByKeys">
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; _keys) <a class="anchor-link" href="#removeByKeys"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.removeByKeys">#</a></h4>
+              title="Permalink to IndexedDbStore&lt;V&gt;.removeByKeys">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
-<p>Removes all values from storage, given one or more keys. The value
-returned by the Future is undefined.</p>
+<p>Returns a Future that completes when all the keys' values are removed.</p>
 <pre class="source">
 Future removeByKeys(Iterable&lt;String&gt; _keys) {
  _checkOpen();
@@ -387,12 +396,14 @@ Future removeByKeys(Iterable&lt;String&gt; _keys) {
 </div>
 <div class="method inherited"><h4 id="save">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>save</strong>(<a href="../lawndart/IndexedDbAdapter.html">V</a> obj, <a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#save"
-              title="Permalink to IndexedDbAdapter&lt;V&gt;.save">#</a></h4>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>save</strong>(<a href="../lawndart/IndexedDbStore.html">V</a> obj, <a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#save"
+              title="Permalink to IndexedDbStore&lt;V&gt;.save">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Stores an 
 <span class="param">obj</span> accessible by 
-<span class="param">key</span>.</p>
+<span class="param">key</span>.
+The returned Future completes with the key when the objects
+is saved in the store.</p>
 <pre class="source">
 Future&lt;String&gt; save(V obj, String key) {
  _checkOpen();

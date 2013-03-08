@@ -27,8 +27,7 @@
 </div>
 <div class="content">
 <h2><strong>lawndart</strong> library</h2>
-<div class="doc"><h1>Lawndart</h1>
-<p>A unified, asynchronous, easy-to-use library for offline-enabled
+<div class="doc"><p>A unified, asynchronous, easy-to-use library for offline-enabled
 browser-based web apps. Kinda sorta a port of Lawnchair to Dart,
 but with Futures and Streams.</p>
 <p>Lawndart uses Futures to provide an asynchronous, yet consistent,
@@ -40,7 +39,7 @@ storage options. You should be able to write your code against the Lawndart
 interface and have it work across browsers that support at least one of the
 following: local storage, indexed db, and websql.</p>
 <h1>Example</h1>
-<pre><code>var db = new IndexedDbAdapter("simple-run-through", 'test');
+<pre><code>var db = new IndexedDbStore("simple-run-through", 'test');
 db.open()
   .then((_) =&gt; db.nuke())
   .then((_) =&gt; db.save("world", "hello"))
@@ -48,7 +47,7 @@ db.open()
   .then((_) =&gt; db.getByKey("hello"))
   .then((value) =&gt; query('#text').text = value);
 </code></pre>
-<p>See the example/ directory for more sample code.</p></div>
+<p>See the <code>example/</code> directory for more sample code.</p></div>
 <div>
 <h3>Abstract Classes</h3>
           <div class="type">
@@ -62,25 +61,25 @@ db.open()
 <h3>Classes</h3>
           <div class="type">
           <h4>
-            <a href="lawndart/IndexedDbAdapter.html"><strong>IndexedDbAdapter&lt;V&gt;</strong></a>
+            <a href="lawndart/IndexedDbStore.html"><strong>IndexedDbStore&lt;V&gt;</strong></a>
           </h4>
           </div>
           
           <div class="type">
           <h4>
-            <a href="lawndart/LocalStorageAdapter.html"><strong>LocalStorageAdapter&lt;V&gt;</strong></a>
+            <a href="lawndart/LocalStorageStore.html"><strong>LocalStorageStore&lt;V&gt;</strong></a>
           </h4>
           </div>
           
           <div class="type">
           <h4>
-            <a href="lawndart/MemoryAdapter.html"><strong>MemoryAdapter&lt;V&gt;</strong></a>
+            <a href="lawndart/MemoryStore.html"><strong>MemoryStore&lt;V&gt;</strong></a>
           </h4>
           </div>
           
           <div class="type">
           <h4>
-            <a href="lawndart/WebSqlAdapter.html"><strong>WebSqlAdapter&lt;V&gt;</strong></a>
+            <a href="lawndart/WebSqlStore.html"><strong>WebSqlStore&lt;V&gt;</strong></a>
           </h4>
           </div>
           
