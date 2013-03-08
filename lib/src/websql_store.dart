@@ -30,9 +30,12 @@ class WebSqlStore<V> extends Store<V> {
   
   WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
   
+  /// Returns true if WebSQL is supported on this platform.
+  static bool get supported => SqlDatabase.supported;
+  
   @override
   Future<bool> open() {
-    if (!SqlDatabase.supported) {
+    if (!supported) {
       return new Future.immediateError(
         new UnsupportedError('WebSQL is not supported on this platform'));
     }

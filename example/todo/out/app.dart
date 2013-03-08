@@ -26,7 +26,17 @@ set initialized(bool value) {
   __$initialized = value;
 }
 
-Store db = new IndexedDbStore("simple-todo", 'todos');
+getDb() {
+  if (IndexedDbStore.supported) {
+    return new IndexedDbStore("simple-todo", 'todos');
+  } else if (WebSqlStore.supported) {
+    return new WebSqlStore('simple-todo', 'todos');
+  } else {
+    return new LocalStorageStore();
+  }
+}
+
+Store db = getDb();
 
 init() {
   db.open()
@@ -38,10 +48,6 @@ init() {
       }
       
       initialized = true;
-      
-      var stop = watch(() => todoItems, (e) {
-        storeAllTodos();
-      });
     });
 }
 

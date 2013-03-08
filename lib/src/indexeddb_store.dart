@@ -31,8 +31,11 @@ class IndexedDbStore<V> extends Store<V> {
     }
   }
   
+  /// Returns true if IndexedDB is supported on this platform.
+  static bool get supported => idb.IdbFactory.supported;
+  
   Future open() {
-    if (!idb.IdbFactory.supported) {
+    if (!supported) {
       return new Future.immediateError(
         new UnsupportedError('IndexedDB is not supported on this platform'));
     }
