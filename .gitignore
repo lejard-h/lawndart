@@ -4,3 +4,4 @@ packages
 /pubspec.lock
 .buildlog
 build.snapshot
+out
