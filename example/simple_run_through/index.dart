@@ -21,13 +21,13 @@ runThrough(Store store, String id) {
 
 main() {
   if (SqlDatabase.supported) {
-    runThrough(new WebSqlAdapter('test', 'test'), 'websql');
+    runThrough(new WebSqlStore('test', 'test'), 'websql');
   } else {
     query('#websql').text = 'WebSQL is not supported in your browser';
   }
   
   if (IdbFactory.supported) {
-    runThrough(new IndexedDbAdapter('test', 'test'), 'indexeddb');
+    runThrough(new IndexedDbStore('test', 'test'), 'indexeddb');
   } else {
     query('#indexeddb').text = 'IndexedDB is not supported in your browser';
   }

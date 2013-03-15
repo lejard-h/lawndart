@@ -14,7 +14,11 @@
 
 part of lawndart;
 
-class WebSqlAdapter<V> extends Store<V> {
+/**
+ * Wraps the WebSQL API and exposes it as a [Store].
+ * WebSQL is a transactional database.
+ */
+class WebSqlStore<V> extends Store<V> {
   
   static final String VERSION = "1";
   static const int INITIAL_SIZE = 5 * 1024 * 1024;
@@ -24,10 +28,17 @@ class WebSqlAdapter<V> extends Store<V> {
   int estimatedSize;
   SqlDatabase _db;
   
-  WebSqlAdapter(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
+  WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
+  
+  /// Returns true if WebSQL is supported on this platform.
+  static bool get supported => SqlDatabase.supported;
   
   @override
   Future<bool> open() {
+    if (!supported) {
+      return new Future.immediateError(
+        new UnsupportedError('WebSQL is not supported on this platform'));
+    }
     var completer = new Completer();
     _db = window.openDatabase(dbName, VERSION, dbName, estimatedSize);
     _initDb(completer);

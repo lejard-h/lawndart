@@ -7,5 +7,5 @@ void main() {
   addTask('docs', createDartDocTask(['lib/lawndart.dart'],
       linkApi: true,
       excludeLibs: ['meta', 'metadata']));
-  runHopCore();
+  runHop();
 }

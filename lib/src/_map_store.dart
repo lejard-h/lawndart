@@ -14,7 +14,7 @@
 
 part of lawndart;
 
-abstract class _MapAdapter<V> extends Store<V> {
+abstract class _MapStore<V> extends Store<V> {
   Map<String, V> storage;
 
   Future<bool> open() {

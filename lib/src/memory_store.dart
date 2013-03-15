@@ -14,7 +14,7 @@
 
 part of lawndart;
 
-class MemoryAdapter<V> extends _MapAdapter<V> {
+class MemoryStore<V> extends _MapStore<V> {
   @override
   Map<String, V> _generateMap() {
     return new Map<String, V>();

@@ -5,11 +5,26 @@ import 'package:web_ui/web_ui.dart';
 import 'package:lawndart/lawndart.dart';
 import 'dart:json' as json;
 import 'dart:async';
+import 'package:web_ui/observe/observable.dart' as __observe;
 
 final List<TodoItem> todoItems = toObservable(new List<TodoItem>());
 
-@observable
-bool initialized = false;
+final __changes = new __observe.Observable();
+
+bool __$initialized = false;
+bool get initialized {
+  if (__observe.observeReads) {
+    __observe.notifyRead(__changes, __observe.ChangeRecord.FIELD, 'initialized');
+  }
+  return __$initialized;
+}
+set initialized(bool value) {
+  if (__observe.hasObservers(__changes)) {
+    __observe.notifyChange(__changes, __observe.ChangeRecord.FIELD, 'initialized',
+        __$initialized, value);
+  }
+  __$initialized = value;
+}
 
 getDb() {
   if (IndexedDbStore.supported) {
@@ -39,3 +54,4 @@ init() {
 storeAllTodos() {
   db.save(json.stringify(todoItems), "todos");
 }
+//@ sourceMappingURL=app.dart.map

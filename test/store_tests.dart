@@ -195,22 +195,22 @@ run(StoreGenerator generator) {
 
 main() {
   group('memory', () {
-    run(() => new MemoryAdapter<String>());
+    run(() => new MemoryStore<String>());
   });
   
   group('local storage', () {
-    run(() => new LocalStorageAdapter<String>());
+    run(() => new LocalStorageStore<String>());
   });
   
   if (SqlDatabase.supported) {
     group('websql', () {
-      run(() => new WebSqlAdapter<String>('test', 'test'));
+      run(() => new WebSqlStore<String>('test', 'test'));
     });
   }
   
   if (IdbFactory.supported) {
     group('indexed db', () {
-      run(() => new IndexedDbAdapter("test-db", "test-store"));
+      run(() => new IndexedDbStore("test-db", "test-store"));
     });
   }
 }

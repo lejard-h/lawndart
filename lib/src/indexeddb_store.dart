@@ -14,20 +14,31 @@
 
 part of lawndart;
 
-class IndexedDbAdapter<V> extends Store<V> {
+/**
+ * Wraps the IndexedDB API and exposes it as a [Store].
+ * IndexedDB is generally the preferred API if it is available.
+ */
+class IndexedDbStore<V> extends Store<V> {
   
   String dbName;
   int version;
   idb.Database _db;
   String storeName;
   
-  IndexedDbAdapter(this.dbName, this.storeName, {this.version: 1}) {
+  IndexedDbStore(this.dbName, this.storeName, {this.version: 1}) {
     if (version == null) {
       throw new ArgumentError("version must not be null");
     }
   }
   
+  /// Returns true if IndexedDB is supported on this platform.
+  static bool get supported => idb.IdbFactory.supported;
+  
   Future open() {
+    if (!supported) {
+      return new Future.immediateError(
+        new UnsupportedError('IndexedDB is not supported on this platform'));
+    }
     return window.indexedDB.open(dbName, version: version,
         onUpgradeNeeded: (e) {
           _db = e.target.result;
