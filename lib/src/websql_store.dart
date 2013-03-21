@@ -68,7 +68,7 @@ class WebSqlStore<V> extends Store<V> {
         }
       });
     },
-    (error) => controller.signalError(error),
+    (error) => controller.addError(error),
     () => controller.close());
     
     return controller.stream;
@@ -150,7 +150,7 @@ class WebSqlStore<V> extends Store<V> {
         }
       });
     },
-    (error) => controller.signalError(error),
+    (error) => controller.addError(error),
     () => controller.close());
     
     return controller.stream;
@@ -189,7 +189,7 @@ class WebSqlStore<V> extends Store<V> {
         });
       });
     },
-    (error) => controller.signalError(error),
+    (error) => controller.addError(error),
     () => controller.close());
     
     return controller.stream;
