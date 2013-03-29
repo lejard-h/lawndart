@@ -57,10 +57,10 @@ part 'src/local_storage_store.dart';
 part 'src/websql_store.dart';
 
 /**
-Represents a Store that can hold key/value pairs. No order
-is guaranteed for either keys or values. You must
-[open] a store before you can use it.
-*/
+ * Represents a Store that can hold key/value pairs. No order
+ * is guaranteed for either keys or values. You must
+ * [open] a store before you can use it.
+ */
 abstract class Store<V> {
   bool _isOpen = false;
   
