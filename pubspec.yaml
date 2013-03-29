@@ -5,8 +5,9 @@ description: An easier way to access storage APIs in the browser.
 homepage: https://github.com/sethladd/lawndart
 documentation: http://sethladd.github.com/lawndart/
 dependencies:
+  meta: any
+dev_dependencies:
   unittest: any
   bot: '>=0.15.0'
   browser: any
   web_ui: any
-  meta: any
