@@ -20,56 +20,56 @@ abstract class _MapStore<V> extends Store<V> {
   Future<bool> open() {
     storage = _generateMap();
     _isOpen = true;
-    return new Future.immediate(true);
+    return new Future.value(true);
   }
-  
+
   Map<String, V> _generateMap();
-  
+
   Stream<String> _keys() {
     return new Stream.fromIterable(storage.keys);
   }
-  
+
   Future _save(V obj, String key) {
     storage[key] = obj;
-    return new Future.immediate(key);
+    return new Future.value(key);
   }
-  
+
   Future _batch(Map<String, V> objs) {
     for (var key in objs.keys) {
       storage[key] = objs[key];
     }
-    return new Future.immediate(true);
+    return new Future.value(true);
   }
-  
+
   Future<V> _getByKey(String key) {
-    return new Future.immediate(storage[key]);
+    return new Future.value(storage[key]);
   }
-  
+
   Stream<V> _getByKeys(Iterable<String> _keys) {
     var values = _keys.map((key) => storage[key]).where((v) => v != null);
     return new Stream.fromIterable(values);
   }
-  
+
   Future<bool> _exists(String key) {
-    return new Future.immediate(storage.containsKey(key));
+    return new Future.value(storage.containsKey(key));
   }
-  
+
   Stream<V> _all() {
     return new Stream.fromIterable(storage.values);
   }
-  
+
   Future _removeByKey(String key) {
     storage.remove(key);
-    return new Future.immediate(true);
+    return new Future.value(true);
   }
-  
+
   Future _removeByKeys(Iterable<String> _keys) {
     _keys.forEach((key) => storage.remove(key));
-    return new Future.immediate(true);
+    return new Future.value(true);
   }
-  
+
   Future _nuke() {
     storage.clear();
-    return new Future.immediate(true);
+    return new Future.value(true);
   }
 }

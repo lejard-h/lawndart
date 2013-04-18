@@ -19,30 +19,30 @@ part of lawndart;
  * IndexedDB is generally the preferred API if it is available.
  */
 class IndexedDbStore<V> extends Store<V> {
-  
+
   String dbName;
   int version;
   idb.Database _db;
   String storeName;
-  
+
   IndexedDbStore(this.dbName, this.storeName, {this.version: 1}) {
     if (version == null) {
       throw new ArgumentError("version must not be null");
     }
   }
-  
+
   /// Returns true if IndexedDB is supported on this platform.
   static bool get supported => idb.IdbFactory.supported;
-  
+
   Future open() {
     if (!supported) {
-      return new Future.immediateError(
+      return new Future.error(
         new UnsupportedError('IndexedDB is not supported on this platform'));
     }
     return window.indexedDB.open(dbName, version: version,
         onUpgradeNeeded: (e) {
           _db = e.target.result;
-          if (!_db.objectStoreNames.contains(storeName)) {  
+          if (!_db.objectStoreNames.contains(storeName)) {
             _db.createObjectStore(storeName);
           }
         })
@@ -52,30 +52,30 @@ class IndexedDbStore<V> extends Store<V> {
           return true;
         });
   }
-  
+
   @override
   Future _removeByKey(String  key) {
     return _doCommand((idb.ObjectStore store) => store.delete(key));
   }
-  
+
   @override
   Future _save(V obj, String key) {
     return _doCommand((idb.ObjectStore store) {
       return store.put(obj, key);
     });
   }
-  
+
   @override
   Future<V> _getByKey(String key) {
     return _doCommand((idb.ObjectStore store) => store.getObject(key),
         'readonly');
   }
-  
+
   @override
   Future _nuke() {
     return _doCommand((idb.ObjectStore store) => store.clear());
   }
-  
+
   Future _doCommand(Future requestCommand(idb.ObjectStore store),
              [String txnMode = 'readwrite']) {
     var completer = new Completer();
@@ -84,7 +84,7 @@ class IndexedDbStore<V> extends Store<V> {
     var future = requestCommand(store);
     return trans.completed.then((_) => future);
   }
-  
+
   Stream _doGetAll(dynamic onCursor(idb.CursorWithValue cursor)) {
     var controller = new StreamController<V>();
     var trans = _db.transaction(storeName, 'readonly');
@@ -93,10 +93,10 @@ class IndexedDbStore<V> extends Store<V> {
     store.openCursor(autoAdvance: true).listen(
         (cursor) => controller.add(onCursor(cursor)),
         onDone: () => controller.close(),
-        onError: (e) => controller.signalError(e));
+        onError: (e) => controller.addError(e));
     return controller.stream;
   }
-  
+
   @override
   Stream<V> _all() {
     return _doGetAll((idb.CursorWithValue cursor) => cursor.value);
@@ -105,12 +105,12 @@ class IndexedDbStore<V> extends Store<V> {
   @override
   Future _batch(Map<String, V> objs) {
     var futures = <Future>[];
-    
+
     for (var key in objs.keys) {
       var obj = objs[key];
       futures.add(save(obj, key));
     }
-    
+
     return Future.wait(futures);
   }
 
@@ -125,7 +125,7 @@ class IndexedDbStore<V> extends Store<V> {
       });
     })
     .then((_) => controller.close())
-    .catchError((e) => controller.signalError(e));
+    .catchError((e) => controller.addError(e));
     return controller.stream;
   }
 
@@ -134,7 +134,7 @@ class IndexedDbStore<V> extends Store<V> {
     var completer = new Completer();
     Future.wait(keys.map((key) => removeByKey(key))).then((_) {
       completer.complete(true);
-    });  
+    });
     return completer.future;
   }
 
