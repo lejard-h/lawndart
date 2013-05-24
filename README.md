@@ -23,8 +23,18 @@ following: local storage, indexed db, and websql.
 	  .then((_) => db.save("is fun", "dart"))
 	  .then((_) => db.getByKey("hello"))
 	  .then((value) => query('#text').text = value);
-
+	  
 See the example/ directory for more sample code.
+	  
+# Choosing the best storage option
+
+This is now made easy for you. Simply create a new instance of Store:
+
+      var store = new Store('dbName', 'storeName');
+      
+The factory constructor will try IndexedDB, then WebSQL, and then finally
+local storage. Of course, you can perform your own logic to choose which
+option works for you.
 
 # API
 
