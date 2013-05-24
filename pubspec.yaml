@@ -8,6 +8,6 @@ dependencies:
   meta: any
 dev_dependencies:
   unittest: any
-  bot: '>=0.15.0'
+  hop: any
   browser: any
   web_ui: any
