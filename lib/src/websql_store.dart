@@ -28,7 +28,7 @@ class WebSqlStore<V> extends Store<V> {
   int estimatedSize;
   SqlDatabase _db;
 
-  WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
+  WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE}) : super._();
 
   /// Returns true if WebSQL is supported on this platform.
   static bool get supported => SqlDatabase.supported;

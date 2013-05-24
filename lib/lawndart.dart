@@ -66,6 +66,30 @@ abstract class Store<V> {
   
   bool get isOpen => _isOpen;
   
+  // For subclasses
+  Store._();
+  
+  /**
+   * Finds the best implementation. In order: IndexedDB, WebSQL, LocalStorage.
+   */
+  factory Store(String dbName, String storeName, [Map options]) {
+    if (IndexedDbStore.supported) {
+      if (options != null && options['version'] != null) {
+        return new IndexedDbStore(dbName, storeName, version: options['version']);
+      } else {
+        return new IndexedDbStore(dbName, storeName);
+      }
+    } else if (WebSqlStore.supported) {
+      if (options != null && options['estimatedSize']) {
+        return new WebSqlStore(dbName, storeName, estimatedSize: options['estimatedSize']);
+      } else {
+        return new WebSqlStore(dbName, storeName);
+      }
+    } else {
+      return new LocalStorageStore();
+    }
+  }
+  
   _checkOpen() {
     if (!isOpen) throw new StateError('$runtimeType is not open');
   }

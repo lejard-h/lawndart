@@ -194,6 +194,12 @@ run(StoreGenerator generator) {
 }
 
 main() {
+  group('constructor', () {
+    test('factory constructor returns', () {
+      var store = new Store('dbName', 'storeName');
+    });
+  });
+  
   group('memory', () {
     run(() => new MemoryStore<String>());
   });

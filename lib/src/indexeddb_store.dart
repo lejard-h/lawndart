@@ -25,7 +25,7 @@ class IndexedDbStore<V> extends Store<V> {
   idb.Database _db;
   String storeName;
 
-  IndexedDbStore(this.dbName, this.storeName, {this.version: 1}) {
+  IndexedDbStore(this.dbName, this.storeName, {this.version: 1}) : super._() {
     if (version == null) {
       throw new ArgumentError("version must not be null");
     }

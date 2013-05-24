@@ -16,6 +16,8 @@ part of lawndart;
 
 abstract class _MapStore<V> extends Store<V> {
   Map<String, V> storage;
+  
+  _MapStore() : super._();
 
   Future<bool> open() {
     storage = _generateMap();
