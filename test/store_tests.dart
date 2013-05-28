@@ -11,66 +11,66 @@ typedef Store<String> StoreGenerator();
 
 run(StoreGenerator generator) {
   Store store;
-  
+
   group('just open', () {
     setUp(() => store = generator());
-    
+
     test('open', () {
       var future = store.open();
       expect(future, completion(true));
     });
   });
-  
+
   group('before open', () {
     setUp(() => store = generator());
-    
+
     test('keys throws stateerror', () {
       expect(() => store.keys(), throwsStateError);
     });
-    
+
     test('save throws stateerror', () {
       expect(() => store.save('value', 'key'), throwsStateError);
     });
-    
+
     test('batch throws stateerror', () {
       expect(() => store.batch({'foo': 'bar'}), throwsStateError);
     });
-    
+
     test('get by key throws stateerror', () {
       expect(() => store.getByKey('foo'), throwsStateError);
     });
-    
+
     test('get by keys throws stateerror', () {
       expect(() => store.getByKeys(['foo']), throwsStateError);
     });
-    
+
     test('exists throws stateerror', () {
       expect(() => store.exists('foo'), throwsStateError);
     });
-    
+
     test('all throws stateerror', () {
       expect(() => store.all(), throwsStateError);
     });
-    
+
     test('remove by key throws stateerror', () {
       expect(() => store.removeByKey('foo'), throwsStateError);
     });
-    
+
     test('remove by keys throws stateerror', () {
       expect(() => store.removeByKeys(['foo']), throwsStateError);
     });
-    
+
     test('nuke throws stateerror', () {
       expect(() => store.nuke(), throwsStateError);
     });
   });
-  
+
   group('with no values', () {
     setUp(() {
       store = generator();
       return store.open().then((_) => store.nuke());
     });
-    
+
     test('keys is empty', () {
       Future future = store.keys().toList();
       future.then((keys) {
@@ -83,58 +83,58 @@ run(StoreGenerator generator) {
       Future future = store.getByKey("foo");
       expect(future, completion(null));
     });
-    
+
     test('get by keys return empty collection', () {
       Future future = store.getByKeys(["foo"]).toList();
       expect(future, completion(hasLength(0)));
     });
-    
+
     test('save completes', () {
       Future future = store.save("value", "key");
       expect(future, completion("key"));
     });
-    
+
     test('exists returns false', () {
       Future future = store.exists("foo");
       expect(future, completion(false));
     });
-    
+
     test('all is empty', () {
       Future future = store.all().toList();
       expect(future, completion(hasLength(0)));
     });
-    
+
     test('remove by key completes', () {
       Future future = store.removeByKey("foo");
       expect(future, completes);
     });
-    
+
     test('remove by keys completes', () {
       Future future = store.removeByKeys(["foo"]);
       expect(future, completes);
     });
-    
+
     test('nuke completes', () {
       Future future = store.nuke();
       expect(future, completes);
     });
-    
+
     test('batch completes', () {
       Future future = store.batch({'foo':'bar'});
       expect(future, completes);
     });
   });
-  
+
   group('with a few values', () {
     setUp(() {
       // ensure it's clear for each test, see http://dartbug.com/8157
       store = generator();
-      
+
       return store.open().then((_) => store.nuke())
           .then((_) => store.save("world", "hello"))
           .then((_) => store.save("is fun", "dart"));
     });
-    
+
     test('keys has them', () {
       Future future = store.keys().toList();
       future.then((Iterable keys) {
@@ -144,7 +144,7 @@ run(StoreGenerator generator) {
       });
       expect(future, completes);
     });
-    
+
     test('get by key', () {
       Future future = store.getByKey("hello");
       future.then((value) {
@@ -152,7 +152,7 @@ run(StoreGenerator generator) {
       });
       expect(future, completes);
     });
-    
+
     test('get by keys', () {
       Future future = store.getByKeys(["hello", "dart"]).toList();
       future.then((values) {
@@ -162,7 +162,7 @@ run(StoreGenerator generator) {
       });
       expect(future, completes);
     });
-    
+
     test('exists is true', () {
       Future future = store.exists("hello");
       future.then((exists) {
@@ -170,7 +170,7 @@ run(StoreGenerator generator) {
       });
       expect(future, completes);
     });
-    
+
     test('all has everything', () {
       Future future = store.all().toList();
       future.then((all) {
@@ -180,7 +180,7 @@ run(StoreGenerator generator) {
       });
       expect(future, completes);
     });
-    
+
     test('remove by key', () {
       Future future = store.removeByKey("hello").then((_) => store.all().toList());
       future.then((remaining) {
@@ -199,24 +199,27 @@ main() {
       var store = new Store('dbName', 'storeName');
     });
   });
-  
+
   group('memory', () {
     run(() => new MemoryStore<String>());
   });
-  
+
   group('local storage', () {
     run(() => new LocalStorageStore<String>());
   });
-  
+
   if (SqlDatabase.supported) {
     group('websql', () {
       run(() => new WebSqlStore<String>('test', 'test'));
     });
   }
-  
+
   if (IdbFactory.supported) {
-    group('indexed db', () {
-      run(() => new IndexedDbStore("test-db", "test-store"));
+    group('indexed db store0', () {
+      run(() => new IndexedDbStore("test-db", "test-store0"));
+    });
+    group('indexed db store1', () {
+      run(() => new IndexedDbStore("test-db", "test-store1"));
     });
   }
 }
