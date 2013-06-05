@@ -35,24 +35,25 @@ class IndexedDbStore<V> extends Store<V> {
         new UnsupportedError('IndexedDB is not supported on this platform'));
     }
     return window.indexedDB.open(dbName).then((db) {
-          if (!db.objectStoreNames.contains(storeName)) {
-            db.close();
-            return window.indexedDB.open(dbName, version: db.version + 1,
-              onUpgradeNeeded: (e) {
-                _db = e.target.result;
-                var x = _db.createObjectStore(storeName);
-              }
-            );
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.close();
+        return window.indexedDB.open(dbName, version: db.version + 1,
+          onUpgradeNeeded: (e) {
+            _db = e.target.result;
+            var x = _db.createObjectStore(storeName);
           }
-          return db;
-        }).then((db){
-          db.onVersionChange.listen((event) {
-            db.close();
-          });
-          _db = db;
-          _isOpen = true;
-          return true;
-        });
+        );
+      } else {
+        return db;
+      }
+    }).then((db){
+      db.onVersionChange.listen((event) {
+        db.close();
+      });
+      _db = db;
+      _isOpen = true;
+      return true;
+    });
   }
 
   @override
