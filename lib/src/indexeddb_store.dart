@@ -47,6 +47,10 @@ class IndexedDbStore<V> extends Store<V> {
         return db;
       }
     }).then((db){
+      // from [MDN: Using IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB/Using_IndexedDB)
+      // Make sure to add a handler to be notified if another page requests a version
+      // change. We must close the database. This allows the other page to upgrade the database.
+      // If you don't do this then the upgrade won't happen until the user close the tab.
       db.onVersionChange.listen((event) {
         db.close();
       });
