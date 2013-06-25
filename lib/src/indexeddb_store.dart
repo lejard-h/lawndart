@@ -20,16 +20,11 @@ part of lawndart;
  */
 class IndexedDbStore<V> extends Store<V> {
 
-  String dbName;
-  int version;
+  final String dbName;
   idb.Database _db;
-  String storeName;
+  final String storeName;
 
-  IndexedDbStore(this.dbName, this.storeName, {this.version: 1}) : super._() {
-    if (version == null) {
-      throw new ArgumentError("version must not be null");
-    }
-  }
+  IndexedDbStore(this.dbName, this.storeName) : super._();
 
   /// Returns true if IndexedDB is supported on this platform.
   static bool get supported => idb.IdbFactory.supported;
@@ -39,18 +34,30 @@ class IndexedDbStore<V> extends Store<V> {
       return new Future.error(
         new UnsupportedError('IndexedDB is not supported on this platform'));
     }
-    return window.indexedDB.open(dbName, version: version,
-        onUpgradeNeeded: (e) {
-          _db = e.target.result;
-          if (!_db.objectStoreNames.contains(storeName)) {
-            _db.createObjectStore(storeName);
+    return window.indexedDB.open(dbName).then((db) {
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.close();
+        return window.indexedDB.open(dbName, version: db.version + 1,
+          onUpgradeNeeded: (e) {
+            _db = e.target.result;
+            var x = _db.createObjectStore(storeName);
           }
-        })
-        .then((db) {
-          _db = db;
-          _isOpen = true;
-          return true;
-        });
+        );
+      } else {
+        return db;
+      }
+    }).then((db){
+      // from [MDN: Using IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB/Using_IndexedDB)
+      // Make sure to add a handler to be notified if another page requests a version
+      // change. We must close the database. This allows the other page to upgrade the database.
+      // If you don't do this then the upgrade won't happen until the user close the tab.
+      db.onVersionChange.listen((event) {
+        db.close();
+      });
+      _db = db;
+      _isOpen = true;
+      return true;
+    });
   }
 
   @override
