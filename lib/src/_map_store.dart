@@ -15,9 +15,16 @@
 part of lawndart;
 
 abstract class _MapStore<V> extends Store<V> {
+  int _counter = 0;
+  final int _keyPrefix = new DateTime.now().millisecondsSinceEpoch;
+  
+  final bool autogenerateKeys;
+  
   Map<String, V> storage;
   
-  _MapStore() : super._();
+  _MapStore({this.autogenerateKeys: false}) : super._();
+  
+  String _nextId() => '$_keyPrefix-${_counter++}';
 
   Future<bool> open() {
     storage = _generateMap();
@@ -31,7 +38,13 @@ abstract class _MapStore<V> extends Store<V> {
     return new Stream.fromIterable(storage.keys);
   }
 
-  Future _save(V obj, String key) {
+  Future<String> _save(V obj, [String key]) {
+    if (key == null) {
+      if (!autogenerateKeys) {
+        throw new StateError('key was null, but autogenerateKeys was false');
+      }
+      key = _nextId();
+    }
     storage[key] = obj;
     return new Future.value(key);
   }

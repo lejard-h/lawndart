@@ -20,6 +20,10 @@ part of lawndart;
  * unless all other storage mechanisms are unavailable.
  */
 class LocalStorageStore<V> extends _MapStore<V> {
+  
+  LocalStorageStore({bool autogenerateKeys: false})
+      : super(autogenerateKeys: autogenerateKeys);
+  
   @override
   Map _generateMap() {
     return window.localStorage;
