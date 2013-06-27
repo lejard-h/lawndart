@@ -71,9 +71,8 @@ abstract class Store<V> {
 
   /**
    * Finds the best implementation. In order: IndexedDB, WebSQL, LocalStorage.
-   * The options are store specific.
    */
-  factory Store(String dbName, String storeName, {Map options, bool autogenerateKeys: false}) {
+  factory Store(String dbName, String storeName, [Map options]) {
     if (IndexedDbStore.supported) {
       return new IndexedDbStore(dbName, storeName);
     } else if (WebSqlStore.supported) {
@@ -83,7 +82,7 @@ abstract class Store<V> {
         return new WebSqlStore(dbName, storeName);
       }
     } else {
-      return new LocalStorageStore(autogenerateKeys: autogenerateKeys);
+      return new LocalStorageStore();
     }
   }
 
@@ -92,7 +91,8 @@ abstract class Store<V> {
   }
 
   /// Returns a Future that completes when the store is opened.
-  /// You must call this method before using the store.
+  /// You must call this method before using
+  /// the store.
   Future open();
 
   /// Returns all the keys as a stream. No order is guaranteed.
@@ -102,19 +102,17 @@ abstract class Store<V> {
   }
   Stream<String> _keys();
 
-  
-  /// Stores an [obj] accessible by [key]. If you do not
-  /// provide a key, the store generates a key for you.
+  /// Stores an [obj] accessible by [key].
   /// The returned Future completes with the key when the objects
   /// is saved in the store.
-  Future<String> save(V obj, [String key]) {
+  Future<String> save(V obj, String key) {
     _checkOpen();
     if (key == null) {
-      throw new StateError('key must not be null');
+      throw new ArgumentError("key must not be null");
     }
     return _save(obj, key);
   }
-  Future<String> _save(V obj, [String key]);
+  Future _save(V obj, String key);
 
   /// Stores all objects by their keys. This should happen in a single
   /// transaction if the underlying store supports it.

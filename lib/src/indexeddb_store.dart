@@ -66,7 +66,7 @@ class IndexedDbStore<V> extends Store<V> {
   }
 
   @override
-  Future _save(V obj, [String key]) {
+  Future _save(V obj, String key) {
     return _doCommand((idb.ObjectStore store) {
       return store.put(obj, key);
     });

@@ -15,10 +15,6 @@
 part of lawndart;
 
 class MemoryStore<V> extends _MapStore<V> {
-  
-  MemoryStore({bool autogenerateKeys: false})
-      : super(autogenerateKeys: autogenerateKeys);
-  
   @override
   Map<String, V> _generateMap() {
     return new Map<String, V>();
