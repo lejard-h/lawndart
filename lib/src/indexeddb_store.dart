@@ -19,9 +19,10 @@ part of lawndart;
  * IndexedDB is generally the preferred API if it is available.
  */
 class IndexedDbStore<V> extends Store<V> {
+  
+  static Map<String, idb.Database> _databases = new Map<String, idb.Database>();
 
   final String dbName;
-  idb.Database _db;
   final String storeName;
 
   IndexedDbStore(this.dbName, this.storeName) : super._();
@@ -34,31 +35,37 @@ class IndexedDbStore<V> extends Store<V> {
       return new Future.error(
         new UnsupportedError('IndexedDB is not supported on this platform'));
     }
-    return window.indexedDB.open(dbName).then((idb.Database db) {
+    
+    if (_db != null) {
+      _db.close();
+    }
+    
+    return window.indexedDB.open(dbName)
+    .then((idb.Database db) {
+      //print("Newly opened db $dbName has version ${db.version} and stores ${db.objectStoreNames}");
       if (!db.objectStoreNames.contains(storeName)) {
         db.close();
+        //print('Attempting upgrading $storeName from ${db.version}');
         return window.indexedDB.open(dbName, version: db.version + 1,
           onUpgradeNeeded: (e) {
-            _db = e.target.result;
-            _db.createObjectStore(storeName);
+            //print('Upgrading db $dbName to ${db.version + 1}');
+            idb.Database d = e.target.result;
+            d.createObjectStore(storeName);
           }
         );
       } else {
+        //print('The store $storeName exists in $dbName');
         return db;
       }
-    }).then((db){
-      // from [MDN: Using IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB/Using_IndexedDB)
-      // Make sure to add a handler to be notified if another page requests a version
-      // change. We must close the database. This allows the other page to upgrade the database.
-      // If you don't do this then the upgrade won't happen until the user close the tab.
-      db.onVersionChange.listen((event) {
-        db.close();
-      });
-      _db = db;
+    })
+    .then((db){
+      _databases[dbName] = db;
       _isOpen = true;
       return true;
     });
   }
+  
+  idb.Database get _db => _databases[dbName];
 
   @override
   Future _removeByKey(String  key) {

@@ -1,3 +1,7 @@
+## 0.6.1
+
+* Fix bug with chained opens of multiple stores, followed by a read.
+
 ## 0.6.0
 
 * No more explicit version for indexed, it's automatically handled.
