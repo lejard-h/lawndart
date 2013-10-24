@@ -23,7 +23,7 @@ following: local storage, indexed db, and websql.
 	  .then((_) => db.save("world", "hello"))
 	  .then((_) => db.save("is fun", "dart"))
 	  .then((_) => db.getByKey("hello"))
-	  .then((value) => query('#text').text = value);
+	  .then((value) => querySelector('#text').text = value);
 	  
 See the example/ directory for more sample code.
 	  
