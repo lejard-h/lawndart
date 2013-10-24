@@ -6,7 +6,7 @@ import 'dart:web_sql';
 import 'dart:indexed_db';
 
 runThrough(Store store, String id) {
-  var elem = query('#$id');
+  var elem = querySelector('#$id');
   store.open()
   .then((_) => store.nuke())
   .then((_) => store.save(id, "hello"))
@@ -23,12 +23,12 @@ main() {
   if (SqlDatabase.supported) {
     runThrough(new WebSqlStore('test', 'test'), 'websql');
   } else {
-    query('#websql').text = 'WebSQL is not supported in your browser';
+    querySelector('#websql').text = 'WebSQL is not supported in your browser';
   }
   
   if (IdbFactory.supported) {
     runThrough(new IndexedDbStore('test', 'test'), 'indexeddb');
   } else {
-    query('#indexeddb').text = 'IndexedDB is not supported in your browser';
+    querySelector('#indexeddb').text = 'IndexedDB is not supported in your browser';
   }
 }

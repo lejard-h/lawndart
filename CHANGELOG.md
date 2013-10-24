@@ -1,3 +1,8 @@
+## 0.6.2
+
+* Update to SDK version 0.8.5
+* Remove old web_ui example
+
 ## 0.6.1
 
 * Fix bug with chained opens of multiple stores, followed by a read.
