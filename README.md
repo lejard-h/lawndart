@@ -16,7 +16,8 @@ following: local storage, indexed db, and websql.
 
 # Example
 	  
-	  var db = new IndexedDbStore("simple-run-through", 'test');
+	  // Picks the best store available.
+	  var db = new Store("simple-run-through", 'test');
 	  db.open()
 	  .then((_) => db.nuke())
 	  .then((_) => db.save("world", "hello"))
