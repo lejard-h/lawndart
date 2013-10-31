@@ -75,9 +75,6 @@ Removes all values for the keys.
 
 # Usage
 
-Lawndart does not choose a storage mechanism for you. Instead, you must
-make a choice.
-
 Most methods return a Future, like `open` and `save`.
 Methods that would return many things, like `all`, return a Stream.
 
