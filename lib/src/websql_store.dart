@@ -22,6 +22,7 @@ class WebSqlStore<V> extends Store<V> {
 
   static final String VERSION = "1";
   static const int INITIAL_SIZE = 5 * 1024 * 1024;
+  static bool _enabled = true;
 
   String dbName;
   String storeName;
@@ -31,7 +32,8 @@ class WebSqlStore<V> extends Store<V> {
   WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE}) : super._();
 
   /// Returns true if WebSQL is supported on this platform.
-  static bool get supported => SqlDatabase.supported;
+  static bool get supported => _enabled ? SqlDatabase.supported : false;
+  static set supported(bool value) => _enabled = value;
 
   @override
   Future<bool> open() {

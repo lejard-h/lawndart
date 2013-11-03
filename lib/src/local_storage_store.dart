@@ -20,6 +20,12 @@ part of lawndart;
  * unless all other storage mechanisms are unavailable.
  */
 class LocalStorageStore<V> extends _MapStore<V> {
+  
+  static bool _enabled = true;
+  
+  static bool get supported => _enabled;
+  static set supported(bool value) => _enabled = value;
+
   @override
   Map _generateMap() {
     return window.localStorage;

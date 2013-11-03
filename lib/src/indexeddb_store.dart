@@ -21,6 +21,7 @@ part of lawndart;
 class IndexedDbStore<V> extends Store<V> {
   
   static Map<String, idb.Database> _databases = new Map<String, idb.Database>();
+  static bool _enabled = true;
 
   final String dbName;
   final String storeName;
@@ -28,7 +29,8 @@ class IndexedDbStore<V> extends Store<V> {
   IndexedDbStore(this.dbName, this.storeName) : super._();
 
   /// Returns true if IndexedDB is supported on this platform.
-  static bool get supported => idb.IdbFactory.supported;
+  static bool get supported => _enabled ? idb.IdbFactory.supported : false;
+  static set supported(bool value) => _enabled = value;
 
   Future open() {
     if (!supported) {

@@ -15,6 +15,12 @@
 part of lawndart;
 
 class MemoryStore<V> extends _MapStore<V> {
+  
+  static bool _enabled = true;
+  
+  static bool get supported => _enabled;
+  static set supported(bool value) => _enabled = value;
+
   @override
   Map<String, V> _generateMap() {
     return new Map<String, V>();
