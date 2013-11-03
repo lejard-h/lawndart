@@ -37,6 +37,12 @@ The factory constructor will try IndexedDB, then WebSQL, and then finally
 local storage. Of course, you can perform your own logic to choose which
 option works for you.
 
+You can also disable a specific implementation:
+
+      WebSqlStore.supported = false;
+      var db = new Store("simple-run-through", 'test');
+
+
 # API
 
 `Future open()`
