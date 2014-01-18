@@ -1,3 +1,7 @@
+## 0.6.5
+
+* Reduce size of WebSQL down to 4MB, avoids permission check.
+
 ## 0.6.2
 
 * Update to SDK version 0.8.5

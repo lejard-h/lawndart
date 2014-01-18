@@ -29,7 +29,7 @@ following: local storage, indexed db, and websql.
 
 # Example
 
-    var db = new IndexedDbStore("simple-run-through", 'test');
+    var db = new IndexedDbStore('simple-run-through', 'test');
     db.open()
       .then((_) => db.nuke())
       .then((_) => db.save("world", "hello"))
@@ -46,7 +46,6 @@ import 'dart:html';
 import 'dart:indexed_db' as idb;
 import 'dart:web_sql';
 import 'dart:async';
-import 'package:meta/meta.dart';
 
 part 'src/indexeddb_store.dart';
 part 'src/_map_store.dart';
