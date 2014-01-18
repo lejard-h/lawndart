@@ -5,7 +5,7 @@
         <title>WebSqlStore&lt;V&gt; class / lawndart Library / Dart Documentation</title>
         <link rel="stylesheet" type="text/css"
             href="../styles.css">
-        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
         <link rel="shortcut icon" href="../favicon.ico">
         
         </head>
@@ -36,25 +36,32 @@
 WebSQL is a transactional database.</p>
 <pre class="source">
 class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
- 
+
  static final String VERSION = "1";
- static const int INITIAL_SIZE = 5 * 1024 * 1024;
- 
+ static const int INITIAL_SIZE = 4 * 1024 * 1024;
+
  String dbName;
  String storeName;
  int estimatedSize;
  SqlDatabase _db;
- 
- WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
- 
+
+ WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE}) : super._();
+
+ /// Returns true if WebSQL is supported on this platform.
+ static bool get supported =&gt; SqlDatabase.supported;
+
  @override
  Future&lt;bool&gt; open() {
+   if (!supported) {
+     return new Future.error(
+       new UnsupportedError('WebSQL is not supported on this platform'));
+   }
    var completer = new Completer();
    _db = window.openDatabase(dbName, VERSION, dbName, estimatedSize);
    _initDb(completer);
    return completer.future;
  }
- 
+
  void _initDb(Completer completer) {
    var sql = 'CREATE TABLE IF NOT EXISTS $storeName (id NVARCHAR(32) UNIQUE PRIMARY KEY, value TEXT)';
 
@@ -65,7 +72,7 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
      });
    }, (error) =&gt; completer.completeError(error));
  }
- 
+
  @override
  Stream&lt;String&gt; _keys() {
    var sql = 'SELECT id FROM $storeName';
@@ -78,31 +85,31 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
        }
      });
    },
-   (error) =&gt; controller.signalError(error),
+   (error) =&gt; controller.addError(error),
    () =&gt; controller.close());
-   
+
    return controller.stream;
  }
- 
+
  @override
  Future _save(V obj, String key) {
    var completer = new Completer();
    var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
-   
+
    _db.transaction((txn) {
      txn.executeSql(upsertSql, [key, obj], (txn, resultSet) {
        completer.complete(key);
      });
    }, (error) =&gt; completer.completeError(error));
-   
+
    return completer.future;
  }
- 
+
  @override
  Future&lt;bool&gt; _exists(String key) {
    return _getByKey(key).then((v) =&gt; v != null);
  }
- 
+
  @override
  Future&lt;V&gt; _getByKey(String key) {
    var completer = new Completer();
@@ -118,10 +125,10 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
        }
      });
    }, (error) =&gt; completer.completeError(error));
-   
+
    return completer.future;
  }
- 
+
  @override
  Future _removeByKey(String key) {
    var completer = new Completer();
@@ -133,23 +140,23 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
        completer.complete(true);
      });
    }, (error) =&gt; completer.completeError(error));
-   
+
    return completer.future;
  }
- 
+
  @override
  Future _nuke() {
    var completer = new Completer();
-   
+
    var sql = 'DELETE FROM $storeName';
    _db.transaction((txn) {
      txn.executeSql(sql, [], (txn, resultSet) =&gt; completer.complete(true));
    }, (error) =&gt; completer.completeError(error));
    return completer.future;
  }
- 
+
  @override
- Stream&lt;V&gt; _all() {  
+ Stream&lt;V&gt; _all() {
    var sql = 'SELECT id,value FROM $storeName';
    var controller = new StreamController&lt;V&gt;();
    _db.transaction((txn) {
@@ -160,17 +167,17 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
        }
      });
    },
-   (error) =&gt; controller.signalError(error),
+   (error) =&gt; controller.addError(error),
    () =&gt; controller.close());
-   
+
    return controller.stream;
  }
- 
+
  @override
  Future _batch(Map&lt;String, V&gt; objs) {
    var completer = new Completer();
    var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
-   
+
    _db.transaction((txn) {
        for (var key in objs.keys) {
          V obj = objs[key];
@@ -180,7 +187,7 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
      (error) =&gt; completer.completeError(error),
      () =&gt; completer.complete(true)
    );
-   
+
    return completer.future;
  }
 
@@ -189,7 +196,7 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
    var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
    var controller = new StreamController&lt;V&gt;();
-   
+
    _db.transaction((txn) {
      _keys.forEach((key) {
        txn.executeSql(sql, [key], (txn, resultSet) {
@@ -199,17 +206,17 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
        });
      });
    },
-   (error) =&gt; controller.signalError(error),
+   (error) =&gt; controller.addError(error),
    () =&gt; controller.close());
-   
+
    return controller.stream;
  }
 
  @override
  Future _removeByKeys(Iterable&lt;String&gt; _keys) {
-   var sql = 'DELETE FROM $storeName WHERE id = ?'; 
+   var sql = 'DELETE FROM $storeName WHERE id = ?';
    var completer = new Completer&lt;bool&gt;();
-   
+
    _db.transaction((txn) {
      _keys.forEach((key) {
        // TODO verify I don't need to do anything in the callback
@@ -218,7 +225,7 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
    },
    (error) =&gt; completer.completeError(error),
    () =&gt; completer.complete(true));
-   
+
    return completer.future;
  }
 
@@ -232,38 +239,54 @@ class WebSqlStore&lt;V&gt; extends Store&lt;V&gt; {
 <h3>Static Properties</h3>
 <div class="field"><h4 id="INITIAL_SIZE">
 <button class="show-code">Code</button>
-const <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>INITIAL_SIZE</strong> <a class="anchor-link"
+const <a href="http://api.dartlang.org/dart_core/int.html" ref="external">int</a>         <strong>INITIAL_SIZE</strong> <a class="anchor-link"
             href="#INITIAL_SIZE"
             title="Permalink to WebSqlStore&lt;V&gt;.INITIAL_SIZE">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-INITIAL_SIZE = 5 * 1024 * 1024
+static const int INITIAL_SIZE = 4 * 1024 * 1024
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="supported">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html" ref="external">bool</a>         <strong>supported</strong> <a class="anchor-link"
+            href="#supported"
+            title="Permalink to WebSqlStore&lt;V&gt;.supported">#</a>
+        </h4>
+        <div class="doc">
+<p>Returns true if WebSQL is supported on this platform.</p>
+<pre class="source">
+static bool get supported =&gt; SqlDatabase.supported;
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="VERSION">
 <button class="show-code">Code</button>
-final <a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>VERSION</strong> <a class="anchor-link"
+final <a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>         <strong>VERSION</strong> <a class="anchor-link"
             href="#VERSION"
             title="Permalink to WebSqlStore&lt;V&gt;.VERSION">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-VERSION = "1"
+static final String VERSION = "1"
 </pre>
 </div>
 </div>
 </div>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="WebSqlStore">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>WebSqlStore</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> dbName, <a href="http://api.dartlang.org/dart_core/String.html">String</a> storeName, {<a href="http://api.dartlang.org/dart_core/int.html">int</a> estimatedSize: INITIAL_SIZE}) <a class="anchor-link" href="#WebSqlStore"
+new <strong>WebSqlStore</strong>(<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> dbName, <a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> storeName, {<a href="http://api.dartlang.org/dart_core/int.html" ref="external">int</a> estimatedSize: INITIAL_SIZE}) <a class="anchor-link" href="#"
               title="Permalink to WebSqlStore&lt;V&gt;.WebSqlStore">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Finds the best implementation. In order: IndexedDB, WebSQL, LocalStorage.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../lawndart/Store.html">Store</a>&lt;<a href="../lawndart/WebSqlStore.html">V</a>&gt; </div></div>
 <pre class="source">
-WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
+WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE}) : super._();
 </pre>
 </div>
 </div>
@@ -272,31 +295,31 @@ WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE});
 <h3>Properties</h3>
 <div class="field"><h4 id="dbName">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>dbName</strong> <a class="anchor-link"
+<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>         <strong>dbName</strong> <a class="anchor-link"
             href="#dbName"
             title="Permalink to WebSqlStore&lt;V&gt;.dbName">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-dbName
+String dbName
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="estimatedSize">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>estimatedSize</strong> <a class="anchor-link"
+<a href="http://api.dartlang.org/dart_core/int.html" ref="external">int</a>         <strong>estimatedSize</strong> <a class="anchor-link"
             href="#estimatedSize"
             title="Permalink to WebSqlStore&lt;V&gt;.estimatedSize">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-estimatedSize
+int estimatedSize
 </pre>
 </div>
 </div>
 <div class="field inherited"><h4 id="isOpen">
 <button class="show-code">Code</button>
-final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>isOpen</strong> <a class="anchor-link"
+final <a href="http://api.dartlang.org/dart_core/bool.html" ref="external">bool</a>         <strong>isOpen</strong> <a class="anchor-link"
             href="#isOpen"
             title="Permalink to WebSqlStore&lt;V&gt;.isOpen">#</a>
         </h4>
@@ -308,13 +331,13 @@ bool get isOpen =&gt; _isOpen;
 </div>
 <div class="field"><h4 id="storeName">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>storeName</strong> <a class="anchor-link"
+<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>         <strong>storeName</strong> <a class="anchor-link"
             href="#storeName"
             title="Permalink to WebSqlStore&lt;V&gt;.storeName">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-storeName
+String storeName
 </pre>
 </div>
 </div>
@@ -323,7 +346,7 @@ storeName
 <h3>Methods</h3>
 <div class="method inherited"><h4 id="all">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/WebSqlStore.html">V</a>&gt; <strong>all</strong>() <a class="anchor-link" href="#all"
+<a href="http://api.dartlang.org/dart_async/Stream.html" ref="external">Stream</a>&lt;<a href="../lawndart/WebSqlStore.html">V</a>&gt; <strong>all</strong>() <a class="anchor-link" href="#all"
               title="Permalink to WebSqlStore&lt;V&gt;.all">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Stream of all values in no particular order.</p>
@@ -337,7 +360,7 @@ Stream&lt;V&gt; all() {
 </div>
 <div class="method inherited"><h4 id="batch">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>batch</strong>(<a href="http://api.dartlang.org/dart_core/Map.html">Map</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>, <a href="../lawndart/WebSqlStore.html">V</a>&gt; objectsByKey) <a class="anchor-link" href="#batch"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a> <strong>batch</strong>(<a href="http://api.dartlang.org/dart_core/Map.html" ref="external">Map</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>, <a href="../lawndart/WebSqlStore.html">V</a>&gt; objectsByKey) <a class="anchor-link" href="#batch"
               title="Permalink to WebSqlStore&lt;V&gt;.batch">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Stores all objects by their keys. This should happen in a single
@@ -354,7 +377,7 @@ Future batch(Map&lt;String, V&gt; objectsByKey) {
 </div>
 <div class="method inherited"><h4 id="exists">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>exists</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#exists"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html" ref="external">bool</a>&gt; <strong>exists</strong>(<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> key) <a class="anchor-link" href="#exists"
               title="Permalink to WebSqlStore&lt;V&gt;.exists">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes with true if the key exists, or false.</p>
@@ -368,7 +391,7 @@ Future&lt;bool&gt; exists(String key) {
 </div>
 <div class="method inherited"><h4 id="getByKey">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../lawndart/WebSqlStore.html">V</a>&gt; <strong>getByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#getByKey"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a>&lt;<a href="../lawndart/WebSqlStore.html">V</a>&gt; <strong>getByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> key) <a class="anchor-link" href="#getByKey"
               title="Permalink to WebSqlStore&lt;V&gt;.getByKey">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes with the value for a key,
@@ -383,7 +406,7 @@ Future&lt;V&gt; getByKey(String key) {
 </div>
 <div class="method inherited"><h4 id="getByKeys">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/WebSqlStore.html">V</a>&gt; <strong>getByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; _keys) <a class="anchor-link" href="#getByKeys"
+<a href="http://api.dartlang.org/dart_async/Stream.html" ref="external">Stream</a>&lt;<a href="../lawndart/WebSqlStore.html">V</a>&gt; <strong>getByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html" ref="external">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>&gt; _keys) <a class="anchor-link" href="#getByKeys"
               title="Permalink to WebSqlStore&lt;V&gt;.getByKeys">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Stream of all values for the keys.
@@ -399,7 +422,7 @@ Stream&lt;V&gt; getByKeys(Iterable&lt;String&gt; _keys) {
 </div>
 <div class="method inherited"><h4 id="keys">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>keys</strong>() <a class="anchor-link" href="#keys"
+<a href="http://api.dartlang.org/dart_async/Stream.html" ref="external">Stream</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>&gt; <strong>keys</strong>() <a class="anchor-link" href="#keys"
               title="Permalink to WebSqlStore&lt;V&gt;.keys">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns all the keys as a stream. No order is guaranteed.</p>
@@ -413,7 +436,7 @@ Stream&lt;String&gt; keys() {
 </div>
 <div class="method inherited"><h4 id="nuke">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>nuke</strong>() <a class="anchor-link" href="#nuke"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a> <strong>nuke</strong>() <a class="anchor-link" href="#nuke"
               title="Permalink to WebSqlStore&lt;V&gt;.nuke">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes when all values and keys
@@ -428,7 +451,7 @@ Future nuke() {
 </div>
 <div class="method"><h4 id="open">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>open</strong>() <a class="anchor-link" href="#open"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html" ref="external">bool</a>&gt; <strong>open</strong>() <a class="anchor-link" href="#open"
               title="Permalink to WebSqlStore&lt;V&gt;.open">#</a></h4>
 <div class="doc">
 <div class="inherited">
@@ -439,6 +462,10 @@ the store.</p>
 <pre class="source">
 @override
 Future&lt;bool&gt; open() {
+ if (!supported) {
+   return new Future.error(
+     new UnsupportedError('WebSQL is not supported on this platform'));
+ }
  var completer = new Completer();
  _db = window.openDatabase(dbName, VERSION, dbName, estimatedSize);
  _initDb(completer);
@@ -449,7 +476,7 @@ Future&lt;bool&gt; open() {
 </div>
 <div class="method inherited"><h4 id="removeByKey">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#removeByKey"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a> <strong>removeByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> key) <a class="anchor-link" href="#removeByKey"
               title="Permalink to WebSqlStore&lt;V&gt;.removeByKey">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes when the key's value is removed.</p>
@@ -463,7 +490,7 @@ Future removeByKey(String key) {
 </div>
 <div class="method inherited"><h4 id="removeByKeys">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; _keys) <a class="anchor-link" href="#removeByKeys"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a> <strong>removeByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html" ref="external">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>&gt; _keys) <a class="anchor-link" href="#removeByKeys"
               title="Permalink to WebSqlStore&lt;V&gt;.removeByKeys">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes when all the keys' values are removed.</p>
@@ -477,7 +504,7 @@ Future removeByKeys(Iterable&lt;String&gt; _keys) {
 </div>
 <div class="method inherited"><h4 id="save">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>save</strong>(<a href="../lawndart/WebSqlStore.html">V</a> obj, <a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#save"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>&gt; <strong>save</strong>(<a href="../lawndart/WebSqlStore.html">V</a> obj, <a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> key) <a class="anchor-link" href="#save"
               title="Permalink to WebSqlStore&lt;V&gt;.save">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Stores an 

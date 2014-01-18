@@ -5,7 +5,7 @@
         <title>MemoryStore&lt;V&gt; class / lawndart Library / Dart Documentation</title>
         <link rel="stylesheet" type="text/css"
             href="../styles.css">
-        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
         <link rel="shortcut icon" href="../favicon.ico">
         
         </head>
@@ -48,7 +48,7 @@ class MemoryStore&lt;V&gt; extends _MapStore&lt;V&gt; {
 <h3>Properties</h3>
 <div class="field inherited"><h4 id="isOpen">
 <button class="show-code">Code</button>
-final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>isOpen</strong> <a class="anchor-link"
+final <a href="http://api.dartlang.org/dart_core/bool.html" ref="external">bool</a>         <strong>isOpen</strong> <a class="anchor-link"
             href="#isOpen"
             title="Permalink to MemoryStore&lt;V&gt;.isOpen">#</a>
         </h4>
@@ -60,13 +60,13 @@ bool get isOpen =&gt; _isOpen;
 </div>
 <div class="field inherited"><h4 id="storage">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/Map.html">Map</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>, <a href="../lawndart/MemoryStore.html">V</a>&gt;         <strong>storage</strong> <a class="anchor-link"
+<a href="http://api.dartlang.org/dart_core/Map.html" ref="external">Map</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>, <a href="../lawndart/MemoryStore.html">V</a>&gt;         <strong>storage</strong> <a class="anchor-link"
             href="#storage"
             title="Permalink to MemoryStore&lt;V&gt;.storage">#</a>
         </h4>
         <div class="inherited-from">inherited from <a href="../lawndart/_MapStore.html">_MapStore</a> </div><div class="doc">
 <pre class="source">
-storage
+Map&lt;String, V&gt; storage
 </pre>
 </div>
 </div>
@@ -75,7 +75,7 @@ storage
 <h3>Methods</h3>
 <div class="method inherited"><h4 id="all">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/MemoryStore.html">V</a>&gt; <strong>all</strong>() <a class="anchor-link" href="#all"
+<a href="http://api.dartlang.org/dart_async/Stream.html" ref="external">Stream</a>&lt;<a href="../lawndart/MemoryStore.html">V</a>&gt; <strong>all</strong>() <a class="anchor-link" href="#all"
               title="Permalink to MemoryStore&lt;V&gt;.all">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Stream of all values in no particular order.</p>
@@ -89,7 +89,7 @@ Stream&lt;V&gt; all() {
 </div>
 <div class="method inherited"><h4 id="batch">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>batch</strong>(<a href="http://api.dartlang.org/dart_core/Map.html">Map</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>, <a href="../lawndart/MemoryStore.html">V</a>&gt; objectsByKey) <a class="anchor-link" href="#batch"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a> <strong>batch</strong>(<a href="http://api.dartlang.org/dart_core/Map.html" ref="external">Map</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>, <a href="../lawndart/MemoryStore.html">V</a>&gt; objectsByKey) <a class="anchor-link" href="#batch"
               title="Permalink to MemoryStore&lt;V&gt;.batch">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Stores all objects by their keys. This should happen in a single
@@ -106,7 +106,7 @@ Future batch(Map&lt;String, V&gt; objectsByKey) {
 </div>
 <div class="method inherited"><h4 id="exists">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>exists</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#exists"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html" ref="external">bool</a>&gt; <strong>exists</strong>(<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> key) <a class="anchor-link" href="#exists"
               title="Permalink to MemoryStore&lt;V&gt;.exists">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes with true if the key exists, or false.</p>
@@ -120,7 +120,7 @@ Future&lt;bool&gt; exists(String key) {
 </div>
 <div class="method inherited"><h4 id="getByKey">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../lawndart/MemoryStore.html">V</a>&gt; <strong>getByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#getByKey"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a>&lt;<a href="../lawndart/MemoryStore.html">V</a>&gt; <strong>getByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> key) <a class="anchor-link" href="#getByKey"
               title="Permalink to MemoryStore&lt;V&gt;.getByKey">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes with the value for a key,
@@ -135,7 +135,7 @@ Future&lt;V&gt; getByKey(String key) {
 </div>
 <div class="method inherited"><h4 id="getByKeys">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="../lawndart/MemoryStore.html">V</a>&gt; <strong>getByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; _keys) <a class="anchor-link" href="#getByKeys"
+<a href="http://api.dartlang.org/dart_async/Stream.html" ref="external">Stream</a>&lt;<a href="../lawndart/MemoryStore.html">V</a>&gt; <strong>getByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html" ref="external">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>&gt; _keys) <a class="anchor-link" href="#getByKeys"
               title="Permalink to MemoryStore&lt;V&gt;.getByKeys">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Stream of all values for the keys.
@@ -151,7 +151,7 @@ Stream&lt;V&gt; getByKeys(Iterable&lt;String&gt; _keys) {
 </div>
 <div class="method inherited"><h4 id="keys">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>keys</strong>() <a class="anchor-link" href="#keys"
+<a href="http://api.dartlang.org/dart_async/Stream.html" ref="external">Stream</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>&gt; <strong>keys</strong>() <a class="anchor-link" href="#keys"
               title="Permalink to MemoryStore&lt;V&gt;.keys">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns all the keys as a stream. No order is guaranteed.</p>
@@ -165,7 +165,7 @@ Stream&lt;String&gt; keys() {
 </div>
 <div class="method inherited"><h4 id="nuke">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>nuke</strong>() <a class="anchor-link" href="#nuke"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a> <strong>nuke</strong>() <a class="anchor-link" href="#nuke"
               title="Permalink to MemoryStore&lt;V&gt;.nuke">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes when all values and keys
@@ -180,7 +180,7 @@ Future nuke() {
 </div>
 <div class="method inherited"><h4 id="open">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>open</strong>() <a class="anchor-link" href="#open"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html" ref="external">bool</a>&gt; <strong>open</strong>() <a class="anchor-link" href="#open"
               title="Permalink to MemoryStore&lt;V&gt;.open">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/_MapStore.html">_MapStore</a> </div><div class="doc">
 <div class="inherited">
@@ -192,14 +192,14 @@ the store.</p>
 Future&lt;bool&gt; open() {
  storage = _generateMap();
  _isOpen = true;
- return new Future.immediate(true);
+ return new Future.value(true);
 }
 </pre>
 </div>
 </div>
 <div class="method inherited"><h4 id="removeByKey">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#removeByKey"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a> <strong>removeByKey</strong>(<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> key) <a class="anchor-link" href="#removeByKey"
               title="Permalink to MemoryStore&lt;V&gt;.removeByKey">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes when the key's value is removed.</p>
@@ -213,7 +213,7 @@ Future removeByKey(String key) {
 </div>
 <div class="method inherited"><h4 id="removeByKeys">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>removeByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; _keys) <a class="anchor-link" href="#removeByKeys"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a> <strong>removeByKeys</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html" ref="external">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>&gt; _keys) <a class="anchor-link" href="#removeByKeys"
               title="Permalink to MemoryStore&lt;V&gt;.removeByKeys">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Returns a Future that completes when all the keys' values are removed.</p>
@@ -227,7 +227,7 @@ Future removeByKeys(Iterable&lt;String&gt; _keys) {
 </div>
 <div class="method inherited"><h4 id="save">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>save</strong>(<a href="../lawndart/MemoryStore.html">V</a> obj, <a href="http://api.dartlang.org/dart_core/String.html">String</a> key) <a class="anchor-link" href="#save"
+<a href="http://api.dartlang.org/dart_async/Future.html" ref="external">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a>&gt; <strong>save</strong>(<a href="../lawndart/MemoryStore.html">V</a> obj, <a href="http://api.dartlang.org/dart_core/String.html" ref="external">String</a> key) <a class="anchor-link" href="#save"
               title="Permalink to MemoryStore&lt;V&gt;.save">#</a></h4>
 <div class="inherited-from">inherited from <a href="../lawndart/Store.html">Store</a> </div><div class="doc">
 <p>Stores an 

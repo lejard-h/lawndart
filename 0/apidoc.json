@@ -1,1 +1,1 @@
-{"name":"dart:","dependencies":[],"description":"Dart System Libraries","libraries":[{"name":"file:///Users/sethladd/Code/lawndart/lib/lawndart.dart","refId":"lawndart"}],"revision":"0"}
+{"name":"dart:","description":"Dart System Libraries","libraries":[{"refId":"lawndart"}],"revision":"0","dependencies":[]}
