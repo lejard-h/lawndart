@@ -21,7 +21,7 @@ part of lawndart;
 class WebSqlStore<V> extends Store<V> {
 
   static final String VERSION = "1";
-  static const int INITIAL_SIZE = 5 * 1024 * 1024;
+  static const int INITIAL_SIZE = 4 * 1024 * 1024;
 
   String dbName;
   String storeName;
