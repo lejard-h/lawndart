@@ -6,5 +6,4 @@ homepage: https://github.com/sethladd/lawndart
 documentation: http://sethladd.github.com/lawndart/
 dev_dependencies:
   browser: any
-  hop: any
   unittest: any
