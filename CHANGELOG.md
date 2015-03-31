@@ -1,3 +1,10 @@
+## 0.9.0
+
+* BREAKING CHANGE: creating and opening a store are the same operation
+  open() is a static method on Store
+* Using the new async/await/async*/yield features.
+* BREAKING CHANGE: No more generics. Stores are simply String => String stores now.
+
 ## 0.6.5
 
 * Reduce size of WebSQL down to 4MB, avoids permission check.

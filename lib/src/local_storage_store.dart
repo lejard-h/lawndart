@@ -19,9 +19,16 @@ part of lawndart;
  * Local storage is a synchronous API, and generally not recommended
  * unless all other storage mechanisms are unavailable.
  */
-class LocalStorageStore<V> extends _MapStore<V> {
-  @override
-  Map _generateMap() {
-    return window.localStorage;
+class LocalStorageStore extends _MapStore {
+
+  LocalStorageStore._() : super._();
+
+  static Future<LocalStorageStore> open() async {
+    var store = new LocalStorageStore._();
+    await store._open();
+    return store;
   }
+
+  @override
+  Map _generateMap() => window.localStorage;
 }

@@ -55,13 +55,9 @@ part 'src/websql_store.dart';
 
 /**
  * Represents a Store that can hold key/value pairs. No order
- * is guaranteed for either keys or values. You must
- * [open] a store before you can use it.
+ * is guaranteed for either keys or values.
  */
-abstract class Store<V> {
-  bool _isOpen = false;
-
-  bool get isOpen => _isOpen;
+abstract class Store {
 
   // For subclasses
   Store._();
@@ -69,108 +65,64 @@ abstract class Store<V> {
   /**
    * Finds the best implementation. In order: IndexedDB, WebSQL, LocalStorage.
    */
-  factory Store(String dbName, String storeName, [Map options]) {
+  static Future<Store> open(String dbName, String storeName, [Map options]) async {
+    Store store;
     if (IndexedDbStore.supported) {
-      return new IndexedDbStore(dbName, storeName);
+      store = new IndexedDbStore._(dbName, storeName);
     } else if (WebSqlStore.supported) {
       if (options != null && options['estimatedSize']) {
-        return new WebSqlStore(dbName, storeName, estimatedSize: options['estimatedSize']);
+        store = new WebSqlStore._(dbName, storeName, estimatedSize: options['estimatedSize']);
       } else {
-        return new WebSqlStore(dbName, storeName);
+        store = new WebSqlStore._(dbName, storeName);
       }
     } else {
-      return new LocalStorageStore();
+      store = new LocalStorageStore._();
     }
+
+    await store._open();
+
+    return store;
   }
 
-  _checkOpen() {
-    if (!isOpen) throw new StateError('$runtimeType is not open');
-  }
-
-  /// Returns a Future that completes when the store is opened.
-  /// You must call this method before using
-  /// the store.
-  Future open();
+  /// Opens and initializes the database.
+  Future _open();
 
   /// Returns all the keys as a stream. No order is guaranteed.
-  Stream<String> keys() {
-    _checkOpen();
-    return _keys();
-  }
-  Stream<String> _keys();
+  Stream<String> keys();
 
   /// Stores an [obj] accessible by [key].
   /// The returned Future completes with the key when the objects
   /// is saved in the store.
-  Future<String> save(V obj, String key) {
-    _checkOpen();
-    if (key == null) {
-      throw new ArgumentError("key must not be null");
-    }
-    return _save(obj, key);
-  }
-  Future _save(V obj, String key);
+  Future<String> save(String obj, String key);
 
   /// Stores all objects by their keys. This should happen in a single
   /// transaction if the underlying store supports it.
   /// The returned Future completes when all objects have been added
   /// to the store.
-  Future batch(Map<String, V> objectsByKey) {
-    _checkOpen();
-    return _batch(objectsByKey);
-  }
-  Future _batch(Map<String, V> objectsByKey);
+  Future batch(Map<String, String> objectsByKey);
 
   /// Returns a Future that completes with the value for a key,
   /// or null if the key does not exist.
-  Future<V> getByKey(String key) {
-    _checkOpen();
-    return _getByKey(key);
-  }
-  Future<V> _getByKey(String key);
+  Future<String> getByKey(String key);
 
   /// Returns a Stream of all values for the keys.
   /// If a particular key is not found,
   /// no value will be returned, not even null.
-  Stream<V> getByKeys(Iterable<String> _keys) {
-    _checkOpen();
-    return _getByKeys(_keys);
-  }
-  Stream<V> _getByKeys(Iterable<String> _keys);
+  Stream<String> getByKeys(Iterable<String> keys);
 
   /// Returns a Future that completes with true if the key exists, or false.
-  Future<bool> exists(String key) {
-    _checkOpen();
-    return _exists(key);
-  }
-  Future<bool> _exists(String key);
+  Future<bool> exists(String key);
 
   /// Returns a Stream of all values in no particular order.
-  Stream<V> all() {
-    _checkOpen();
-    return _all();
-  }
-  Stream<V> _all();
+  Stream<String> all();
 
   /// Returns a Future that completes when the key's value is removed.
-  Future removeByKey(String key) {
-    _checkOpen();
-    return _removeByKey(key);
-  }
-  Future _removeByKey(key);
+  Future removeByKey(String key);
 
   /// Returns a Future that completes when all the keys' values are removed.
-  Future removeByKeys(Iterable<String> _keys) {
-    _checkOpen();
-    return _removeByKeys(_keys);
-  }
-  Future _removeByKeys(Iterable<String> _keys);
+  Future removeByKeys(Iterable<String> keys);
 
   /// Returns a Future that completes when all values and keys
   /// are removed.
-  Future nuke() {
-    _checkOpen();
-    return _nuke();
-  }
-  Future _nuke();
+  Future nuke();
 }
