@@ -17,13 +17,13 @@ following: local storage, indexed db, and websql.
 # Example
 	  
 	  // Picks the best store available.
-	  var db = new Store("simple-run-through", 'test');
-	  db.open()
-	  .then((_) => db.nuke())
-	  .then((_) => db.save("world", "hello"))
-	  .then((_) => db.save("is fun", "dart"))
-	  .then((_) => db.getByKey("hello"))
-	  .then((value) => querySelector('#text').text = value);
+	  var db = await Store.open("simple-run-through", 'test');
+	  await db.open();
+	  await db.nuke();
+	  await db.save("world", "hello");
+	  await db.save("is fun", "dart");
+	  var value = await db.getByKey("hello");
+	  querySelector('#text').text = value;
 	  
 See the example/ directory for more sample code.
 	  
@@ -31,7 +31,7 @@ See the example/ directory for more sample code.
 
 This is now made easy for you. Simply create a new instance of Store:
 
-      var store = new Store('dbName', 'storeName');
+      var store = await Store.open('dbName', 'storeName');
       
 The factory constructor will try IndexedDB, then WebSQL, and then finally
 local storage. Of course, you can perform your own logic to choose which
@@ -39,7 +39,7 @@ option works for you.
 
 # API
 
-`Future open()`
+`Future Store.open()`
 Opens the database and makes it available for reading and writing.
 
 `Future nuke()`
@@ -77,8 +77,6 @@ Removes all values for the keys.
 
 Most methods return a Future, like `open` and `save`.
 Methods that would return many things, like `all`, return a Stream.
-
-You must call `open()` before you can use the database.
 	  
 # Supported storage mechanisms
 
@@ -119,14 +117,9 @@ This library is open source, pull requests welcome!
 
 * Seth Ladd (sethladd@gmail.com)
 
-# TODO
-
-* Handle non-String keys and values appropriately.
-* Wire into drone.io.
-
 # License
 
-	Copyright 2013 Google
+	Copyright 2015 Google
 	
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
