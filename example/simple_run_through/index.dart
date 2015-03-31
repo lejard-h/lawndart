@@ -5,29 +5,33 @@ import 'dart:html';
 import 'dart:web_sql';
 import 'dart:indexed_db';
 
-runThrough(Store store, String id) {
+runThrough(Store store, String id) async {
   var elem = querySelector('#$id');
-  store.open()
-  .then((_) => store.nuke())
-  .then((_) => store.save(id, "hello"))
-  .then((_) => store.save("is fun", "dart"))
-  .then((_) {
-    store.all()
-      .listen((value) => elem.appendText('$value, '))
-      .onDone(() => elem.appendText('all done'));
-  })
-  .catchError((e) => elem.text = e.toString());
+
+  try {
+    await store.nuke();
+    await store.save(id, "hello");
+    await store.save("is fun", "dart");
+    await for (var value in store.all()) {
+      elem.appendText('$value, ');
+    }
+    elem.appendText('all done');
+  } catch(e) {
+    elem.text = e.toString();
+  }
 }
 
-main() {
+main() async {
   if (SqlDatabase.supported) {
-    runThrough(new WebSqlStore('test', 'test'), 'websql');
+    var store = await WebSqlStore.open('test', 'test');
+    runThrough(store, 'websql');
   } else {
     querySelector('#websql').text = 'WebSQL is not supported in your browser';
   }
-  
+
   if (IdbFactory.supported) {
-    runThrough(new IndexedDbStore('test', 'test'), 'indexeddb');
+    var store = await IndexedDbStore.open('test', 'test');
+    runThrough(store, 'indexeddb');
   } else {
     querySelector('#indexeddb').text = 'IndexedDB is not supported in your browser';
   }

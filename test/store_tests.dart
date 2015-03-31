@@ -20,76 +20,20 @@ import 'dart:web_sql';
 import 'package:unittest/unittest.dart';
 import 'package:lawndart/lawndart.dart';
 
-typedef Store<String> StoreGenerator();
+typedef Future<Store> StoreGenerator();
 
 run(StoreGenerator generator) {
   Store store;
 
-  group('just open', () {
-    setUp(() => store = generator());
-
-    test('open', () {
-      var future = store.open();
-      expect(future, completion(true));
-    });
-  });
-
-  group('before open', () {
-    setUp(() => store = generator());
-
-    test('keys throws stateerror', () {
-      expect(() => store.keys(), throwsStateError);
-    });
-
-    test('save throws stateerror', () {
-      expect(() => store.save('value', 'key'), throwsStateError);
-    });
-
-    test('batch throws stateerror', () {
-      expect(() => store.batch({'foo': 'bar'}), throwsStateError);
-    });
-
-    test('get by key throws stateerror', () {
-      expect(() => store.getByKey('foo'), throwsStateError);
-    });
-
-    test('get by keys throws stateerror', () {
-      expect(() => store.getByKeys(['foo']), throwsStateError);
-    });
-
-    test('exists throws stateerror', () {
-      expect(() => store.exists('foo'), throwsStateError);
-    });
-
-    test('all throws stateerror', () {
-      expect(() => store.all(), throwsStateError);
-    });
-
-    test('remove by key throws stateerror', () {
-      expect(() => store.removeByKey('foo'), throwsStateError);
-    });
-
-    test('remove by keys throws stateerror', () {
-      expect(() => store.removeByKeys(['foo']), throwsStateError);
-    });
-
-    test('nuke throws stateerror', () {
-      expect(() => store.nuke(), throwsStateError);
-    });
-  });
-
   group('with no values', () {
-    setUp(() {
-      store = generator();
-      return store.open().then((_) => store.nuke());
+    setUp(() async {
+      store = await generator();
+      await store.nuke();
     });
 
-    test('keys is empty', () {
-      Future future = store.keys().toList();
-      future.then((keys) {
-        expect(keys, hasLength(0));
-      });
-      expect(future, completes);
+    test('keys is empty', () async {
+      var keys = await store.keys().toList();
+      expect(keys, hasLength(0));
     });
 
     test('get by key return null', () {
@@ -97,9 +41,9 @@ run(StoreGenerator generator) {
       expect(future, completion(null));
     });
 
-    test('get by keys return empty collection', () {
-      Future future = store.getByKeys(["foo"]).toList();
-      expect(future, completion(hasLength(0)));
+    test('get by keys return empty collection', () async {
+      var list = await store.getByKeys(["foo"]).toList();
+      expect(list, hasLength(0));
     });
 
     test('save completes', () {
@@ -139,13 +83,13 @@ run(StoreGenerator generator) {
   });
 
   group('with a few values', () {
-    setUp(() {
+    setUp(() async {
       // ensure it's clear for each test, see http://dartbug.com/8157
-      store = generator();
+      store = await generator();
 
-      return store.open().then((_) => store.nuke())
-          .then((_) => store.save("world", "hello"))
-          .then((_) => store.save("is fun", "dart"));
+      await store.nuke();
+      await store.save("world", "hello");
+      await store.save("is fun", "dart");
     });
 
     test('keys has them', () {
@@ -207,32 +151,27 @@ run(StoreGenerator generator) {
 }
 
 main() {
-  group('constructor', () {
-    test('factory constructor returns', () {
-      var store = new Store('dbName', 'storeName');
-    });
-  });
 
   group('memory', () {
-    run(() => new MemoryStore<String>());
+    run(() => MemoryStore.open());
   });
 
   group('local storage', () {
-    run(() => new LocalStorageStore<String>());
+    run(() => LocalStorageStore.open());
   });
 
   if (SqlDatabase.supported) {
     group('websql', () {
-      run(() => new WebSqlStore<String>('test', 'test'));
+      run(() => WebSqlStore.open('test', 'test'));
     });
   }
 
   if (IdbFactory.supported) {
     group('indexed db store0', () {
-      run(() => new IndexedDbStore("test-db", "test-store0"));
+      run(() => IndexedDbStore.open("test-db", "test-store0"));
     });
     group('indexed db store1', () {
-      run(() => new IndexedDbStore("test-db", "test-store1"));
+      run(() => IndexedDbStore.open("test-db", "test-store1"));
     });
   }
 }

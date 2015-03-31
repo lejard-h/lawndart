@@ -14,9 +14,16 @@
 
 part of lawndart;
 
-class MemoryStore<V> extends _MapStore<V> {
-  @override
-  Map<String, V> _generateMap() {
-    return new Map<String, V>();
+class MemoryStore extends _MapStore {
+
+  MemoryStore._() : super._();
+
+  static Future<MemoryStore> open() async {
+    var store = new MemoryStore._();
+    await store._open();
+    return store;
   }
+
+  @override
+  Map<String, String> _generateMap() => new Map<String, String>();
 }

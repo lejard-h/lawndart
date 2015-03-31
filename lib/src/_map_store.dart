@@ -14,64 +14,79 @@
 
 part of lawndart;
 
-abstract class _MapStore<V> extends Store<V> {
-  Map<String, V> storage;
-  
-  _MapStore() : super._();
+abstract class _MapStore extends Store {
+  Map<String, String> storage;
 
-  Future<bool> open() {
+  _MapStore._() : super._();
+
+  @override
+  Future<bool> _open() async {
     storage = _generateMap();
-    _isOpen = true;
-    return new Future.value(true);
+    return true;
   }
 
-  Map<String, V> _generateMap();
+  Map<String, String> _generateMap();
 
-  Stream<String> _keys() {
-    return new Stream.fromIterable(storage.keys);
+  @override
+  Stream<String> keys() async* {
+    for (var k in storage.keys) {
+      yield k;
+    }
   }
 
-  Future _save(V obj, String key) {
+  @override
+  Future save(String obj, String key) async {
     storage[key] = obj;
-    return new Future.value(key);
+    return key;
   }
 
-  Future _batch(Map<String, V> objs) {
+  @override
+  Future batch(Map<String, String> objs) async {
     for (var key in objs.keys) {
       storage[key] = objs[key];
     }
-    return new Future.value(true);
+    return true;
   }
 
-  Future<V> _getByKey(String key) {
-    return new Future.value(storage[key]);
+  @override
+  Future<String> getByKey(String key) async {
+    return storage[key];
   }
 
-  Stream<V> _getByKeys(Iterable<String> _keys) {
-    var values = _keys.map((key) => storage[key]).where((v) => v != null);
-    return new Stream.fromIterable(values);
+  @override
+  Stream<String> getByKeys(Iterable<String> keys) async* {
+    var values = keys.map((key) => storage[key]).where((v) => v != null);
+    for (var v in values) {
+      yield v;
+    }
   }
 
-  Future<bool> _exists(String key) {
-    return new Future.value(storage.containsKey(key));
+  @override
+  Future<bool> exists(String key) async {
+    return storage.containsKey(key);
   }
 
-  Stream<V> _all() {
-    return new Stream.fromIterable(storage.values);
+  @override
+  Stream<String> all() async* {
+    for (var v in storage.values) {
+      yield v;
+    }
   }
 
-  Future _removeByKey(String key) {
+  @override
+  Future removeByKey(String key) async {
     storage.remove(key);
-    return new Future.value(true);
+    return true;
   }
 
-  Future _removeByKeys(Iterable<String> _keys) {
-    _keys.forEach((key) => storage.remove(key));
-    return new Future.value(true);
+  @override
+  Future removeByKeys(Iterable<String> keys) async {
+    keys.forEach((key) => storage.remove(key));
+    return true;
   }
 
-  Future _nuke() {
+  Future nuke() async {
     storage.clear();
-    return new Future.value(true);
+    return true;
   }
 }

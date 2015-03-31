@@ -18,9 +18,9 @@ part of lawndart;
  * Wraps the WebSQL API and exposes it as a [Store].
  * WebSQL is a transactional database.
  */
-class WebSqlStore<V> extends Store<V> {
+class WebSqlStore extends Store {
 
-  static final String VERSION = "1";
+  static const String VERSION = "1";
   static const int INITIAL_SIZE = 4 * 1024 * 1024;
 
   String dbName;
@@ -28,73 +28,65 @@ class WebSqlStore<V> extends Store<V> {
   int estimatedSize;
   SqlDatabase _db;
 
-  WebSqlStore(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE}) : super._();
+  WebSqlStore._(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE}) : super._();
+
+  static Future<WebSqlStore> open(String dbName, String storeName, {int estimatedSize: INITIAL_SIZE}) async {
+    var store = new WebSqlStore._(dbName, storeName, estimatedSize: estimatedSize);
+    await store._open();
+    return store;
+  }
 
   /// Returns true if WebSQL is supported on this platform.
   static bool get supported => SqlDatabase.supported;
 
   @override
-  Future<bool> open() {
+  Future<bool> _open() async {
     if (!supported) {
-      return new Future.error(
-        new UnsupportedError('WebSQL is not supported on this platform'));
+      throw new UnsupportedError('WebSQL is not supported on this platform');
     }
-    var completer = new Completer();
     _db = window.openDatabase(dbName, VERSION, dbName, estimatedSize);
-    _initDb(completer);
-    return completer.future;
+    await _initDb();
+    return true;
   }
 
-  void _initDb(Completer completer) {
+  Future _initDb() {
     var sql = 'CREATE TABLE IF NOT EXISTS $storeName (id NVARCHAR(32) UNIQUE PRIMARY KEY, value TEXT)';
-
-    _db.transaction((txn) {
-      txn.executeSql(sql, [], (txn, resultSet) {
-        _isOpen = true;
-        completer.complete(true);
-      });
-    }, (error) => completer.completeError(error));
+    return _runInTxn((txn, completer) {
+      txn.executeSql(sql, []);
+    });
   }
 
   @override
-  Stream<String> _keys() {
+  Stream<String> keys() {
     var sql = 'SELECT id FROM $storeName';
-    var controller = new StreamController();
-    _db.transaction((txn) {
+    return _runInTxnWithResults((txn, controller) {
       txn.executeSql(sql, [], (txn, resultSet) {
         for (var i = 0; i < resultSet.rows.length; ++i) {
           var row = resultSet.rows.item(i);
           controller.add(row['id']);
         }
       });
-    },
-    (error) => controller.addError(error),
-    () => controller.close());
-
-    return controller.stream;
+    });
   }
 
   @override
-  Future _save(V obj, String key) {
-    var completer = new Completer();
+  Future save(String obj, String key) {
     var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
-
-    _db.transaction((txn) {
-      txn.executeSql(upsertSql, [key, obj], (txn, resultSet) {
+    return _runInTxn((txn, completer) {
+      txn.executeSql(upsertSql, [key, obj], (t,rs) {
         completer.complete(key);
       });
-    }, (error) => completer.completeError(error));
-
-    return completer.future;
+    });
   }
 
   @override
-  Future<bool> _exists(String key) {
-    return _getByKey(key).then((v) => v != null);
+  Future<bool> exists(String key) async {
+    var v = await getByKey(key);
+    return v != null;
   }
 
   @override
-  Future<V> _getByKey(String key) {
+  Future<String> getByKey(String key) {
     var completer = new Completer();
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
@@ -113,103 +105,96 @@ class WebSqlStore<V> extends Store<V> {
   }
 
   @override
-  Future _removeByKey(String key) {
-    var completer = new Completer();
+  Future removeByKey(String key) {
     var sql = 'DELETE FROM $storeName WHERE id = ?';
 
-    _db.transaction((txn) {
-      txn.executeSql(sql, [key], (txn, resultSet) {
-        // maybe later, if (resultSet.rowsAffected < 0)
-        completer.complete(true);
-      });
-    }, (error) => completer.completeError(error));
-
-    return completer.future;
+    return _runInTxn((txn, completer) {
+      txn.executeSql(sql, [key]);
+    });
   }
 
   @override
-  Future _nuke() {
-    var completer = new Completer();
-
+  Future nuke() {
     var sql = 'DELETE FROM $storeName';
-    _db.transaction((txn) {
-      txn.executeSql(sql, [], (txn, resultSet) => completer.complete(true));
-    }, (error) => completer.completeError(error));
-    return completer.future;
+    return _runInTxn((txn, completer) {
+      txn.executeSql(sql, []);
+    });
   }
 
   @override
-  Stream<V> _all() {
+  Stream<String> all() {
     var sql = 'SELECT id,value FROM $storeName';
-    var controller = new StreamController<V>();
-    _db.transaction((txn) {
+
+    return _runInTxnWithResults((txn, controller) {
       txn.executeSql(sql, [], (txn, resultSet) {
         for (var i = 0; i < resultSet.rows.length; ++i) {
           var row = resultSet.rows.item(i);
           controller.add(row['value']);
         }
       });
-    },
-    (error) => controller.addError(error),
-    () => controller.close());
-
-    return controller.stream;
+    });
   }
 
   @override
-  Future _batch(Map<String, V> objs) {
-    var completer = new Completer();
+  Future batch(Map<String, String> objs) {
     var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
 
-    _db.transaction((txn) {
-        for (var key in objs.keys) {
-          V obj = objs[key];
-          txn.executeSql(upsertSql, [key, obj]);
-        }
-      },
-      (error) => completer.completeError(error),
-      () => completer.complete(true)
-    );
-
-    return completer.future;
+    return _runInTxn((txn, completer) {
+      objs.forEach((key, value) {
+        txn.executeSql(upsertSql, [key, value]);
+      });
+    });
   }
 
   @override
-  Stream<V> _getByKeys(Iterable<String> _keys) {
+  Stream<String> getByKeys(Iterable<String> _keys) {
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
-
-    var controller = new StreamController<V>();
-
-    _db.transaction((txn) {
+    return _runInTxnWithResults((txn, controller) {
       _keys.forEach((key) {
         txn.executeSql(sql, [key], (txn, resultSet) {
-          if (!resultSet.rows.isEmpty) {
+          if (resultSet.rows.isNotEmpty) {
             controller.add(resultSet.rows.item(0)['value']);
           }
         });
       });
-    },
-    (error) => controller.addError(error),
-    () => controller.close());
-
-    return controller.stream;
+    });
   }
 
   @override
-  Future _removeByKeys(Iterable<String> _keys) {
+  Future removeByKeys(Iterable<String> _keys) {
     var sql = 'DELETE FROM $storeName WHERE id = ?';
-    var completer = new Completer<bool>();
-
-    _db.transaction((txn) {
+    return _runInTxn((txn, completer) {
       _keys.forEach((key) {
-        // TODO verify I don't need to do anything in the callback
         txn.executeSql(sql, [key]);
       });
-    },
-    (error) => completer.completeError(error),
-    () => completer.complete(true));
+    });
+  }
+
+  Future _runInTxn(callback(SqlTransaction txn, Completer completer)) {
+    var completer = new Completer();
+
+    _db.transaction((txn) => callback(txn, completer),
+        (error) => completer.completeError(error),
+        () {
+          if (!completer.isCompleted) {
+            completer.complete();
+          }
+        });
 
     return completer.future;
+  }
+
+  Stream _runInTxnWithResults(callback(SqlTransaction txn, StreamController controller)) {
+    var controller = new StreamController();
+
+    _db.transaction((txn) => callback(txn, controller),
+        (error) {
+          controller.addError(error);
+          controller.close();
+        },
+        () => controller.close());
+
+    return controller.stream;
   }
 
 }
