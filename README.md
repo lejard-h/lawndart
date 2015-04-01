@@ -16,14 +16,19 @@ following: local storage, indexed db, and websql.
 
 # Example
 	  
-	  // Picks the best store available.
-	  var db = await Store.open("simple-run-through", 'test');
-	  await db.open();
-	  await db.nuke();
-	  await db.save("world", "hello");
-	  await db.save("is fun", "dart");
-	  var value = await db.getByKey("hello");
-	  querySelector('#text').text = value;
+```dart
+// Picks the best store available.
+var db = await Store.open('simple-run-through', 'test');
+
+await db.open();
+await db.nuke();
+await db.save('world', 'hello');
+await db.save('is fun', 'dart');
+
+var value = await db.getByKey('hello');
+
+querySelector('#text').text = value;
+```
 	  
 See the example/ directory for more sample code.
 	  
@@ -31,7 +36,9 @@ See the example/ directory for more sample code.
 
 This is now made easy for you. Simply create a new instance of Store:
 
-      var store = await Store.open('dbName', 'storeName');
+```dart
+var store = await Store.open('dbName', 'storeName');
+```
       
 The factory constructor will try IndexedDB, then WebSQL, and then finally
 local storage. Of course, you can perform your own logic to choose which
@@ -93,9 +100,11 @@ support for the various storage technologies.
 Lawndart is a pub package. To install it, and link it into your app,
 add lawndart to your pubspec.yaml. For example:
 
-    name: your_cool_app
-    dependencies:
-      lawndart: any
+```yaml
+name: your_cool_app
+dependencies:
+  lawndart: any
+```
       
 If you use Dart Editor, select your project from the Files view, then go
 to Tools, and run Pub Install.
@@ -119,16 +128,18 @@ This library is open source, pull requests welcome!
 
 # License
 
-	Copyright 2015 Google
-	
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
-	
-	    http://www.apache.org/licenses/LICENSE-2.0
-	
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
+```no-highlight
+Copyright 2015 Google
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
