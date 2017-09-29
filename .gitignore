@@ -7,3 +7,6 @@ build.snapshot
 out
 test/*.js*
 .idea
+
+.packages
+.pub

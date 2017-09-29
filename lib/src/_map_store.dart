@@ -35,7 +35,7 @@ abstract class _MapStore extends Store {
   }
 
   @override
-  Future save(String obj, String key) async {
+  Future<String> save(String obj, String key) async {
     storage[key] = obj;
     return key;
   }

@@ -17,7 +17,7 @@ library store_tests;
 import 'dart:async';
 import 'dart:indexed_db';
 import 'dart:web_sql';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 import 'package:lawndart/lawndart.dart';
 
 typedef Future<Store> StoreGenerator();
@@ -77,7 +77,7 @@ run(StoreGenerator generator) {
     });
 
     test('batch completes', () {
-      Future future = store.batch({'foo':'bar'});
+      Future future = store.batch({'foo': 'bar'});
       expect(future, completes);
     });
   });
@@ -95,9 +95,9 @@ run(StoreGenerator generator) {
     test('keys has them', () {
       Future future = store.keys().toList();
       future.then((Iterable keys) {
-          expect(keys, hasLength(2));
-          expect(keys, contains("hello"));
-          expect(keys, contains("dart"));
+        expect(keys, hasLength(2));
+        expect(keys, contains("hello"));
+        expect(keys, contains("dart"));
       });
       expect(future, completes);
     });
@@ -139,7 +139,8 @@ run(StoreGenerator generator) {
     });
 
     test('remove by key', () {
-      Future future = store.removeByKey("hello").then((_) => store.all().toList());
+      Future future =
+          store.removeByKey("hello").then((_) => store.all().toList());
       future.then((remaining) {
         expect(remaining, hasLength(1));
         expect(remaining.contains("world"), false);
@@ -151,7 +152,6 @@ run(StoreGenerator generator) {
 }
 
 main() {
-
   group('memory', () {
     run(() => MemoryStore.open());
   });

@@ -15,7 +15,6 @@
 part of lawndart;
 
 class MemoryStore extends _MapStore {
-
   MemoryStore._() : super._();
 
   static Future<MemoryStore> open() async {
