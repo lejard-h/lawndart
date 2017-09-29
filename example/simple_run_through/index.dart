@@ -16,7 +16,7 @@ runThrough(Store store, String id) async {
       elem.appendText('$value, ');
     }
     elem.appendText('all done');
-  } catch(e) {
+  } catch (e) {
     elem.text = e.toString();
   }
 }
@@ -33,6 +33,7 @@ main() async {
     var store = await IndexedDbStore.open('test', 'test');
     runThrough(store, 'indexeddb');
   } else {
-    querySelector('#indexeddb').text = 'IndexedDB is not supported in your browser';
+    querySelector('#indexeddb').text =
+        'IndexedDB is not supported in your browser';
   }
 }

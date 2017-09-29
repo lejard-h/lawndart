@@ -20,7 +20,6 @@ part of lawndart;
  * unless all other storage mechanisms are unavailable.
  */
 class LocalStorageStore extends _MapStore {
-
   LocalStorageStore._() : super._();
 
   static Future<LocalStorageStore> open() async {
@@ -30,5 +29,5 @@ class LocalStorageStore extends _MapStore {
   }
 
   @override
-  Map _generateMap() => window.localStorage;
+  Map<String, String> _generateMap() => window.localStorage;
 }

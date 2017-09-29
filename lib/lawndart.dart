@@ -58,20 +58,21 @@ part 'src/websql_store.dart';
  * is guaranteed for either keys or values.
  */
 abstract class Store {
-
   // For subclasses
   Store._();
 
   /**
    * Finds the best implementation. In order: IndexedDB, WebSQL, LocalStorage.
    */
-  static Future<Store> open(String dbName, String storeName, [Map options]) async {
+  static Future<Store> open(String dbName, String storeName,
+      [Map options]) async {
     Store store;
     if (IndexedDbStore.supported) {
       store = new IndexedDbStore._(dbName, storeName);
     } else if (WebSqlStore.supported) {
       if (options != null && options['estimatedSize']) {
-        store = new WebSqlStore._(dbName, storeName, estimatedSize: options['estimatedSize']);
+        store = new WebSqlStore._(dbName, storeName,
+            estimatedSize: options['estimatedSize']);
       } else {
         store = new WebSqlStore._(dbName, storeName);
       }

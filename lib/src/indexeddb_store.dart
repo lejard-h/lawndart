@@ -19,7 +19,6 @@ part of lawndart;
  * IndexedDB is generally the preferred API if it is available.
  */
 class IndexedDbStore extends Store {
-
   static Map<String, idb.Database> _databases = new Map<String, idb.Database>();
 
   final String dbName;
@@ -52,12 +51,11 @@ class IndexedDbStore extends Store {
       db.close();
       //print('Attempting upgrading $storeName from ${db.version}');
       db = await window.indexedDB.open(dbName, version: db.version + 1,
-        onUpgradeNeeded: (e) {
-          //print('Upgrading db $dbName to ${db.version + 1}');
-          idb.Database d = e.target.result;
-          d.createObjectStore(storeName);
-        }
-      );
+          onUpgradeNeeded: (e) {
+        //print('Upgrading db $dbName to ${db.version + 1}');
+        idb.Database d = e.target.result;
+        d.createObjectStore(storeName);
+      });
     }
 
     _databases[dbName] = db;
@@ -67,12 +65,12 @@ class IndexedDbStore extends Store {
   idb.Database get _db => _databases[dbName];
 
   @override
-  Future removeByKey(String  key) {
+  Future removeByKey(String key) {
     return _runInTxn((store) => store.delete(key));
   }
 
   @override
-  Future save(String obj, String key) {
+  Future<String> save(String obj, String key) {
     return _runInTxn((store) => store.put(obj, key));
   }
 
@@ -87,7 +85,7 @@ class IndexedDbStore extends Store {
   }
 
   Future _runInTxn(Future requestCommand(idb.ObjectStore store),
-             [String txnMode = 'readwrite']) async {
+      [String txnMode = 'readwrite']) async {
     var trans = _db.transaction(storeName, txnMode);
     var store = trans.objectStore(storeName);
     var result = await requestCommand(store);

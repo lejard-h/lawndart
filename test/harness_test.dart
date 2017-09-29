@@ -12,10 +12,8 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
-import 'package:unittest/html_enhanced_config.dart';
-import 'store_tests.dart' as tests;
+import 'test_store.dart' as tests;
 
 main() {
-  useHtmlEnhancedConfiguration();
   tests.main();
 }

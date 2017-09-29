@@ -19,7 +19,6 @@ part of lawndart;
  * WebSQL is a transactional database.
  */
 class WebSqlStore extends Store {
-
   static const String VERSION = "1";
   static const int INITIAL_SIZE = 4 * 1024 * 1024;
 
@@ -28,10 +27,13 @@ class WebSqlStore extends Store {
   int estimatedSize;
   SqlDatabase _db;
 
-  WebSqlStore._(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE}) : super._();
+  WebSqlStore._(this.dbName, this.storeName, {this.estimatedSize: INITIAL_SIZE})
+      : super._();
 
-  static Future<WebSqlStore> open(String dbName, String storeName, {int estimatedSize: INITIAL_SIZE}) async {
-    var store = new WebSqlStore._(dbName, storeName, estimatedSize: estimatedSize);
+  static Future<WebSqlStore> open(String dbName, String storeName,
+      {int estimatedSize: INITIAL_SIZE}) async {
+    var store =
+        new WebSqlStore._(dbName, storeName, estimatedSize: estimatedSize);
     await store._open();
     return store;
   }
@@ -50,7 +52,8 @@ class WebSqlStore extends Store {
   }
 
   Future _initDb() {
-    var sql = 'CREATE TABLE IF NOT EXISTS $storeName (id NVARCHAR(32) UNIQUE PRIMARY KEY, value TEXT)';
+    var sql =
+        'CREATE TABLE IF NOT EXISTS $storeName (id NVARCHAR(32) UNIQUE PRIMARY KEY, value TEXT)';
     return _runInTxn((txn, completer) {
       txn.executeSql(sql, []);
     });
@@ -70,10 +73,11 @@ class WebSqlStore extends Store {
   }
 
   @override
-  Future save(String obj, String key) {
-    var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
+  Future<String> save(String obj, String key) {
+    var upsertSql =
+        'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
     return _runInTxn((txn, completer) {
-      txn.executeSql(upsertSql, [key, obj], (t,rs) {
+      txn.executeSql(upsertSql, [key, obj], (t, rs) {
         completer.complete(key);
       });
     });
@@ -137,7 +141,8 @@ class WebSqlStore extends Store {
 
   @override
   Future batch(Map<String, String> objs) {
-    var upsertSql = 'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
+    var upsertSql =
+        'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
 
     return _runInTxn((txn, completer) {
       objs.forEach((key, value) {
@@ -174,27 +179,24 @@ class WebSqlStore extends Store {
     var completer = new Completer();
 
     _db.transaction((txn) => callback(txn, completer),
-        (error) => completer.completeError(error),
-        () {
-          if (!completer.isCompleted) {
-            completer.complete();
-          }
-        });
+        (error) => completer.completeError(error), () {
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+    });
 
     return completer.future;
   }
 
-  Stream _runInTxnWithResults(callback(SqlTransaction txn, StreamController controller)) {
+  Stream _runInTxnWithResults(
+      callback(SqlTransaction txn, StreamController controller)) {
     var controller = new StreamController();
 
-    _db.transaction((txn) => callback(txn, controller),
-        (error) {
-          controller.addError(error);
-          controller.close();
-        },
-        () => controller.close());
+    _db.transaction((txn) => callback(txn, controller), (error) {
+      controller.addError(error);
+      controller.close();
+    }, () => controller.close());
 
     return controller.stream;
   }
-
 }
