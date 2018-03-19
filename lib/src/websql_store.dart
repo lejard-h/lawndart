@@ -153,9 +153,9 @@ class WebSqlStore extends Store {
     return _runInTxnWithResults((txn, controller) {
       _keys.forEach((key) async {
         final resultSet = await txn.executeSql(sql, [key]);
-          if (resultSet.rows.isNotEmpty) {
-            controller.add(resultSet.rows.item(0)['value']);
-          }
+        if (resultSet.rows.isNotEmpty) {
+          controller.add(resultSet.rows.item(0)['value']);
+        }
       });
     });
   }
