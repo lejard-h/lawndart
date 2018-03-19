@@ -1,3 +1,7 @@
+## 0.10.0
+
+* Dart 2 compliance
+
 ## 0.9.0
 
 * BREAKING CHANGE: creating and opening a store are the same operation
