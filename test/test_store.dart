@@ -93,7 +93,7 @@ run(StoreGenerator generator) {
     });
 
     test('keys has them', () {
-      Future future = store.keys().toList();
+      Future<Iterable> future = store.keys().toList();
       future.then((Iterable keys) {
         expect(keys, hasLength(2));
         expect(keys, contains("hello"));

@@ -62,13 +62,12 @@ class WebSqlStore extends Store {
   @override
   Stream<String> keys() {
     var sql = 'SELECT id FROM $storeName';
-    return _runInTxnWithResults((txn, controller) {
-      txn.executeSql(sql, [], (txn, resultSet) {
-        for (var i = 0; i < resultSet.rows.length; ++i) {
-          var row = resultSet.rows.item(i);
-          controller.add(row['id']);
-        }
-      });
+    return _runInTxnWithResults((txn, controller) async {
+      final resultSet = await txn.executeSql(sql, []);
+      for (var i = 0; i < resultSet.rows.length; ++i) {
+        var row = resultSet.rows.item(i);
+        controller.add(row['id']);
+      }
     });
   }
 
@@ -76,10 +75,9 @@ class WebSqlStore extends Store {
   Future<String> save(String obj, String key) {
     var upsertSql =
         'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
-    return _runInTxn((txn, completer) {
-      txn.executeSql(upsertSql, [key, obj], (t, rs) {
-        completer.complete(key);
-      });
+    return _runInTxn((txn, completer) async {
+      await txn.executeSql(upsertSql, [key, obj]);
+      completer.complete(key);
     });
   }
 
@@ -94,15 +92,14 @@ class WebSqlStore extends Store {
     var completer = new Completer();
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
-    _db.readTransaction((txn) {
-      txn.executeSql(sql, [key], (txn, resultSet) {
-        if (resultSet.rows.isEmpty) {
-          completer.complete(null);
-        } else {
-          var row = resultSet.rows.item(0);
-          completer.complete(row['value']);
-        }
-      });
+    _db.readTransaction((txn) async {
+      final resultSet = await txn.executeSql(sql, [key]);
+      if (resultSet.rows.isEmpty) {
+        completer.complete(null);
+      } else {
+        var row = resultSet.rows.item(0);
+        completer.complete(row['value']);
+      }
     }, (error) => completer.completeError(error));
 
     return completer.future;
@@ -129,13 +126,12 @@ class WebSqlStore extends Store {
   Stream<String> all() {
     var sql = 'SELECT id,value FROM $storeName';
 
-    return _runInTxnWithResults((txn, controller) {
-      txn.executeSql(sql, [], (txn, resultSet) {
-        for (var i = 0; i < resultSet.rows.length; ++i) {
-          var row = resultSet.rows.item(i);
-          controller.add(row['value']);
-        }
-      });
+    return _runInTxnWithResults((txn, controller) async {
+      final resultSet = await txn.executeSql(sql, []);
+      for (var i = 0; i < resultSet.rows.length; ++i) {
+        var row = resultSet.rows.item(i);
+        controller.add(row['value']);
+      }
     });
   }
 
@@ -155,12 +151,11 @@ class WebSqlStore extends Store {
   Stream<String> getByKeys(Iterable<String> _keys) {
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
     return _runInTxnWithResults((txn, controller) {
-      _keys.forEach((key) {
-        txn.executeSql(sql, [key], (txn, resultSet) {
-          if (resultSet.rows.isNotEmpty) {
-            controller.add(resultSet.rows.item(0)['value']);
-          }
-        });
+      _keys.forEach((key) async {
+        final resultSet = await txn.executeSql(sql, [key]);
+        if (resultSet.rows.isNotEmpty) {
+          controller.add(resultSet.rows.item(0)['value']);
+        }
       });
     });
   }
