@@ -71,12 +71,14 @@ class IndexedDbStore extends Store {
 
   @override
   Future<String> save(String obj, String key) {
-    return _runInTxn((store) => store.put(obj, key));
+    return _runInTxn<String>(
+        (store) async => (await store.put(obj, key)) as String);
   }
 
   @override
   Future<String> getByKey(String key) {
-    return _runInTxn((store) => store.getObject(key), 'readonly');
+    return _runInTxn<String>(
+        (store) async => (await store.getObject(key) as String), 'readonly');
   }
 
   @override
@@ -84,7 +86,7 @@ class IndexedDbStore extends Store {
     return _runInTxn((store) => store.clear());
   }
 
-  Future _runInTxn(Future requestCommand(idb.ObjectStore store),
+  Future<T> _runInTxn<T>(Future<T> requestCommand(idb.ObjectStore store),
       [String txnMode = 'readwrite']) async {
     var trans = _db.transaction(storeName, txnMode);
     var store = trans.objectStore(storeName);
@@ -93,7 +95,7 @@ class IndexedDbStore extends Store {
     return result;
   }
 
-  Stream _doGetAll(dynamic onCursor(idb.CursorWithValue cursor)) async* {
+  Stream<String> _doGetAll(String onCursor(idb.CursorWithValue cursor)) async* {
     var trans = _db.transaction(storeName, 'readonly');
     var store = trans.objectStore(storeName);
     await for (var cursor in store.openCursor(autoAdvance: true)) {
