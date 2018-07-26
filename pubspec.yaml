@@ -1,5 +1,5 @@
 name: lawndart
-version: 0.10.0
+version: 0.10.1
 author: Seth Ladd <sethladd@gmail.com>
 description: An easier way to access storage APIs in the browser.
 homepage: https://github.com/sethladd/lawndart
