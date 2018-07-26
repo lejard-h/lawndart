@@ -62,7 +62,7 @@ class WebSqlStore extends Store {
   @override
   Stream<String> keys() {
     var sql = 'SELECT id FROM $storeName';
-    return _runInTxnWithResults((txn, controller) async {
+    return _runInTxnWithResults<String>((txn, controller) async {
       final resultSet = await txn.executeSql(sql, []);
       for (var i = 0; i < resultSet.rows.length; ++i) {
         var row = resultSet.rows.item(i);
@@ -89,7 +89,7 @@ class WebSqlStore extends Store {
 
   @override
   Future<String> getByKey(String key) {
-    var completer = new Completer();
+    var completer = new Completer<String>();
     var sql = 'SELECT value FROM $storeName WHERE id = ?';
 
     _db.readTransaction((txn) async {
@@ -170,8 +170,9 @@ class WebSqlStore extends Store {
     });
   }
 
-  Future _runInTxn(callback(SqlTransaction txn, Completer completer)) {
-    var completer = new Completer();
+  Future<T> _runInTxn<T>(
+      Future<T> callback(SqlTransaction txn, Completer completer)) {
+    var completer = new Completer<T>();
 
     _db.transaction((txn) => callback(txn, completer),
         (error) => completer.completeError(error), () {
@@ -183,9 +184,9 @@ class WebSqlStore extends Store {
     return completer.future;
   }
 
-  Stream _runInTxnWithResults(
-      callback(SqlTransaction txn, StreamController controller)) {
-    var controller = new StreamController();
+  Stream<T> _runInTxnWithResults<T>(
+      Future<T> callback(SqlTransaction txn, StreamController controller)) {
+    var controller = new StreamController<T>();
 
     _db.transaction((txn) => callback(txn, controller), (error) {
       controller.addError(error);

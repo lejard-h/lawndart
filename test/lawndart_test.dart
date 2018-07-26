@@ -22,7 +22,7 @@ import 'package:lawndart/lawndart.dart';
 
 typedef Future<Store> StoreGenerator();
 
-run(StoreGenerator generator) {
+void run(StoreGenerator generator) {
   Store store;
 
   group('with no values', () {
@@ -151,7 +151,7 @@ run(StoreGenerator generator) {
   });
 }
 
-main() {
+void main() {
   group('memory', () {
     run(() => MemoryStore.open());
   });
