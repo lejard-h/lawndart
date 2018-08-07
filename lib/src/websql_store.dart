@@ -32,7 +32,7 @@ class WebSqlStore extends Store {
 
   static Future<WebSqlStore> open(String dbName, String storeName,
       {int estimatedSize: INITIAL_SIZE}) async {
-    var store =
+    final store =
         new WebSqlStore._(dbName, storeName, estimatedSize: estimatedSize);
     await store._open();
     return store;
@@ -52,7 +52,7 @@ class WebSqlStore extends Store {
   }
 
   Future _initDb() {
-    var sql =
+    final sql =
         'CREATE TABLE IF NOT EXISTS $storeName (id NVARCHAR(32) UNIQUE PRIMARY KEY, value TEXT)';
     return _runInTxn((txn, completer) {
       txn.executeSql(sql, []);
@@ -61,11 +61,11 @@ class WebSqlStore extends Store {
 
   @override
   Stream<String> keys() {
-    var sql = 'SELECT id FROM $storeName';
-    return _runInTxnWithResults((txn, controller) async {
+    final sql = 'SELECT id FROM $storeName';
+    return _runInTxnWithResults<String>((txn, controller) async {
       final resultSet = await txn.executeSql(sql, []);
       for (var i = 0; i < resultSet.rows.length; ++i) {
-        var row = resultSet.rows.item(i);
+        final row = resultSet.rows.item(i);
         controller.add(row['id']);
       }
     });
@@ -73,7 +73,7 @@ class WebSqlStore extends Store {
 
   @override
   Future<String> save(String obj, String key) {
-    var upsertSql =
+    final upsertSql =
         'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
     return _runInTxn((txn, completer) async {
       await txn.executeSql(upsertSql, [key, obj]);
@@ -83,21 +83,21 @@ class WebSqlStore extends Store {
 
   @override
   Future<bool> exists(String key) async {
-    var v = await getByKey(key);
+    final v = await getByKey(key);
     return v != null;
   }
 
   @override
   Future<String> getByKey(String key) {
-    var completer = new Completer();
-    var sql = 'SELECT value FROM $storeName WHERE id = ?';
+    final completer = new Completer<String>();
+    final sql = 'SELECT value FROM $storeName WHERE id = ?';
 
     _db.readTransaction((txn) async {
       final resultSet = await txn.executeSql(sql, [key]);
       if (resultSet.rows.isEmpty) {
         completer.complete(null);
       } else {
-        var row = resultSet.rows.item(0);
+        final row = resultSet.rows.item(0);
         completer.complete(row['value']);
       }
     }, (error) => completer.completeError(error));
@@ -107,7 +107,7 @@ class WebSqlStore extends Store {
 
   @override
   Future removeByKey(String key) {
-    var sql = 'DELETE FROM $storeName WHERE id = ?';
+    final sql = 'DELETE FROM $storeName WHERE id = ?';
 
     return _runInTxn((txn, completer) {
       txn.executeSql(sql, [key]);
@@ -116,7 +116,7 @@ class WebSqlStore extends Store {
 
   @override
   Future nuke() {
-    var sql = 'DELETE FROM $storeName';
+    final sql = 'DELETE FROM $storeName';
     return _runInTxn((txn, completer) {
       txn.executeSql(sql, []);
     });
@@ -124,12 +124,12 @@ class WebSqlStore extends Store {
 
   @override
   Stream<String> all() {
-    var sql = 'SELECT id,value FROM $storeName';
+    final sql = 'SELECT id,value FROM $storeName';
 
     return _runInTxnWithResults((txn, controller) async {
       final resultSet = await txn.executeSql(sql, []);
       for (var i = 0; i < resultSet.rows.length; ++i) {
-        var row = resultSet.rows.item(i);
+        final row = resultSet.rows.item(i);
         controller.add(row['value']);
       }
     });
@@ -137,7 +137,7 @@ class WebSqlStore extends Store {
 
   @override
   Future batch(Map<String, String> objs) {
-    var upsertSql =
+    final upsertSql =
         'INSERT OR REPLACE INTO $storeName (id, value) VALUES (?, ?)';
 
     return _runInTxn((txn, completer) {
@@ -149,7 +149,7 @@ class WebSqlStore extends Store {
 
   @override
   Stream<String> getByKeys(Iterable<String> _keys) {
-    var sql = 'SELECT value FROM $storeName WHERE id = ?';
+    final sql = 'SELECT value FROM $storeName WHERE id = ?';
     return _runInTxnWithResults((txn, controller) {
       _keys.forEach((key) async {
         final resultSet = await txn.executeSql(sql, [key]);
@@ -162,7 +162,7 @@ class WebSqlStore extends Store {
 
   @override
   Future removeByKeys(Iterable<String> _keys) {
-    var sql = 'DELETE FROM $storeName WHERE id = ?';
+    final sql = 'DELETE FROM $storeName WHERE id = ?';
     return _runInTxn((txn, completer) {
       _keys.forEach((key) {
         txn.executeSql(sql, [key]);
@@ -170,8 +170,9 @@ class WebSqlStore extends Store {
     });
   }
 
-  Future _runInTxn(callback(SqlTransaction txn, Completer completer)) {
-    var completer = new Completer();
+  Future<T> _runInTxn<T>(
+      Future<T> callback(SqlTransaction txn, Completer completer)) {
+    final completer = new Completer<T>();
 
     _db.transaction((txn) => callback(txn, completer),
         (error) => completer.completeError(error), () {
@@ -183,9 +184,9 @@ class WebSqlStore extends Store {
     return completer.future;
   }
 
-  Stream _runInTxnWithResults(
-      callback(SqlTransaction txn, StreamController controller)) {
-    var controller = new StreamController();
+  Stream<T> _runInTxnWithResults<T>(
+      Future<T> callback(SqlTransaction txn, StreamController controller)) {
+    final controller = new StreamController<T>();
 
     _db.transaction((txn) => callback(txn, controller), (error) {
       controller.addError(error);
