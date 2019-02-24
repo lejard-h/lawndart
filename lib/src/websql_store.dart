@@ -92,7 +92,8 @@ class WebSqlStore extends Store {
     final completer = new Completer<String>();
     final sql = 'SELECT value FROM $storeName WHERE id = ?';
 
-    _db.readTransaction((txn) async {
+    _db.readTransaction().then((txn) async {
+      final txn = await _db.readTransaction();
       final resultSet = await txn.executeSql(sql, [key]);
       if (resultSet.rows.isEmpty) {
         completer.complete(null);
@@ -100,7 +101,7 @@ class WebSqlStore extends Store {
         final row = resultSet.rows.item(0);
         completer.complete(row['value']);
       }
-    }, (error) => completer.completeError(error));
+    }).catchError((error) => completer.completeError(error));
 
     return completer.future;
   }
