@@ -16,14 +16,13 @@ library store_tests;
 
 import 'dart:async';
 import 'dart:indexed_db';
-import 'dart:web_sql';
 import 'package:test/test.dart';
 import 'package:lawndart/lawndart.dart';
 
 typedef Future<Store> StoreGenerator();
 
 void run(StoreGenerator generator) {
-  Store store;
+  late Store store;
 
   group('with no values', () {
     setUp(() async {
@@ -159,12 +158,6 @@ void main() {
   group('local storage', () {
     run(() => LocalStorageStore.open());
   });
-
-  if (SqlDatabase.supported) {
-    group('websql', () {
-      run(() => WebSqlStore.open('test', 'test'));
-    });
-  }
 
   if (IdbFactory.supported) {
     group('indexed db store0', () {
